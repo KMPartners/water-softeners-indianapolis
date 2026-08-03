@@ -36,10 +36,20 @@ const endpoint = import.meta.env.FORM_ENDPOINT || '/api/pre-qualify';
     and we will get right back to you.
   </p>
 
-  {/* Honeypot */}
+  {/* Honeypot — hidden from humans; bots fill it and the endpoint drops them.
+
+      NAME IS LOAD-BEARING, and must stay byte-identical to the check in
+      functions/api/pre-qualify.js. It must NOT be `company`, `website`,
+      `address`, `organization`, or `fax`: password managers auto-fill those even
+      when the field is hidden, so a real user's submission trips the honeypot
+      and is dropped — silently, because honeypot rejection deliberately fakes
+      success (a bot shown an error adapts). The user sees a form that did
+      nothing; the CRM sees nothing at all; and the success path still fires the
+      analytics conversion, so the loss is actively concealed rather than merely
+      invisible. */}
   <input
     type="text"
-    name="company"
+    name="hp_check"
     tabindex="-1"
     autocomplete="off"
     aria-hidden="true"
