@@ -1,0 +1,78 @@
+{
+  "$comment": [
+    "CLIENT CONFIG — the only file (besides brand tokens and the content tree)",
+    "a new site edits. Charter §5. Ships with placeholder values so the starter",
+    "builds green from a fresh clone; replace every value below per client.",
+    "",
+    "GOLDEN RULE (charter §1): if a value is true for ONE client only, it lives",
+    "here — never hardcoded in an Engine file.",
+    "",
+    "NEVER FABRICATE. `geo`, `rating`, and every *Confirmed flag default to",
+    "null/false, and the Engine omits the corresponding output entirely rather",
+    "than inventing it. A confirmed-false flag is a real answer; leaving it",
+    "unconfirmed is what keeps an unverified claim off the page."
+  ],
+
+  "business": {
+    "name": "Example Local Services",
+    "primaryCategory": "Local Service Provider",
+    "legalDisclaimerName": "Example Local Services LLC",
+
+    "phone": "+15555550123",
+    "phoneDisplayOverride": null,
+
+    "address": {
+      "street": "100 Example Street",
+      "city": "Anytown",
+      "state": "ST",
+      "zip": "00000",
+      "county": "Example County",
+      "country": "US"
+    },
+
+    "geo": null,
+
+    "hoursSpec": [
+      { "days": ["Monday", "Tuesday", "Wednesday", "Thursday", "Friday"], "opens": "09:00", "closes": "17:00" }
+    ],
+    "hoursConfirmed": false,
+    "hoursDisplayOverride": null,
+
+    "rating": { "value": "", "count": "" },
+    "ratingConfirmed": false
+  },
+
+  "compliance": {
+    "licensedClaimAllowed": false,
+    "bannedPhrases": [],
+    "chamberMember": false,
+    "publishGate": [],
+
+    "claimGates": {
+      "$comment": "Per-client claim gates. Each defaults false; Engine withholds the claim until the client confirms it. Add vertical-specific gates in the industry preset.",
+      "softPullConfirmed": false,
+      "creditReportingConfirmed": false
+    },
+
+    "licenseNumber": null
+  },
+
+  "geoScope": {
+    "primaryCities": ["Anytown, ST"],
+    "extendedAreas": [],
+    "counties": ["Example County"]
+  },
+
+  "site": {
+    "domain": "example.com",
+    "canonicalHost": "www",
+    "leadSecretName": "GHL_WEBHOOK_URL",
+    "leadSource": "example-website-lead",
+    "ogImage": "/og-image.png"
+  },
+
+  "brand": {
+    "tokensFile": "src/styles/tokens/colors.css",
+    "logos": {}
+  }
+}

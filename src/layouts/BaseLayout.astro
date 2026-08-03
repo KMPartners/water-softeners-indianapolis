@@ -13,7 +13,7 @@ import IconSprite from '../components/IconSprite.astro';
 import Header from '../components/Header.astro';
 import Footer from '../components/Footer.astro';
 import MobileCtaBar from '../components/MobileCtaBar.astro';
-import { SITE_URL } from '../lib/site.js';
+import { SITE_URL, NAP, OG_IMAGE } from '../lib/site.js';
 
 interface Props {
   /** Core30 rule 1 — must be byte-identical to the page's <h1> text. */
@@ -47,11 +47,11 @@ const {
   financingFooter = false,
   noindex = false,
   mobileCta = {},
-  image = '/og-image.png',
+  image = OG_IMAGE,
 } = Astro.props;
 
 const canonicalUrl = new URL(canonical, SITE_URL).href;
-const titleTag = `${title} | Beach Family Automotive`;
+const titleTag = `${title} | ${NAP.name}`;
 // Absolute share image. new URL() passes an already-absolute photo URL (e.g. an
 // Airtable vehicle photo) through unchanged, and absolutizes a site-root path.
 const ogImage = new URL(image, SITE_URL).href;
@@ -81,7 +81,7 @@ const gtmId = import.meta.env.PUBLIC_GTM_ID;
     {noindex && <meta name="robots" content="noindex,nofollow" />}
 
     <meta property="og:type" content="website" />
-    <meta property="og:site_name" content="Beach Family Automotive" />
+    <meta property="og:site_name" content={NAP.name} />
     <meta property="og:title" content={titleTag} />
     <meta property="og:description" content={description} />
     <meta property="og:url" content={canonicalUrl} />

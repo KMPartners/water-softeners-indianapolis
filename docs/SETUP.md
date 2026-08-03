@@ -211,18 +211,102 @@ What concrete has that the Beach copy in this repo does not:
 - **iOS synchronous-focus handling** so a CTA tap actually pops the keyboard,
   plus `visualViewport` detection so the mobile CTA bar doesn't cover the fields.
 
-**But do not copy concrete's transport.** It POSTs client-side straight to the
-GHL webhook with the URL hardcoded in shipped JS, so the endpoint is visible in
-view-source and its spam guards — being client-side — are bypassed by posting to
-the webhook directly. Beach's transport is the correct half: a Pages Function
-holding `GHL_WEBHOOK_URL` as a server-side secret, allow-listing fields, never
-logging PII.
+### 7.1 CORRECTION — take concrete's transport too
 
-**The Engine target is a synthesis neither donor ships today:** concrete's
-payload, consent, and UX contract, delivered over Beach's server-side transport,
-with the honeypot renamed off `company` and the spam guards re-checked on the
-server. Do not copy concrete's literal webhook URL into this repo under any
-circumstance — it is a live client endpoint. Take the pattern, not the value.
+An earlier revision of this section said concrete POSTs client-side with the
+webhook URL hardcoded in shipped JS, and that Beach's Pages Function was the
+transport to keep. **That was read off a local checkout 76 commits behind
+`origin/main`.** It described a state concrete has since fixed.
+
+On current `origin/main`, concrete already has the better transport: a
+same-origin **Workers Static Assets Worker** at `/lead` (`worker.js`, added in
+`466b2b8`) that holds `GHL_WEBHOOK_URL` as a secret, mirrors every browser spam
+guard server-side where it is authoritative (`validateLead()`), and forwards
+through an explicit 24-key allow-list, falling through to `env.ASSETS.fetch` so
+`_redirects` and `_headers` still apply.
+
+**So the Engine takes concrete's whole lead stack — payload, consent, UX, *and*
+transport.** Beach's `functions/api/pre-qualify.js`, currently sitting in this
+repo, is the weaker implementation on every axis and should be replaced rather
+than extended. Two things still travel from Beach: nothing in the lead path.
+
+Carry these specific properties, each of which exists because something broke:
+
+- **Allow-list, never deny-list.** A deny-list requires predicting what an
+  attacker sends. Concrete's incident: a lead arrived carrying a full street
+  address — a field the form has no input for — because the browser was the only
+  validator.
+- **Guards mirrored server-side and authoritative there.** Client-side guards are
+  decorative; they document intent, they don't enforce it.
+- **Honeypot failures return silently; time-trap failures show an error.** A bot
+  shown an error learns to fix itself; a human who trips the 2.5s trap needs to
+  know.
+- **Honeypot name derived per-site**, never `company`/`website`/`address`/
+  `organization`/`fax`. Password managers auto-fill those even when hidden,
+  silently dropping real leads with no symptom on either side. Per-site
+  derivation also means learning one site's honeypot doesn't reveal the next's.
+- **Phone normalized on the server**, stripping a leading `1` from 11 digits.
+  Left in, GHL prepends its own `+1` and Twilio rejects the result at *send*
+  time — the lead looks fine in the CRM and silently fails to be textable days
+  later.
+- **Consent keys always present**, five per block, empty strings when unchecked.
+  A payload shape that varies by user gives GHL's field mapper a UI that changes
+  depending on whose submission primed it.
+- **`form_id` as a provenance assertion** the server hard-rejects on mismatch.
+
+### 7.2 Known gaps to fix while carving (do not copy forward)
+
+- **`ghl-provision-fields.js` provisions 14 fields; the payload has 24 keys.**
+  Four have nowhere to land: `project_type` and `job_description` (assumed
+  pre-existing because concrete migrated onto an existing sub-account — **a
+  greenfield client has neither**), `source_page`, and `submitted_at`. Losing
+  `source_page` silently breaks the which-page-produced-this-lead loop, which is
+  the entire ROI feedback path for a Core30 site. Raise `DESIRED` to 17+ and
+  generate it **from** the Engine's lead contract so the symmetry is lintable
+  rather than aspirational.
+- **The consent scrape fails silently.** If `.consent-text` is renamed or moved
+  out of the label, `_text` stores `""` and the lead still submits — checked-box
+  and broken-markup are indistinguishable at rest. Add a build-time assertion
+  that every `.consent-check` holds a non-empty `.consent-text` and that no
+  consent box carries `checked`.
+- **`.consent-text` / `.consent-check` are load-bearing API, not styling hooks.**
+  Whatever the Engine names them, that name is contract.
+- **Do not port concrete's regex-based schema audits.** They key on a literal
+  two-space indent and will silently pass generated JSON-LD — which is exactly
+  what this Engine emits. Parse the JSON and walk the object.
+- **Licensure lint must ban self-claiming phrases, not the substring `licens`.**
+  Concrete has 18 legitimate matches (third-party licensed landfills, Carmel's
+  "License and Permit bond"). A lint that cries wolf gets `--skip`-ed, and then
+  the rule is dead. Precision *is* the safety property.
+
+**Never copy concrete's literal webhook URL into this repo.** See §7.3.
+
+### 7.3 Security finding in the donor — needs a decision before carving
+
+The live GHL inbound-webhook URL is committed in plaintext on concrete's
+`origin/main`, in **three** tracked files (the audit report named only the
+first):
+
+- `lead-form-hardening.md`
+- `.env.example`
+- `scripts/ghl-webhook-test.js`
+
+**Not currently served.** Verified against `build.mjs`: `.md` is in
+`SKIP_FILE_EXTS`, `scripts/` is in `SKIP_DIRS`, and dotfiles never ship. The
+repo is private. Exposure today is low.
+
+**The risk is this program.** In GHL an inbound-webhook URL *is* the credential —
+there is no separate auth on it. Copying any of those three files into this
+starter propagates a live client credential into the upstream repo every future
+client site forks from. `.env.example` matters most here, because it is exactly
+the file Phase 1 already copies as the variable-name contract.
+
+Recommended, in order: **rotate the webhook URL** (this makes the committed
+copies inert and is cheaper than history surgery on a private repo), scrub the
+value from all three files, and add a committed-secret grep to `core30-lint` so
+the next one is caught the day it lands. When concrete's `.env.example` is
+carved, it gets the same treatment this repo's already had — names only, no
+values.
 
 **Charter note:** §3 sources the lead form and endpoint from Beach, which is
 what steered Phase 1. §3 *already* names concrete's `ghl-*.js` family as Engine

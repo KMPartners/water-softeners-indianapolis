@@ -23,7 +23,11 @@
  * Route: POST /api/pre-qualify
  */
 
-const LEAD_SOURCE = 'beachfamily-website-prequal';
+// Per-client lead tag. Mirrors site.config.json -> site.leadSource; kept as a
+// literal because Cloudflare Pages Functions are bundled separately from the
+// Astro build and cannot import the config module. Phase 2 follow-up: inject it
+// at build time so the two cannot drift.
+const LEAD_SOURCE = 'example-website-lead';
 const LEAD_TAG = 'web-prequal';
 
 const str = (v) => (v == null ? '' : String(v).trim());

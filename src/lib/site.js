@@ -1,119 +1,153 @@
 /**
- * NAP + business constants. One source of truth so the address, phone, and
- * hours are byte-identical everywhere they appear — visible copy, footer, and
- * every JSON-LD block (CLAUDE.md: "keep identical everywhere + in schema").
+ * The client-config seam (charter §5).
+ *
+ * This file is ENGINE and contains **zero client facts**. Every value comes
+ * from `site.config.json` at the repo root, which is the only place a new site
+ * edits its NAP, hours, rating, service area, and compliance posture.
+ *
+ * The exports below are the stable contract every component, page, and schema
+ * builder imports. Their SHAPES never change; only the config behind them does.
+ *
+ * Formats are DERIVED, not re-entered. One `business.phone` in E.164 produces
+ * the tel:, sms:, schema, and display forms, so the four can never drift out of
+ * sync — which is the whole reason this file exists (CLAUDE.md: "keep identical
+ * everywhere + in schema"). Same for hours: one `hoursSpec` drives both the
+ * visible string and `openingHoursSpecification`.
+ *
+ * NEVER FABRICATE. `geo`, `rating`, and the claim gates are absent/false by
+ * default, and every consumer omits its output entirely rather than inventing a
+ * value. That is a deliberate Core30 rule, not a TODO.
  */
 
-// Canonical host is the www subdomain (owner's choice). The bare apex
-// beachfamilyauto.com 301-redirects to this at the Cloudflare edge (see
-// docs/cloudflare-domain-setup.md) — the app only ever emits the www form, so
-// canonical <link>s, JSON-LD `url`, and the sitemap all agree on one host.
-export const SITE_URL = 'https://www.beachfamilyauto.com';
+import config from '../../site.config.json';
 
+const { business, compliance, geoScope, site } = config;
+
+/* ── Phone ──────────────────────────────────────────────────────────────────
+   Single E.164 source -> every rendered form. US/NANP numbers get a formatted
+   display; anything else falls back to the raw E.164 unless the config supplies
+   `phoneDisplayOverride`, so a non-US client is never silently mis-formatted. */
+const E164 = String(business.phone || '').trim();
+const NANP = /^\+1(\d{3})(\d{3})(\d{4})$/.exec(E164);
+
+const phoneDisplay =
+  business.phoneDisplayOverride ||
+  (NANP ? `(${NANP[1]}) ${NANP[2]}-${NANP[3]}` : E164);
+
+const phoneSchema = NANP ? `+1-${NANP[1]}-${NANP[2]}-${NANP[3]}` : E164;
+
+/* ── Canonical host ─────────────────────────────────────────────────────────
+   Built from domain + canonicalHost so this and `site:` in astro.config.mjs
+   cannot name different hosts. Canonical <link>s, JSON-LD `url`, and the
+   sitemap all read from here. */
+export const SITE_URL =
+  site.canonicalHost === 'apex'
+    ? `https://${site.domain}`
+    : `https://${site.canonicalHost}.${site.domain}`;
+
+/* ── NAP ────────────────────────────────────────────────────────────────────
+   One source of truth so the name, address, and phone are byte-identical in
+   visible copy, the footer, and every JSON-LD block. */
 export const NAP = {
-  name: 'Beach Family Automotive',
-  streetAddress: '601 Dr. M.L.K. Jr Blvd',
-  addressLocality: 'Anderson',
-  addressRegion: 'IN',
-  postalCode: '46016',
-  addressCountry: 'US',
-  county: 'Madison County',
-  phoneDisplay: '(765) 274-1878',
-  phoneTel: 'tel:+17652741878',
-  phoneSms: 'sms:+17652741878',
-  phoneSchema: '+1-765-274-1878',
+  name: business.name,
+  streetAddress: business.address.street,
+  addressLocality: business.address.city,
+  addressRegion: business.address.state,
+  postalCode: business.address.zip,
+  addressCountry: business.address.country || 'US',
+  county: business.address.county,
+  phoneDisplay,
+  phoneTel: `tel:${E164}`,
+  phoneSms: `sms:${E164}`,
+  phoneSchema,
 };
 
-/**
- * VERIFY:geo — deliberately absent.
- *
- * CLAUDE.md rule 7 is explicit: "geo is always the real 601 Dr. M.L.K. Jr Blvd
- * coordinate — never fabricate." No confirmed coordinate exists yet, so no geo
- * property is emitted at all. Add the real lat/lng here and it flows into every
- * AutoDealer/AutoRepair block automatically.
- */
-export const GEO = null;
+/** Legal-entity name for disclaimers; falls back to the trading name. */
+export const LEGAL_NAME = business.legalDisclaimerName || business.name;
 
 /**
- * hours — CONFIRMED by the owner (site review, 2026-07-28).
- *   Mon–Fri 9 AM–5 PM · Sat 10 AM–4 PM · Closed Sun.
- * This resolved the earlier VERIFY:hours conflict between CLAUDE.md
- * ("Mon–Sat 9–6") and glossary.md ("Mon–Fri 10–6 · Sat by appt"); neither was
- * right. Now that days and times are confirmed, they are also emitted in schema
- * (openingHoursSpecification below).
+ * geo — null unless a REAL coordinate is configured. Never fabricate one: a
+ * wrong coordinate puts a business on the map at an address it does not
+ * occupy. Consumers emit no `geo` property at all when this is null.
  */
-export const HOURS_DISPLAY = 'Mon–Fri 9–5 · Sat 10–4';
-export const HOURS_CONFIRMED = true;
+export const GEO = business.geo;
+
+/* ── Hours ──────────────────────────────────────────────────────────────────
+   `HOURS_SPEC` is the machine form (schema.org openingHoursSpecification, 24h
+   "HH:MM"). `HOURS_DISPLAY` is derived from it so the visible string can never
+   contradict the structured data. Set `hoursDisplayOverride` only when a shop's
+   real-world hours don't fit the pattern (e.g. "by appointment"). */
+export const HOURS_SPEC = business.hoursSpec || [];
+export const HOURS_CONFIRMED = business.hoursConfirmed === true;
+
+const DAY_ABBR = {
+  Monday: 'Mon', Tuesday: 'Tue', Wednesday: 'Wed', Thursday: 'Thu',
+  Friday: 'Fri', Saturday: 'Sat', Sunday: 'Sun',
+};
+const DAY_ORDER = Object.keys(DAY_ABBR);
+
+/** "09:00" -> "9", "16:30" -> "4:30". 12-hour, bare, matching Core30 copy style. */
+function shortTime(hhmm) {
+  const [h, m] = String(hhmm).split(':');
+  const hour = Number(h) % 12 || 12;
+  return m === '00' ? String(hour) : `${hour}:${m}`;
+}
+
+/** Collapses a contiguous day run to "Mon–Fri"; leaves gaps as "Mon, Wed". */
+function dayRange(days) {
+  if (!days || !days.length) return '';
+  const idx = days.map((d) => DAY_ORDER.indexOf(d)).sort((a, b) => a - b);
+  const contiguous = idx.every((n, i) => i === 0 || n === idx[i - 1] + 1);
+  if (contiguous && idx.length > 1) {
+    return `${DAY_ABBR[DAY_ORDER[idx[0]]]}–${DAY_ABBR[DAY_ORDER[idx[idx.length - 1]]]}`;
+  }
+  return idx.map((n) => DAY_ABBR[DAY_ORDER[n]]).join(', ');
+}
+
+export const HOURS_DISPLAY =
+  business.hoursDisplayOverride ||
+  HOURS_SPEC.map((h) => `${dayRange(h.days)} ${shortTime(h.opens)}–${shortTime(h.closes)}`)
+    .join(' · ');
 
 /**
- * Structured hours for schema.org openingHoursSpecification. Only consumed when
- * HOURS_CONFIRMED is true. 24-hour "HH:MM" per schema.org. Sunday is omitted
- * because the shop is closed.
+ * rating — renders and enters schema ONLY when confirmed. An unconfirmed or
+ * guessed aggregateRating is both a Core30 violation and a rich-result penalty
+ * risk, so the gate is a hard boolean, not a truthiness check on the value.
  */
-export const HOURS_SPEC = [
-  { days: ['Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday'], opens: '09:00', closes: '17:00' },
-  { days: ['Saturday'], opens: '10:00', closes: '16:00' },
-];
+export const RATING_CONFIRMED = business.ratingConfirmed === true;
+export const RATING = business.rating || { value: '', count: '' };
 
-/**
- * rating — CONFIRMED, ON. Follow-up to the site review (2026-07-29): the owner
- * confirmed Beach Family has a SINGLE Google Business Profile, and that 4.2★ / 15
- * matches it exactly. With only one listing there is no wrong-entity risk, so the
- * rating attaches cleanly to the dealership (the primary entity / AutoDealer
- * node) and renders again on the homepage hero card and in schema.
- *
- * It stays OFF the AutoRepair node (autoRepair defaults withRating:false) so the
- * one listing's rating is never double-stamped onto a second entity.
- */
-export const RATING_CONFIRMED = true;
-export const RATING = { value: '4.2', count: '15' };
+/* ── Compliance posture (charter §5) ────────────────────────────────────────
+   The per-client legal seam. `core30-lint` reads these; so does page copy, so a
+   claim the client has not confirmed simply does not render. */
+export const COMPLIANCE = compliance;
+export const LICENSED_CLAIM_ALLOWED = compliance.licensedClaimAllowed === true;
+export const BANNED_PHRASES = compliance.bannedPhrases || [];
+export const CHAMBER_MEMBER = compliance.chamberMember === true;
+export const PUBLISH_GATE = compliance.publishGate || [];
+export const LICENSE_NUMBER = compliance.licenseNumber;
 
-/**
- * soft-pull — CONFIRMED, claim ON. The owner confirmed pre-qualifying involves
- * NO credit check at all (site review, 2026-07-28: "We do not check credit at
- * all to pre-qualify"). That is even stronger than a soft pull, so the
- * "no impact to your credit score" claim is now accurate and renders everywhere
- * it belongs. The wording deliberately stays "no credit check / no impact",
- * never a promised approval outcome.
- */
-export const SOFT_PULL_CONFIRMED = true;
+const gates = compliance.claimGates || {};
+export const SOFT_PULL_CONFIRMED = gates.softPullConfirmed === true;
+export const CREDIT_REPORTING_CONFIRMED = gates.creditReportingConfirmed === true;
 
-/**
- * credit-reporting — CONFIRMED as NO, claim stays OFF (permanently, not
- * pending). The owner confirmed payments are NOT reported to the bureaus (site
- * review, 2026-07-28: "No — we do not report"). The design reference wanted to
- * say "we report on-time payments … helps rebuild your credit"; asserting that
- * would be a promised outcome the customer relies on, and it is not true here,
- * so every credit-building / reporting claim remains withheld.
- */
-export const CREDIT_REPORTING_CONFIRMED = false;
-
-/**
- * service-area — updated from the owner's site-review answer (2026-07-28), which
- * added Middletown, Lapel, Markleville, and Daleville to the towns served. The
- * previously-listed nearby Madison-County towns are kept (he added, did not ask
- * to remove any); Anderson is the home lot.
- */
+/* ── Service area ───────────────────────────────────────────────────────────
+   `AREA_SERVED` is the schema list (primary + extended). `NEARBY_TOWNS_PROSE`
+   is the body-copy form, derived from the EXTENDED areas only — the home city
+   is always named separately in copy, so including it here would double it. */
 export const AREA_SERVED = [
-  'Anderson, IN',
-  'Pendleton, IN',
-  'Chesterfield, IN',
-  'Alexandria, IN',
-  'Elwood, IN',
-  'Edgewood, IN',
-  'Lapel, IN',
-  'Markleville, IN',
-  'Middletown, IN',
-  'Daleville, IN',
+  ...(geoScope.primaryCities || []),
+  ...(geoScope.extendedAreas || []),
 ];
 
-/**
- * Prose form of the service area for body copy (Anderson is named separately as
- * the home lot, so it is omitted here). One source so every page's local-notes
- * paragraph stays consistent with the schema list above.
- */
-export const NEARBY_TOWNS_PROSE =
-  'Pendleton, Lapel, Chesterfield, Markleville, Alexandria, Middletown, Elwood, and Daleville';
+export const COUNTIES = geoScope.counties || [];
 
-/** VERIFY:dealer-license — Indiana used-car dealer license number not supplied. */
-export const DEALER_LICENSE = null;
+const townNames = (geoScope.extendedAreas || []).map((t) => String(t).split(',')[0].trim());
+export const NEARBY_TOWNS_PROSE =
+  townNames.length > 1
+    ? `${townNames.slice(0, -1).join(', ')}, and ${townNames[townNames.length - 1]}`
+    : townNames[0] || '';
+
+/** Lead-tagging source + og fallback image, both per-client. */
+export const LEAD_SOURCE = site.leadSource;
+export const OG_IMAGE = site.ogImage;
