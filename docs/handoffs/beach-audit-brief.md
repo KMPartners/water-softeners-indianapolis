@@ -81,10 +81,18 @@ suggest writing it outside this repo to keep the client site clean.
 
 ### 3.1 Completeness audit
 
-Charter §3 names `InquiryForm.astro` and `ServiceForm.astro` as Engine
-components. **They do not appear to exist here** — `PreQualForm.astro` seems to
-be the only lead form. Confirm or refute. If some equivalent exists under
-another name, say where.
+> **Retracted claim.** An earlier version of this brief said charter §3 names
+> `InquiryForm.astro` and `ServiceForm.astro` but that they "do not exist here."
+> **They exist** — added in `cf55a10` and `ce07f40`, after the commit Phase 1
+> carved from. The charter was right; the carve was reading a stale checkout.
+> Both are now copied into the starter. **Before you assert anything about this
+> repo, run `git fetch origin && git rev-list --count HEAD..origin/main` and make
+> sure it is zero** — that check is the reason this paragraph had to be rewritten.
+
+Phase 1 carved from `b9f2c70`; ten commits have landed since. Confirm what else
+drifted, and whether the multi-intent lead pipeline those two commits introduced
+(`InquiryForm`, `ServiceForm`, and the `pre-qualify.js` changes that accompany
+them) is Engine material, preset material, or client-specific.
 
 Then: **what else in this repo is genuinely Engine material that Phase 1 did not
 take?** Candidates to assess — `src/lib/review-questions.js`, `reviews.js`, the

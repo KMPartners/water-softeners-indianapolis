@@ -20,9 +20,10 @@ human decision.
 Two further prohibitions:
 
 - **Never copy a real secret, webhook URL, API key, or client contact detail
-  into any report or any other repo.** `contact-form.js` contains a live GHL
-  webhook URL. Refer to it as "the webhook URL constant" — never reproduce the
-  value. Same for any real customer name, review, email, or phone.
+  into any report or any other repo.** A live GHL webhook URL is committed in
+  three tracked files here (`.env.example`, `lead-form-hardening.md`,
+  `scripts/ghl-webhook-test.js`). Name the file, never the value. Same for any
+  real customer name, review, email, or phone.
 - **Never copy this client's content** — copy, photos, service descriptions,
   city pages. The starter takes *patterns*, never content (charter §11).
 
@@ -55,6 +56,23 @@ methodology in a leaf site only."* This repo is where the proven fixes live.
 
 ## 2. Background: what was already found
 
+> **This section was WRONG and has been corrected.** It was written from a local
+> checkout **76 commits behind origin/main** and described an architecture this
+> repo had already replaced. An audit session caught it. Before asserting
+> anything here, run `git fetch origin && git rev-list --count HEAD..origin/main`
+> and confirm it is zero; if not, read via `git show origin/main:<path>`.
+>
+> Specifically: this repo does **not** POST client-side to GHL. `worker.js`
+> (added `466b2b8`) proxies `/lead` server-side, holds the webhook as a secret,
+> mirrors every spam guard authoritatively, and forwards through a 24-key
+> allow-list. The starter takes **this repo's whole lead stack, transport
+> included** — not Beach's Pages Function.
+>
+> A live GHL webhook URL is committed in three tracked files here
+> (`.env.example`, `lead-form-hardening.md`, `scripts/ghl-webhook-test.js`).
+> None are served, but in GHL that URL *is* the credential. Never reproduce the
+> value; never copy those files into the starter unscrubbed.
+
 A prior session established the following. **Verify each claim rather than
 trusting it** — that is part of the job.
 
@@ -78,11 +96,11 @@ starter copied from Beach. Specifically:
   name splitting for CRM dedup, phone normalization, and four dataLayer events
   under an explicit no-PII policy.
 
-**One known architectural weakness** (report on it, do not fix): the form POSTs
-client-side directly to the GHL webhook, so the endpoint is visible in
-view-source and the spam guards — being client-side — can be bypassed by posting
-to the webhook directly. The starter will pair this repo's payload/consent/UX
-contract with Beach's server-side Cloudflare Pages Function transport.
+**The residual architectural note** (report on it, do not fix): the GHL inbound
+webhook remains POST-able directly from GHL's side by anyone who holds the URL.
+Code cannot close that — the endpoint is GHL's. The answer is a workflow-level
+filter inside GHL. Treat it as a required step in the starter's setup runbook,
+not a footnote.
 
 ---
 
