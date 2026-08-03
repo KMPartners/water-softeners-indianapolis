@@ -1,0 +1,78 @@
+/* ============================================================
+   BASE, resets, defaults, shared primitives (Beach Family Automotive)
+   Depends on colors/typography/spacing tokens.
+   ============================================================ */
+* { box-sizing: border-box; }
+html, body { margin: 0; padding: 0; }
+body {
+  font-family: var(--font-body);
+  background: var(--surface);
+  color: var(--text);
+  line-height: var(--lh-body);
+  -webkit-font-smoothing: antialiased;
+  text-rendering: optimizeLegibility;
+}
+img, svg, video { display: block; max-width: 100%; }
+
+/* Links, brand default so editor-added links are never browser-blue */
+a { color: var(--accent-press); text-decoration: none; transition: color var(--dur-fast) var(--ease); }
+a:hover { color: var(--accent); }
+
+button { font-family: inherit; cursor: pointer; border: none; background: none; padding: 0; color: inherit; }
+:focus-visible { outline: 2px solid var(--focus); outline-offset: 2px; }
+
+h1,h2,h3,h4 { font-family: var(--font-display); color: var(--text); margin: 0; }
+
+/* ---- Layout helpers ---- */
+.container { max-width: var(--container); margin: 0 auto; padding: 0 var(--container-pad); }
+.container-narrow { max-width: var(--container-narrow); margin: 0 auto; padding: 0 var(--container-pad); }
+.section { padding: var(--section-y) 0; }
+
+/* ---- Buttons (shared) ---- */
+.btn {
+  display: inline-flex; align-items: center; justify-content: center; gap: 8px;
+  font-family: var(--font-display);
+  font-weight: var(--fw-bold);
+  font-size: var(--fs-sm);
+  letter-spacing: -0.005em;
+  padding: 13px 20px;
+  border-radius: var(--radius-1);
+  white-space: nowrap;
+  transition: transform var(--dur-fast) var(--ease), background var(--dur-fast) var(--ease), border-color var(--dur-fast) var(--ease);
+  min-height: 44px;
+}
+.btn-primary { background: var(--accent); color: var(--accent-ink); box-shadow: inset 0 -3px 0 var(--accent-press); }
+.btn-primary:hover { background: var(--accent-hover); transform: translateY(-1px); color: var(--accent-ink); }
+.btn-primary:active { transform: translateY(0); box-shadow: inset 0 -1px 0 var(--accent-press); }
+.btn-navy { background: var(--brand); color: var(--white); }
+.btn-navy:hover { background: var(--navy-600); color: var(--white); transform: translateY(-1px); }
+.btn-ghost { background: transparent; color: var(--text); border: var(--bw) solid var(--border-strong); }
+.btn-ghost:hover { border-color: var(--brand); background: var(--surface-2); color: var(--text); }
+.btn-on-slab { background: transparent; color: var(--white); border: var(--bw) solid var(--border-on-slab); }
+.btn-on-slab:hover { background: var(--navy-600); color: var(--white); }
+.btn-lg { padding: 16px 26px; font-size: var(--fs-h4); min-height: 52px; }
+.btn-block { display: flex; width: 100%; }
+
+/* ---- Eyebrow / mono label ---- */
+.eyebrow {
+  font-family: var(--font-mono);
+  font-size: var(--fs-label);
+  letter-spacing: var(--track-label);
+  text-transform: uppercase;
+  color: var(--text-muted);
+  display: inline-flex; align-items: center; gap: 8px;
+}
+.eyebrow::before { content: ""; width: 20px; height: 1px; background: var(--accent); }
+
+/* ---- Tabular numbers helper ---- */
+.num { font-variant-numeric: tabular-nums lining-nums; font-feature-settings: "tnum" 1, "lnum" 1; }
+
+/* ---- Accent underline for links in prose ---- */
+.link-underline {
+  color: var(--text);
+  background-image: linear-gradient(var(--accent), var(--accent));
+  background-repeat: no-repeat; background-size: 0% 2px; background-position: 0 100%;
+  transition: background-size var(--dur) var(--ease);
+  padding-bottom: 2px;
+}
+.link-underline:hover { background-size: 100% 2px; color: var(--text); }

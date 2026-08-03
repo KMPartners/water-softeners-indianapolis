@@ -1,0 +1,60 @@
+/* ============================================================
+   TYPOGRAPHY, Beach Family Automotive
+   Families, fluid type scale, weights, and numeral settings.
+   Prices/payments/mileage/VIN rely on TABULAR figures.
+   ============================================================ */
+:root {
+  /* ---- Families ---- */
+  --font-display: 'Archivo', system-ui, sans-serif;      /* headlines, signage, numbers */
+  --font-body:    'Public Sans', system-ui, sans-serif;  /* body, UI */
+  --font-mono:    'JetBrains Mono', ui-monospace, monospace; /* eyebrows, VIN, specs */
+
+  /* ---- Weights ---- */
+  --fw-regular: 400; /* @kind font */
+  --fw-medium:  500; /* @kind font */
+  --fw-semibold:600; /* @kind font */
+  --fw-bold:    700; /* @kind font */
+  --fw-heavy:   800; /* @kind font */
+  --fw-black:   900; /* @kind font */
+
+  /* ---- Fluid scale (mobile-first; clamps to desktop) ---- */
+  --fs-hero:   clamp(38px, 8vw, 92px);   /* @kind font */ /* H1 hero signage */
+  --fs-page-h1:clamp(30px, 6vw, 60px);   /* @kind font */ /* inner-page H1 */
+  --fs-h2:     clamp(26px, 4vw, 44px);   /* @kind font */
+  --fs-h3:     clamp(20px, 2.6vw, 28px); /* @kind font */
+  --fs-h4:     clamp(17px, 2vw, 21px);   /* @kind font */
+  --fs-lede:   clamp(17px, 2vw, 20px);   /* @kind font */ /* goal-completion paragraph */
+  --fs-body:   16px;   /* @kind font */
+  --fs-sm:     14px;   /* @kind font */
+  --fs-xs:     12.5px; /* @kind font */
+  --fs-label:  11px;   /* @kind font */ /* mono eyebrows */
+
+  /* ---- Line heights ---- */
+  --lh-tight:  0.95;   /* @kind font */ /* display */
+  --lh-snug:   1.15;   /* @kind font */
+  --lh-body:   1.55;   /* @kind font */
+
+  /* ---- Tracking ---- */
+  --track-display: -0.03em; /* @kind font */
+  --track-tight:   -0.02em; /* @kind font */
+  --track-label:   0.16em;  /* @kind font */ /* mono uppercase eyebrows */
+  --track-mono:    0.02em;  /* @kind font */
+
+  /* ---- Numeral feature: tabular + lining ---- */
+  --numeric-tabular: "tnum" 1, "lnum" 1; /* @kind font */
+}
+
+/* Utility classes consumers can lean on */
+.bfa-display { font-family: var(--font-display); font-weight: var(--fw-heavy); letter-spacing: var(--track-display); line-height: var(--lh-tight); }
+.bfa-mono    { font-family: var(--font-mono); }
+.bfa-eyebrow {
+  font-family: var(--font-mono);
+  font-size: var(--fs-label);
+  letter-spacing: var(--track-label);
+  text-transform: uppercase;
+  color: var(--text-muted);
+  display: inline-flex; align-items: center; gap: 8px;
+}
+.bfa-eyebrow::before { content: ""; width: 20px; height: 1px; background: currentColor; opacity: 0.6; }
+/* Numbers: apply to any price/payment/mileage/VIN */
+.bfa-num { font-variant-numeric: tabular-nums lining-nums; font-feature-settings: var(--numeric-tabular); }

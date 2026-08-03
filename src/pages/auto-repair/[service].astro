@@ -1,0 +1,202 @@
+---
+/**
+ * Repair-service entity TEMPLATE — generates all seven service pages from
+ * src/lib/repair-services.js (README.md:113, "clone the same spine").
+ *
+ * Trinity: title = H1 = URL, from nav.js REPAIR_SERVICES.
+ * Schema: Service, provider -> AutoRepair (correction #2). The repair shop is
+ * the SECONDARY entity with its own GBP, so provider is AutoRepair, never the
+ * dealer, and there is no aggregateRating on Service.
+ *
+ * 6-block spine: 01 Why It Matters · 02 Spec Sheet · 03 Process · 04 Local
+ * Notes · 05 FAQ (all open) · 06 External.
+ */
+import BaseLayout from '../../layouts/BaseLayout.astro';
+import Icon from '../../components/Icon.astro';
+import Breadcrumbs from '../../components/Breadcrumbs.astro';
+import FinalCta from '../../components/FinalCta.astro';
+import { ROUTES, REPAIR_SERVICES } from '../../lib/nav.js';
+import { NAP } from '../../lib/site.js';
+import { REPAIR_CONTENT, authorityLink } from '../../lib/repair-services.js';
+import { repairServiceSchema, breadcrumbSchema, faqSchema } from '../../lib/schema.js';
+
+export function getStaticPaths() {
+  return REPAIR_SERVICES.map((svc) => ({
+    params: { service: svc.slug },
+    props: { svc },
+  }));
+}
+
+const { svc } = Astro.props;
+const c = REPAIR_CONTENT[svc.slug];
+const TRINITY = svc.trinity;
+
+const crumbs = [
+  { label: 'Home', href: '/' },
+  { label: 'Auto Repair', href: ROUTES.autoRepair.href },
+  { label: svc.label },
+];
+
+const ext = authorityLink(c.external.authority);
+
+// Render the page's VERIFY flags as a real HTML comment so the launch
+// punch-list survives into the built output and stays grep-able as
+// `VERIFY:<flag>` (README.md:51 — do not delete VERIFY comments).
+const specNote =
+  'Figures are general service references, sized to manufacturer specs for your specific vehicle.' +
+  (c.verify.length ? ` <!-- ${c.verify.map((f) => `VERIFY:${f} truth-doc`).join(' ')} -->` : '');
+
+const schemas = [
+  repairServiceSchema({
+    name: TRINITY,
+    serviceType: c.serviceType,
+    description: c.metaDescription,
+    url: svc.href,
+  }),
+  breadcrumbSchema(crumbs),
+  faqSchema(c.faqs),
+];
+---
+
+<BaseLayout
+  title={TRINITY}
+  description={c.metaDescription}
+  canonical={svc.href}
+  schemas={schemas}
+>
+  <Breadcrumbs crumbs={crumbs} />
+
+  <section class="page-hero">
+    <div class="plate"></div>
+    <div class="container page-hero-grid">
+      <div>
+        <span class="eyebrow on-dark">Service Entity · Auto Repair</span>
+        <h1>{c.h1.text} <span class="accent">{c.h1.accent}</span></h1>
+        <p class="lede"><strong>{c.lede.strong}</strong> {c.lede.rest}</p>
+        <div class="page-hero-cta">
+          <a href={NAP.phoneTel} class="click-to-call">
+            <Icon name="phone" size={16} />
+            {NAP.phoneDisplay}
+          </a>
+          <a href="#process" class="btn-primary">
+            {c.ctaLabel}
+            <Icon name="arrow-right" size={16} />
+          </a>
+        </div>
+      </div>
+
+      <div class="page-hero-card">
+        <div class="ph-title">Service Specifications</div>
+        {c.specCardRows.map(([k, v]) => (
+          <div class="ph-row"><span class="k" set:html={k} /><span class="v" set:html={v} /></div>
+        ))}
+      </div>
+    </div>
+  </section>
+
+  <!-- 01 Why It Matters -->
+  <section class="content-block">
+    <div class="container">
+      <div class="content-grid">
+        <div class="side-label"><div class="n">01</div><div class="t">Why It Matters</div></div>
+        <div class="block-body">
+          <h2>{c.why.h2}</h2>
+          {c.why.paras.map((p) =>
+            typeof p === 'string' ? <p>{p}</p> : <p set:html={p.html} />
+          )}
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- 02 Spec Sheet (Core30 rule 5). Page VERIFY flags emitted here. -->
+  <section class="content-block alt">
+    <div class="container">
+      <div class="content-grid">
+        <div class="side-label"><div class="n">02</div><div class="t">Spec Sheet</div></div>
+        <div class="block-body" style="width:100%">
+          <h2>{c.spec.h2}</h2>
+          <div class="spec-table" style="max-width:620px">
+            {c.spec.rows.map(([k, v]) => (
+              <div class="row"><span class="k" set:html={k} /><span class="v" set:html={v} /></div>
+            ))}
+          </div>
+          <p style="margin-top:14px;font-size:13.5px;color:var(--ink-3)" set:html={specNote}></p>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- 03 Process -->
+  <section class="content-block" id="process">
+    <div class="container">
+      <div class="content-grid">
+        <div class="side-label"><div class="n">03</div><div class="t">Process</div></div>
+        <div class="block-body" style="width:100%">
+          <h2>How it works</h2>
+          <div class="steps">
+            {c.steps.map((s, i) => (
+              <div class="step">
+                <div class="step-num">0{i + 1}</div>
+                <div class="step-title" set:html={s.title} />
+                <div class="step-body">{s.body}</div>
+              </div>
+            ))}
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- 04 Local Notes (Core30 rule 4) -->
+  <section class="content-block alt">
+    <div class="container">
+      <div class="content-grid">
+        <div class="side-label"><div class="n">04</div><div class="t">Local Notes</div></div>
+        <div class="block-body">
+          <h2>{c.local.h2}</h2>
+          <p>{c.local.para}</p>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- 05 FAQ (all open) -->
+  <section class="content-block">
+    <div class="container">
+      <div class="content-grid">
+        <div class="side-label"><div class="n">05</div><div class="t">FAQ</div></div>
+        <div class="block-body" style="width:100%">
+          <div class="faq-list">
+            {c.faqs.map((f) => (
+              <details class="faq-item" open>
+                <summary>{f.q}</summary>
+                <p>{f.a}</p>
+              </details>
+            ))}
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- 06 External (Core30 rule 6 — exactly one authority link) -->
+  <section class="content-block alt">
+    <div class="container">
+      <div class="content-grid">
+        <div class="side-label"><div class="n">06</div><div class="t">External</div></div>
+        <div class="block-body">
+          <h2>{c.external.h2}</h2>
+          <p>{c.external.blurb}</p>
+          <p>
+            <a class="backlink" href={ext.href} target="_blank" rel="noopener">
+              {ext.label}
+            </a>
+          </p>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <FinalCta heading={c.finalCta.heading} body={c.finalCta.body} />
+</BaseLayout>

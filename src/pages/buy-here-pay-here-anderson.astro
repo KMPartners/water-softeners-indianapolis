@@ -1,0 +1,295 @@
+---
+/**
+ * Crown jewel #1. Trinity: "Buy Here Pay Here Anderson IN".
+ *
+ * URL is /buy-here-pay-here-anderson/ per CLAUDE.md's locked decisions and
+ * correction #3 — not the reference's flat buy-here-pay-here.html.
+ *
+ * Schema: FinancialService (correction #2). No aggregateRating, by rule.
+ *
+ * PUBLISH GATE — this page is noindex until the client's Indiana DFI
+ * consumer-credit registration + dealer license are confirmed and counsel has
+ * reviewed the disclaimer (CLAUDE.md). Building and staging is fine; indexing
+ * is not. Remove `noindex` only when that clears.
+ */
+import BaseLayout from '../layouts/BaseLayout.astro';
+import Icon from '../components/Icon.astro';
+import Breadcrumbs from '../components/Breadcrumbs.astro';
+import FinalCta from '../components/FinalCta.astro';
+import PreQualForm from '../components/PreQualForm.astro';
+import { ROUTES } from '../lib/nav.js';
+import {
+  NAP,
+  SOFT_PULL_CONFIRMED,
+  CREDIT_REPORTING_CONFIRMED,
+  NEARBY_TOWNS_PROSE,
+} from '../lib/site.js';
+import {
+  financialServiceSchema,
+  breadcrumbSchema,
+  faqSchema,
+} from '../lib/schema.js';
+
+const TRINITY = ROUTES.bhph.trinity;
+const CANONICAL = ROUTES.bhph.href;
+
+const crumbs = [
+  { label: 'Home', href: '/' },
+  { label: 'Buy Here Pay Here' },
+];
+
+const steps = [
+  {
+    title: 'Get pre-qualified',
+    // Owner confirmed there is NO credit check to pre-qualify (site review
+    // 2026-07-28), so the no-impact line is accurate. Gated on
+    // SOFT_PULL_CONFIRMED so it reverts cleanly if that ever changes.
+    body: SOFT_PULL_CONFIRMED
+      ? 'A quick call or visit — no credit check to get started.'
+      : 'A quick call or visit to get the conversation started.',
+  },
+  { title: 'Pick your vehicle', body: 'Choose from inspected inventory that fits your budget.' },
+  { title: 'Set your payments', body: 'We build a weekly or bi-weekly schedule around your paycheck.' },
+  { title: 'Drive home', body: 'Sign here, drive here, and return to the same people for service.' },
+];
+
+const reassurances = [
+  'Turned down elsewhere? That is exactly who buy-here-pay-here is for.',
+  'No lengthy bank approvals — we make the decision ourselves, usually same day.',
+  // VERIFY:credit-reporting — withheld until confirmed. See src/lib/site.js.
+  ...(CREDIT_REPORTING_CONFIRMED
+    ? ['We report on-time payments, so financing here can help rebuild your credit.']
+    : []),
+  'Every vehicle is shop-inspected before you ever sign.',
+];
+
+const faqs = [
+  {
+    q: 'Do you really finance any credit?',
+    a: 'We finance all credit types in-house — good, bad, repossession, bankruptcy, or none at all. Approval depends on income and a few basics, not just a score. Everyone is encouraged to apply, though approval is not guaranteed.',
+  },
+  {
+    q: 'How much do I need down?',
+    // The specific down-payment figure is handled in person, not in the
+    // marketing (site review 2026-07-28).
+    a: `It depends on the car and your situation, and we work with you on it. Call ${NAP.phoneDisplay} or get pre-qualified and we'll give you a real number.`,
+  },
+  {
+    q: 'Are payments weekly?',
+    a: 'Most in-house accounts are weekly or bi-weekly, which many customers find easier than one big monthly bill.',
+  },
+  // VERIFY:credit-reporting — the reference answers this "Yes". Withheld until
+  // the client confirms payments are actually reported to the bureaus.
+  ...(CREDIT_REPORTING_CONFIRMED
+    ? [{
+        q: 'Does this build my credit?',
+        a: 'Yes — we report on-time payments to help you build or rebuild credit over the life of the loan.',
+      }]
+    : []),
+];
+
+const description =
+  'Buy here pay here financing in Anderson, IN. We are the lender — all credit types, weekly payments, and cars inspected in our own shop.';
+---
+
+<BaseLayout
+  title={TRINITY}
+  description={description}
+  canonical={CANONICAL}
+  financingFooter
+  noindex
+  {/* The form is ON this page, so the bottom bar jumps to it rather than
+      navigating (the default href is this very page — a dead CTA). Tapping it
+      also pops the iOS keyboard, see PreQualForm. */}
+  mobileCta={{
+    status: 'All credit types · Anderson, IN',
+    primary: { label: 'Get Pre-Qualified', href: '#pre-qualify', icon: 'arrow-right' },
+  }}
+  schemas={[
+    financialServiceSchema({
+      name: TRINITY,
+      description,
+      url: CANONICAL,
+    }),
+    breadcrumbSchema(crumbs),
+    faqSchema(faqs),
+  ]}
+>
+  <Breadcrumbs crumbs={crumbs} />
+
+  <section class="page-hero">
+    <div class="plate"></div>
+    <div class="container page-hero-grid">
+      <div>
+        <span class="eyebrow on-dark">Financing · Buy Here Pay Here</span>
+        <h1>{TRINITY}</h1>
+        <p class="lede">
+          <strong>Finance your car and make your payments in one place in
+          Anderson — no bank in the middle.</strong> You pick the vehicle, we
+          finance it in-house, and every car is inspected on our own lifts first.
+        </p>
+        <div class="page-hero-cta">
+          <a href={NAP.phoneTel} class="click-to-call">
+            <Icon name="phone" size={16} />
+            {NAP.phoneDisplay}
+          </a>
+          <a href="#pre-qualify" class="btn-primary">
+            Get Pre-Qualified
+            <Icon name="arrow-right" size={16} />
+          </a>
+        </div>
+      </div>
+
+      <div class="page-hero-card">
+        <div class="ph-title">How it works here</div>
+        <div class="ph-row"><span class="k">Lender</span><span class="v">Beach Family (in-house)</span></div>
+        <div class="ph-row"><span class="k">Credit</span><span class="v">All types accepted</span></div>
+        <div class="ph-row"><span class="k">Decisions</span><span class="v">Often same day</span></div>
+        <div class="ph-row"><span class="k">Payments</span><span class="v">Weekly / bi-weekly</span></div>
+      </div>
+    </div>
+  </section>
+
+  <section class="content-block" id="process">
+    <div class="container">
+      <div class="content-grid">
+        <div class="side-label"><div class="n">01</div><div class="t">How It Works</div></div>
+        <div class="block-body" style="width:100%">
+          <h2>Four steps to driving home</h2>
+          <div class="steps">
+            {steps.map((s, i) => (
+              <div class="step">
+                <div class="step-num">0{i + 1}</div>
+                <div class="step-title">{s.title}</div>
+                <div class="step-body">{s.body}</div>
+              </div>
+            ))}
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <section class="content-block alt">
+    <div class="container">
+      <div class="content-grid">
+        <div class="side-label"><div class="n">02</div><div class="t">Why BHPH</div></div>
+        <div class="block-body" style="width:100%">
+          <h2>Made for people the banks turn away</h2>
+          <ul class="reassure">
+            {reassurances.map((r) => (
+              <li><span class="tick"><Icon name="check" size={18} /></span>{r}</li>
+            ))}
+          </ul>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <section class="content-block">
+    <div class="container">
+      <div class="content-grid">
+        <div class="side-label"><div class="n">03</div><div class="t">Payments</div></div>
+        <div class="block-body" style="width:100%">
+          <h2>What payments look like</h2>
+          {/*
+            Weekly figure CONFIRMED by the owner (site review 2026-07-28): real
+            payments run $75–$100/week, so the "as low as" number is $75. The
+            qualifier sentence is mandatory and must never be separated from the
+            number.
+          */}
+          <div class="pay-band">
+            <div>
+              <div class="lbl">Payments start as low as</div>
+              <div class="big num">$75<span>/wk</span></div>
+            </div>
+            <p>
+              Estimated in-house payment on select vehicles for qualified
+              buyers. Your terms depend on the vehicle, down payment, and
+              approval. Approval is not guaranteed.
+            </p>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <section class="content-block alt" id="pre-qualify">
+    <div class="container">
+      <div class="content-grid">
+        <div class="side-label"><div class="n">04</div><div class="t">Apply</div></div>
+        <div class="block-body" style="width:100%;max-width:640px">
+          <PreQualForm heading="Get Pre-Qualified" />
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <section class="content-block">
+    <div class="container">
+      <div class="content-grid">
+        <div class="side-label"><div class="n">05</div><div class="t">Local Notes</div></div>
+        <div class="block-body">
+          <h2>Buy-here-pay-here in Madison County</h2>
+          {/* Core30 rule 4 — real local specificity. */}
+          <p>
+            We title and register your vehicle through the Indiana BMV in-house
+            at the sale, so you leave road-legal. Our lot sits at
+            <strong> {NAP.streetAddress}</strong> in Anderson, and we regularly
+            finance drivers from {NEARBY_TOWNS_PROSE}.
+          </p>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <section class="content-block alt">
+    <div class="container">
+      <div class="content-grid">
+        <div class="side-label"><div class="n">06</div><div class="t">FAQ</div></div>
+        <div class="block-body" style="width:100%">
+          <div class="faq-list">
+            {faqs.map((f) => (
+              <details class="faq-item" open>
+                <summary>{f.q}</summary>
+                <p>{f.a}</p>
+              </details>
+            ))}
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <section class="content-block">
+    <div class="container">
+      <div class="content-grid">
+        <div class="side-label"><div class="n">07</div><div class="t">External</div></div>
+        <div class="block-body">
+          <h2>Know your rights</h2>
+          <p>
+            Auto financing is regulated for your protection. The Consumer
+            Financial Protection Bureau explains what to expect from any auto
+            lender.
+          </p>
+          <p>
+            {/* Core30 rule 6 — this page's single external authority link. */}
+            <a
+              class="backlink"
+              href="https://www.consumerfinance.gov/consumer-tools/auto-loans/"
+              target="_blank"
+              rel="noopener"
+            >
+              CFPB — Auto Loans ↗
+            </a>
+          </p>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <FinalCta
+    heading="Let's get you approved."
+    body="Two minutes to pre-qualify, or call a real person at the shop. No pressure, no runaround."
+  />
+</BaseLayout>

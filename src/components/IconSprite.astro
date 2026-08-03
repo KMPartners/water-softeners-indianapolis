@@ -1,0 +1,34 @@
+---
+/**
+ * Inline SVG icon sprite. Path geometry ported verbatim from the reference.
+ *
+ * Each icon is a <symbol viewBox="0 0 24 24"> — NOT a bare <g>. The viewBox is
+ * load-bearing: it maps the 0–24 path coordinate space into whatever pixel size
+ * the consuming <svg class="ico"> requests, so a 13px icon is the whole glyph
+ * scaled down, not a cropped top-left corner. (The design reference used <g>
+ * with no viewBox, which silently crops every icon — fixed here.)
+ *
+ * Rendered once per page in BaseLayout. Reference an icon with <Icon name="…" />.
+ * Design law (_design-reference/README.md:141): inline SVG only — no emoji,
+ * no icon font. 1.75 stroke, currentColor, round joins (set by .ico).
+ */
+---
+
+<svg width="0" height="0" style="position:absolute" aria-hidden="true"><defs>
+  <symbol id="i-phone" viewBox="0 0 24 24"><path d="M5 4h3l2 5-2.5 1.5a11 11 0 0 0 5 5L14 13l5 2v3l-1 1A16 16 0 0 1 4.5 6L5 4z"/></symbol>
+  <symbol id="i-arrow-right" viewBox="0 0 24 24"><path d="M5 12h14M13 6l6 6-6 6"/></symbol>
+  <symbol id="i-check" viewBox="0 0 24 24"><path d="M5 12l5 5 9-11"/></symbol>
+  <symbol id="i-shield-check" viewBox="0 0 24 24"><path d="M12 3l7 3v5c0 4.5-3 7.6-7 9-4-1.4-7-4.5-7-9V6l7-3z"/><path d="M9 12l2 2 4-4"/></symbol>
+  <symbol id="i-banknote" viewBox="0 0 24 24"><rect x="3" y="6" width="18" height="12" rx="1"/><circle cx="12" cy="12" r="2.5"/></symbol>
+  <symbol id="i-hand-coins" viewBox="0 0 24 24"><circle cx="11" cy="9" r="3"/><path d="M4 20l3-2 3 1 5-1 5-3"/></symbol>
+  <symbol id="i-key" viewBox="0 0 24 24"><circle cx="8" cy="10" r="4"/><path d="M11 12l8 8M17 18l2-2M15 16l2-2"/></symbol>
+  <symbol id="i-wrench" viewBox="0 0 24 24"><path d="M15 6a4 4 0 0 1-5 5l-6 6 3 3 6-6a4 4 0 0 1 5-5l-2.5-2.5L15 6z"/></symbol>
+  <symbol id="i-gauge" viewBox="0 0 24 24"><circle cx="12" cy="12" r="9"/><path d="M12 12l4-3"/></symbol>
+  <symbol id="i-car" viewBox="0 0 24 24"><path d="M4 17h2m12 0h2M4 17l1.6-5A2 2 0 0 1 7.5 10.6h9A2 2 0 0 1 18.4 12L20 17M7 13.5h10"/><circle cx="7.5" cy="17.5" r="0.6"/><circle cx="16.5" cy="17.5" r="0.6"/></symbol>
+  <symbol id="i-map-pin" viewBox="0 0 24 24"><path d="M12 21c4-4.5 7-7.6 7-11a7 7 0 1 0-14 0c0 3.4 3 6.5 7 11z"/><circle cx="12" cy="10" r="2.5"/></symbol>
+  <symbol id="i-star" viewBox="0 0 24 24"><path d="M12 3l2.6 5.3 5.9.9-4.3 4.1 1 5.8L12 16.9 6.8 19.2l1-5.8L3.5 9.2l5.9-.9L12 3z"/></symbol>
+  <symbol id="i-file-text" viewBox="0 0 24 24"><path d="M14 3v5h5M14 3H6v18h12V8z"/><path d="M9 13h6M9 17h4"/></symbol>
+  <symbol id="i-users" viewBox="0 0 24 24"><circle cx="9" cy="8" r="3.2"/><path d="M3 20c0-3 2.7-5 6-5s6 2 6 5M16 5.3a3.2 3.2 0 0 1 0 6.4M21 20c0-2.4-1.6-4.2-4-4.8"/></symbol>
+  <symbol id="i-menu" viewBox="0 0 24 24"><path d="M4 7h16M4 12h16M4 17h16"/></symbol>
+  <symbol id="i-close" viewBox="0 0 24 24"><path d="M6 6l12 12M18 6L6 18"/></symbol>
+</defs></svg>

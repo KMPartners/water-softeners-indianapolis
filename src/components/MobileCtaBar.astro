@@ -1,0 +1,262 @@
+---
+/**
+ * Scroll-triggered mobile bottom CTA bar — "the piece the client specifically
+ * asked for" (MVP spec §5, design brief §92). The async-selling workhorse:
+ * always in thumb reach, turns a scroll into a lead without a phone call.
+ *
+ * Behavior (spec §5): phone-only, slides up once scrollY > 480, hides while the
+ * mobile menu is open, hides while the on-screen keyboard is up, respects
+ * env(safe-area-inset-bottom).
+ *
+ * Context-aware CTAs via props:
+ *   - default (homepage / financing / service): Get Pre-Qualified + Call
+ *   - vehicle pages: Text about this VIN (sms: deep link) + Get Pre-Qualified
+ *
+ * Breakpoint: 920px, matching where the mobile nav takes over (Header.astro) so
+ * "mobile mode" is cohesive — hamburger nav + bottom bar appear together.
+ */
+import Icon from './Icon.astro';
+import { NAP } from '../lib/site.js';
+
+interface Cta {
+  label: string;
+  sublabel?: string;
+  href: string;
+  icon?: string;
+}
+interface Props {
+  status?: string;
+  statusTone?: 'go' | 'pending';
+  /** Wider, pulsing, amber — the money action. */
+  primary?: Cta;
+  /** Narrower, outlined. */
+  secondary?: Cta;
+}
+
+const {
+  status = 'In-house financing · Anderson, IN',
+  statusTone = 'go',
+  primary = { label: 'Get Pre-Qualified', href: '/buy-here-pay-here-anderson/', icon: 'arrow-right' },
+  secondary = { label: 'Call', sublabel: NAP.phoneDisplay, href: NAP.phoneTel, icon: 'phone' },
+} = Astro.props;
+---
+
+<aside class="mobile-cta-bar" aria-hidden="true" aria-label="Quick contact" data-mobile-cta>
+  <div class="mcb-status">
+    <span class={`dot ${statusTone}`} aria-hidden="true"></span>
+    <span>{status}</span>
+  </div>
+  <div class="mcb-actions">
+    <a class="mcb-primary" href={primary.href}>
+      <span>{primary.label}</span>
+      {primary.icon && <Icon name={primary.icon} size={17} />}
+    </a>
+    <a class="mcb-secondary" href={secondary.href}>
+      {secondary.icon && <Icon name={secondary.icon} size={15} />}
+      <span class="mcb-sec-text">
+        {secondary.sublabel && <span class="mcb-sm">{secondary.label}</span>}
+        <span class="mcb-lg">{secondary.sublabel ?? secondary.label}</span>
+      </span>
+    </a>
+  </div>
+</aside>
+
+<script>
+  // Scroll-show trigger. Below the breakpoint the bar is fixed; above it CSS
+  // keeps it display:none, so this is harmless on desktop.
+  (function () {
+    const bar = document.querySelector('[data-mobile-cta]');
+    if (!bar) return;
+
+    const SHOW_PX = 480;
+    let shown = false;
+    const onScroll = () => {
+      const should = window.scrollY > SHOW_PX;
+      if (should === shown) return;
+      shown = should;
+      bar.classList.toggle('is-shown', should);
+      bar.setAttribute('aria-hidden', should ? 'false' : 'true');
+    };
+    onScroll();
+    window.addEventListener('scroll', onScroll, { passive: true });
+
+    // Hide while the user is typing in ANY form field (the bar would otherwise
+    // sit on top of the keyboard). Two signals: focus on a field, and the
+    // visualViewport shrinking (the authoritative keyboard indicator on iOS).
+    const isField = (el) =>
+      el && /^(INPUT|TEXTAREA|SELECT)$/.test(el.tagName);
+
+    document.addEventListener('focusin', (e) => {
+      if (isField(e.target)) bar.classList.add('is-typing');
+    });
+    document.addEventListener('focusout', () => {
+      setTimeout(() => {
+        if (!isField(document.activeElement)) bar.classList.remove('is-typing');
+      }, 0);
+    });
+
+    if (window.visualViewport) {
+      const vv = window.visualViewport;
+      let baseline = vv.height;
+      const THRESHOLD = 150;
+      const check = () => {
+        if (vv.height > baseline) baseline = vv.height;
+        const keyboardUp = baseline - vv.height > THRESHOLD;
+        document.body.classList.toggle('keyboard-open', keyboardUp);
+      };
+      vv.addEventListener('resize', check);
+      window.addEventListener('orientationchange', () => {
+        setTimeout(() => { baseline = vv.height; check(); }, 300);
+      });
+      check();
+    }
+  })();
+</script>
+
+<style is:global>
+  /* Fixed global UI: is:global so body-level state classes resolve. */
+  .mobile-cta-bar { display: none; }
+
+  @media (max-width: 920px) {
+    .mobile-cta-bar {
+      position: fixed;
+      left: 0;
+      right: 0;
+      bottom: 0;
+      z-index: 60;
+      display: flex;
+      flex-direction: column;
+      background: rgb(10 24 38 / 0.96); /* --navy-900 */
+      backdrop-filter: blur(14px) saturate(140%);
+      -webkit-backdrop-filter: blur(14px) saturate(140%);
+      border-top: 2px solid var(--amber-500);
+      box-shadow:
+        inset 0 1px 0 rgb(255 255 255 / 0.08),
+        0 -14px 32px rgb(10 24 38 / 0.55);
+      padding: 0.5rem clamp(16px, 4vw, 32px)
+        calc(0.6rem + env(safe-area-inset-bottom, 0px));
+      transform: translateY(115%);
+      transition: transform 0.32s cubic-bezier(0.2, 0.8, 0.2, 1);
+      pointer-events: none;
+    }
+    .mobile-cta-bar.is-shown {
+      transform: translateY(0);
+      pointer-events: auto;
+    }
+
+    /* Hide while typing / keyboard up. display:none (not translateY) because
+       iOS Safari can composite a translated fixed element over the keyboard. */
+    .mobile-cta-bar.is-typing,
+    body.keyboard-open .mobile-cta-bar {
+      display: none;
+    }
+
+    /* Hide while the mobile nav overlay is open (Header sets body.nav-open). */
+    body.nav-open .mobile-cta-bar {
+      transform: translateY(115%);
+      pointer-events: none;
+    }
+
+    /* Reserve space so the bar never covers footer content. In practice there's
+       no visible gap: reaching the footer requires scrolling past 480px, which
+       is exactly when the bar slides up to fill this space. */
+    body {
+      padding-bottom: calc(104px + env(safe-area-inset-bottom, 0px));
+    }
+
+    .mcb-status {
+      display: flex;
+      align-items: center;
+      gap: 0.55rem;
+      font-family: var(--font-mono);
+      font-size: 0.62rem;
+      letter-spacing: 0.14em;
+      text-transform: uppercase;
+      color: var(--amber-400);
+      padding: 0.3rem 0 0.5rem;
+      border-bottom: 1px solid rgb(234 166 60 / 0.4);
+      margin-bottom: 0.5rem;
+    }
+    .mcb-status .dot {
+      width: 8px;
+      height: 8px;
+      border-radius: 50%;
+      flex-shrink: 0;
+    }
+    .mcb-status .dot.go {
+      background: #86d27e;
+      box-shadow: 0 0 0 3px rgb(134 210 126 / 0.24), 0 0 8px rgb(134 210 126 / 0.45);
+    }
+    .mcb-status .dot.pending {
+      background: var(--amber-400);
+      box-shadow: 0 0 0 3px rgb(244 189 96 / 0.24), 0 0 8px rgb(244 189 96 / 0.45);
+    }
+
+    .mcb-actions {
+      display: grid;
+      grid-template-columns: 1.4fr 1fr;
+      gap: 0.5rem;
+    }
+    .mobile-cta-bar a {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 0.5rem;
+      min-height: 52px;
+      padding: 0.55rem 0.85rem;
+      text-decoration: none;
+      font-family: var(--font-display);
+      font-weight: 800;
+      font-size: 14px;
+      line-height: 1.05;
+      border-radius: var(--radius-1);
+    }
+
+    .mcb-primary {
+      background: var(--amber-500);
+      color: var(--navy-900);
+      box-shadow: inset 0 -3px 0 var(--amber-600);
+    }
+    .mcb-secondary {
+      background: transparent;
+      color: #fff;
+      border: 1.5px solid var(--navy-400);
+    }
+    .mcb-sec-text {
+      display: flex;
+      flex-direction: column;
+      align-items: flex-start;
+      line-height: 1.1;
+    }
+    .mcb-sm {
+      font-family: var(--font-mono);
+      font-weight: 500;
+      font-size: 8.5px;
+      letter-spacing: 0.08em;
+      text-transform: uppercase;
+      color: var(--amber-400);
+    }
+    .mcb-lg {
+      font-family: var(--font-mono);
+      font-size: 12.5px;
+    }
+
+    .mobile-cta-bar a:active {
+      filter: brightness(0.93);
+      transform: translateY(1px);
+    }
+
+    /* Breathing pulse on the money action. */
+    @keyframes mcbPulse {
+      0%, 100% { transform: scale(1); box-shadow: inset 0 -3px 0 var(--amber-600), 0 0 0 0 rgb(234 166 60 / 0); }
+      50% { transform: scale(1.02); box-shadow: inset 0 -3px 0 var(--amber-600), 0 0 0 6px rgb(234 166 60 / 0.12); }
+    }
+    .mobile-cta-bar.is-shown .mcb-primary {
+      animation: mcbPulse 3.2s ease-in-out infinite;
+      animation-delay: 0.4s;
+    }
+    @media (prefers-reduced-motion: reduce) {
+      .mobile-cta-bar.is-shown .mcb-primary { animation: none; }
+    }
+  }
+</style>

@@ -1,0 +1,118 @@
+---
+/**
+ * The single page shell. Every route renders through here so the Core30
+ * invariants (canonical, one JSON-LD block minimum, the sticky header, the
+ * footer link set) cannot be forgotten on a page-by-page basis.
+ */
+import '../styles/styles.css';
+import '../styles/page-styles.css';
+// Loaded last so it overrides the ported reference CSS (mobile fixes).
+import '../styles/responsive-fixes.css';
+
+import IconSprite from '../components/IconSprite.astro';
+import Header from '../components/Header.astro';
+import Footer from '../components/Footer.astro';
+import MobileCtaBar from '../components/MobileCtaBar.astro';
+import { SITE_URL } from '../lib/site.js';
+
+interface Props {
+  /** Core30 rule 1 — must be byte-identical to the page's <h1> text. */
+  title: string;
+  description: string;
+  /** Path only, e.g. "/buy-here-pay-here-anderson/". */
+  canonical: string;
+  /** One or more JSON-LD objects, emitted in <head>. */
+  schemas?: unknown[];
+  /** Adds the Indiana financing disclaimer to the footer (copy deck §12). */
+  financingFooter?: boolean;
+  /** Keeps financing pages out of the index until the DFI publish gate clears. */
+  noindex?: boolean;
+  /** og/twitter share image. Absolute URL or site-root path. Defaults to the
+      brand card in public/og-image.png; vehicle pages can pass a real photo. */
+  image?: string;
+  /** Context CTAs for the mobile bottom bar (spec §5). Omit for the default. */
+  mobileCta?: {
+    status?: string;
+    statusTone?: 'go' | 'pending';
+    primary?: { label: string; sublabel?: string; href: string; icon?: string };
+    secondary?: { label: string; sublabel?: string; href: string; icon?: string };
+  };
+}
+
+const {
+  title,
+  description,
+  canonical,
+  schemas = [],
+  financingFooter = false,
+  noindex = false,
+  mobileCta = {},
+  image = '/og-image.png',
+} = Astro.props;
+
+const canonicalUrl = new URL(canonical, SITE_URL).href;
+const titleTag = `${title} | Beach Family Automotive`;
+// Absolute share image. new URL() passes an already-absolute photo URL (e.g. an
+// Airtable vehicle photo) through unchanged, and absolutizes a site-root path.
+const ogImage = new URL(image, SITE_URL).href;
+// Google Tag Manager container id. Set PUBLIC_GTM_ID as a Cloudflare build var
+// to activate; unset (e.g. local/preview) => GTM is simply not injected.
+const gtmId = import.meta.env.PUBLIC_GTM_ID;
+---
+
+<!doctype html>
+<html lang="en">
+  <head>
+    {/* The brand palette (Steel & Brass) is the permanent :root in
+        tokens/colors.css — no runtime theme switching. The preview theme picker
+        was removed once the owner chose (site review, 2026-07-29). */}
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+
+    {/* Google Tag Manager — kept as high in <head> as possible. Injected only
+        when PUBLIC_GTM_ID is set, so local/preview builds stay clean. */}
+    {gtmId && (
+      <script is:inline set:html={`(function(w,d,s,l,i){w[l]=w[l]||[];w[l].push({'gtm.start':new Date().getTime(),event:'gtm.js'});var f=d.getElementsByTagName(s)[0],j=d.createElement(s),dl=l!='dataLayer'?'&l='+l:'';j.async=true;j.src='https://www.googletagmanager.com/gtm.js?id='+i+dl;f.parentNode.insertBefore(j,f);})(window,document,'script','dataLayer','${gtmId}');`} />
+    )}
+
+    <title>{titleTag}</title>
+    <meta name="description" content={description} />
+    <link rel="canonical" href={canonicalUrl} />
+    {noindex && <meta name="robots" content="noindex,nofollow" />}
+
+    <meta property="og:type" content="website" />
+    <meta property="og:site_name" content="Beach Family Automotive" />
+    <meta property="og:title" content={titleTag} />
+    <meta property="og:description" content={description} />
+    <meta property="og:url" content={canonicalUrl} />
+    <meta property="og:image" content={ogImage} />
+    <meta property="og:image:width" content="1200" />
+    <meta property="og:image:height" content="630" />
+    <meta name="twitter:card" content="summary_large_image" />
+    <meta name="twitter:title" content={titleTag} />
+    <meta name="twitter:description" content={description} />
+    <meta name="twitter:image" content={ogImage} />
+
+    <link rel="icon" href="/assets/monogram.svg" />
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+
+    {schemas.map((s) => (
+      <script type="application/ld+json" set:html={JSON.stringify(s)} />
+    ))}
+  </head>
+
+  <body>
+    {/* Google Tag Manager (noscript) — immediately after <body>. */}
+    {gtmId && (
+      <noscript set:html={`<iframe src="https://www.googletagmanager.com/ns.html?id=${gtmId}" height="0" width="0" style="display:none;visibility:hidden"></iframe>`} />
+    )}
+    <IconSprite />
+    <Header current={canonical} />
+    <main>
+      <slot />
+    </main>
+    <Footer financing={financingFooter} />
+    <MobileCtaBar {...mobileCta} />
+  </body>
+</html>

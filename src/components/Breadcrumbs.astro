@@ -1,0 +1,30 @@
+---
+/**
+ * Visible breadcrumb trail — the "children link UP" half of mirror linking
+ * (Core30 rule 3). The matching BreadcrumbList JSON-LD is emitted by the page,
+ * built from this same crumb array so the two can never disagree.
+ */
+interface Crumb {
+  label: string;
+  href?: string;
+}
+interface Props {
+  crumbs: Crumb[];
+}
+const { crumbs } = Astro.props;
+---
+
+<div class="container">
+  <nav class="breadcrumbs" aria-label="Breadcrumb">
+    {crumbs.map((c, i) => (
+      <>
+        {i > 0 && <span class="sep">/</span>}
+        {c.href ? (
+          <a href={c.href}>{c.label}</a>
+        ) : (
+          <span class="current" aria-current="page">{c.label}</span>
+        )}
+      </>
+    ))}
+  </nav>
+</div>

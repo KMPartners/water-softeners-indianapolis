@@ -1,0 +1,380 @@
+---
+/**
+ * Homepage / sales hub. Trinity: "Used Cars Anderson, IN".
+ * Copy ported verbatim from _design-reference/site/index.html.
+ * Schema: AutoDealer (correction #2), with aggregateRating — permitted here.
+ */
+import BaseLayout from '../layouts/BaseLayout.astro';
+import Icon from '../components/Icon.astro';
+import FinalCta from '../components/FinalCta.astro';
+import VehicleCard from '../components/VehicleCard.astro';
+import { ROUTES, FINANCING_PAGES, REPAIR_SERVICES } from '../lib/nav.js';
+import {
+  NAP,
+  HOURS_DISPLAY,
+  RATING,
+  RATING_CONFIRMED,
+  SOFT_PULL_CONFIRMED,
+  NEARBY_TOWNS_PROSE,
+} from '../lib/site.js';
+import { homepageSchema, faqSchema } from '../lib/schema.js';
+import { getListableVehicles } from '../lib/inventory.js';
+import { REVIEWS } from '../lib/reviews.js';
+
+const TRINITY = ROUTES.home.trinity; // = <title> = <h1>
+
+const vehicles = await getListableVehicles();
+const featured = vehicles.slice(0, 3);
+
+// One blurb per FINANCING_PAGES entry, in order (BHPH, in-house, bad/no credit).
+// The $500-down blurb was removed with the page: the owner is holding that offer
+// back from the marketing (site review 2026-07-28) — see src/lib/nav.js.
+const financingBlurbs = [
+  'Finance and pay right here — no bank, no runaround. One place for the whole deal.',
+  'We are the lender, so we set the terms and work with real people — not a credit algorithm.',
+  'Repossession, bankruptcy, first-time buyer, or no history — everyone is encouraged to apply.',
+];
+
+const repairChildren = [
+  { ...REPAIR_SERVICES[0], blurb: 'Pads, rotors, lines, and road test.', n: 1 },
+  { ...REPAIR_SERVICES[1], blurb: 'OBD-II scan and honest findings.', n: 2 },
+  { ...REPAIR_SERVICES[3], blurb: 'OEM-spec oil and filter, quick turnaround.', n: 4 },
+];
+
+const faqs = [
+  {
+    q: 'Do you really finance any credit?',
+    a: 'We finance all credit types in-house — good, bad, repossession, bankruptcy, or no credit history at all. Approval depends on your income and a few basics, not just a score. Everyone is encouraged to apply, though approval is not guaranteed.',
+  },
+  {
+    q: 'How much do I need down?',
+    // The specific down-payment figure is deliberately not published — the owner
+    // is discussing it in person, not in the marketing (site review 2026-07-28).
+    a: `It depends on the vehicle and your situation, and we work with you on it. The fastest way to get a real number is to get pre-qualified or call us at ${NAP.phoneDisplay}.`,
+  },
+  {
+    q: 'Are my payments weekly or monthly?',
+    a: 'Most in-house accounts are paid weekly or bi-weekly, which many customers find easier to manage than one large monthly bill. We set a schedule that lines up with how you get paid.',
+  },
+  {
+    q: 'What if the car needs work later?',
+    a: "You're not stranded — we're a full repair shop. We service what we sell and can usually get you in fast, and we'll always tell you what's actually wrong before we start.",
+  },
+];
+
+const description =
+  'Used cars in Anderson, IN with in-house financing for every credit type. Every vehicle inspected on our own lifts by the repair shop that sells it.';
+---
+
+<BaseLayout
+  title={TRINITY}
+  description={description}
+  canonical="/"
+  schemas={[homepageSchema(), faqSchema(faqs)]}
+>
+  <!-- ── Hero ───────────────────────────────────────────────────────────── -->
+  <section class="page-hero">
+    <div class="plate"></div>
+    <div class="container page-hero-grid">
+      <div>
+        <span class="eyebrow on-dark">Used Car Dealer · Anderson, IN</span>
+        <!-- Core30 rule 1: this H1 is byte-identical to the <title> keyphrase. -->
+        <h1>{TRINITY}</h1>
+        <!-- Core30 rule 2: goal-completion in sentence one. -->
+        <p class="lede">
+          <strong>Shop quality used cars in Anderson with in-house financing for
+          every credit type — good, bad, or none at all.</strong> Because Beach
+          Family is also a full repair shop, every vehicle is inspected on our
+          own lifts before it reaches the lot.
+        </p>
+        <div class="page-hero-cta">
+          <a href={NAP.phoneTel} class="click-to-call">
+            <Icon name="phone" size={16} />
+            {NAP.phoneDisplay}
+          </a>
+          <a href={ROUTES.bhph.href} class="btn-primary">
+            Get Pre-Qualified
+            <Icon name="arrow-right" size={16} />
+          </a>
+        </div>
+      </div>
+
+      <div class="page-hero-card">
+        <div class="ph-title">The Beach Family difference</div>
+        <div class="ph-row"><span class="k">Financing</span><span class="v">In-house</span></div>
+        <div class="ph-row"><span class="k">Credit accepted</span><span class="v">All types</span></div>
+        <div class="ph-row"><span class="k">Payments</span><span class="v">Weekly / bi-weekly</span></div>
+        <div class="ph-row"><span class="k">Every car</span><span class="v">Shop-inspected</span></div>
+        {/* Rating is gated on RATING_CONFIRMED: the owner is unsure which GBP the
+            4.2★/15 belongs to, so it is withheld until confirmed as the
+            dealership's own listing (site review 2026-07-28). */}
+        {RATING_CONFIRMED && (
+          <div class="ph-row"><span class="k">Google rating</span><span class="v num">{RATING.value} ★ · {RATING.count}</span></div>
+        )}
+        {SOFT_PULL_CONFIRMED && (
+          <div class="ph-row"><span class="k">Pre-qualifying</span><span class="v">No credit check</span></div>
+        )}
+      </div>
+    </div>
+  </section>
+
+  <!-- ── Trust strip ────────────────────────────────────────────────────── -->
+  <section class="trust-strip">
+    <div class="container trust-grid">
+      <div class="trust-card">
+        <div class="ic"><Icon name="shield-check" /></div>
+        <div class="stat">Shop-inspected</div>
+        <div class="lbl">Before every sale</div>
+      </div>
+      <div class="trust-card">
+        <div class="ic"><Icon name="hand-coins" /></div>
+        <div class="stat">All credit types</div>
+        <div class="lbl">Financed in-house</div>
+      </div>
+      <div class="trust-card">
+        <div class="ic"><Icon name="wrench" /></div>
+        <div class="stat">Real repair shop</div>
+        <div class="lbl">We service what we sell</div>
+      </div>
+      <div class="trust-card">
+        <div class="ic"><Icon name="map-pin" /></div>
+        <div class="stat">Anderson, IN</div>
+        <div class="lbl">Family-owned &amp; local</div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ── Financing grid — mirror linking DOWN to the four crown jewels ──── -->
+  <section class="content-block">
+    <div class="container">
+      <div class="sec-head">
+        <span class="eyebrow">How we finance</span>
+        <h2>Four ways in — pick yours</h2>
+        <p>
+          Most of our customers were told no somewhere else. Here in Anderson,
+          your situation is the starting point, not the end of the conversation.
+        </p>
+      </div>
+      <div class="card-grid">
+        {FINANCING_PAGES.map((page, i) => (
+          <a class="svc-card" href={page.href}>
+            <div class="ic"><Icon name={['banknote', 'hand-coins', 'users', 'key'][i]} /></div>
+            <div class="svc-n">FIN · 0{i + 1} / 04</div>
+            <h3>{page.label}</h3>
+            <p>{financingBlurbs[i]}</p>
+            <span class="more">Learn more <Icon name="arrow-right" size={14} /></span>
+          </a>
+        ))}
+      </div>
+    </div>
+  </section>
+
+  <!-- ── Inventory teaser ───────────────────────────────────────────────── -->
+  <section class="content-block alt">
+    <div class="container">
+      <div class="sec-head">
+        <span class="eyebrow">On the lot now</span>
+        <h2>Used cars for sale in Anderson</h2>
+        <p>
+          Older, honest, dependable vehicles priced for real budgets — every one
+          inspected on our lifts. Weekly payments shown are estimates for
+          qualified buyers.
+        </p>
+      </div>
+
+      {featured.length > 0 ? (
+        <div class="inv-grid">
+          {featured.map((v) => <VehicleCard vehicle={v} />)}
+        </div>
+      ) : (
+        /* Empty-lot state (spec §3.3) — never let an empty feed look broken. */
+        <p class="empty-state">
+          New inventory is arriving. Text us at <a href={NAP.phoneSms}>{NAP.phoneDisplay}</a>
+          {' '}and tell us what you're looking for.
+        </p>
+      )}
+
+      <p style="margin-top:24px">
+        <a class="btn-primary" href={ROUTES.usedCars.href}>
+          Browse all inventory
+          <Icon name="arrow-right" size={16} />
+        </a>
+      </p>
+    </div>
+  </section>
+
+  <!-- ── Repair banner — mirror linking DOWN to the secondary entity ────── -->
+  <section class="content-block slab">
+    <div class="container">
+      <div class="content-grid">
+        <div class="side-label">
+          <div class="n">05</div>
+          <div class="t">Auto Repair</div>
+        </div>
+        <div class="block-body" style="width:100%">
+          <h2>The other half of the shop</h2>
+          <p>
+            Beach Family started as a repair shop, and it still is one. Bought
+            here or not, our ASE-guided technicians handle brakes, diagnostics,
+            oil, and transmissions in the same building on Dr. M.L.K. Jr Blvd —
+            and we tell you straight what's wrong before we touch it.
+          </p>
+          <div class="card-grid" style="margin-top:26px">
+            <a class="svc-card" href={ROUTES.autoRepair.href}>
+              <div class="ic"><Icon name="wrench" /></div>
+              <div class="svc-n">Category</div>
+              <h3>Auto Repair, Anderson</h3>
+              <p>Full-service shop — see every repair we offer.</p>
+              <span class="more">All repair services <Icon name="arrow-right" size={14} /></span>
+            </a>
+            {repairChildren.map((s) => (
+              <a class="svc-card" href={s.href}>
+                <div class="ic"><Icon name="wrench" /></div>
+                <div class="svc-n">SVC · 0{s.n} / 07</div>
+                <h3>{s.label}</h3>
+                <p>{s.blurb}</p>
+                <span class="more">Learn more <Icon name="arrow-right" size={14} /></span>
+              </a>
+            ))}
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  {/*
+    VERIFY:reviews — rendered from src/lib/reviews.js, which is the single place
+    to paste real Google Business Profile reviews. Publishing a fabricated
+    customer quote is a misrepresentation, so the starter ships that list EMPTY
+    and the whole section is suppressed until real reviews are pasted in — an
+    empty "what customers say" heading with no cards under it reads as a broken
+    page, and worse, invites someone to fill it with invented filler.
+  */}
+  {REVIEWS.length > 0 && (
+  <!-- ── Reviews ────────────────────────────────────────────────────────── -->
+  <section class="content-block" style="background:var(--navy-800)">
+    <div class="container">
+      <div class="sec-head">
+        <span class="eyebrow on-dark">From our neighbors</span>
+        <h2 style="color:#fff">What Anderson says</h2>
+      </div>
+      <div class="card-grid">
+        {REVIEWS.map((r) => (
+          <blockquote class="review">
+            <div class="stars">
+              {r.stars
+                ? Array.from({ length: r.stars }).map(() => <Icon name="star" size={15} />)
+                : <Icon name="wrench" size={15} />}
+            </div>
+            <p>“{r.quote}”</p>
+            <cite>{r.attribution}</cite>
+          </blockquote>
+        ))}
+      </div>
+    </div>
+  </section>
+  )}
+
+  <!-- ── Visit / NAP ────────────────────────────────────────────────────── -->
+  <section class="content-block alt">
+    <div class="container">
+      <div class="content-grid">
+        <div class="side-label">
+          <div class="n">06</div>
+          <div class="t">Visit Us</div>
+        </div>
+        <div class="block-body" style="width:100%">
+          <h2>Right here in Anderson</h2>
+          {/* Core30 rule 4: real local specificity — county, corridor, BMV. */}
+          <p>
+            Find us at <strong>{NAP.streetAddress}, {NAP.addressLocality}, {NAP.addressRegion} {NAP.postalCode}</strong>,
+            in {NAP.county} just off the downtown corridor near I-69. We title
+            and register your vehicle through the Indiana BMV in-house at the
+            sale, and we serve buyers from Anderson, {NEARBY_TOWNS_PROSE}.
+          </p>
+          <div class="spec-table" style="max-width:620px">
+            <div class="row"><span class="k">Address</span><span class="v">{NAP.streetAddress}, {NAP.addressLocality}, {NAP.addressRegion} {NAP.postalCode}</span></div>
+            <div class="row"><span class="k">Phone</span><span class="v num">{NAP.phoneDisplay}</span></div>
+            {/* VERIFY:hours — sources disagree; see src/lib/site.js. */}
+            <div class="row"><span class="k">Hours</span><span class="v">{HOURS_DISPLAY}</span></div>
+          </div>
+          <p style="margin-top:16px">
+            {/* Core30 rule 6: this page's single external authority link. */}
+            <a class="backlink" href="https://www.in.gov/bmv/" target="_blank" rel="noopener">
+              Indiana BMV — titling &amp; registration ↗
+            </a>
+          </p>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ── FAQ (all open, per Core30 carried-over rule) ───────────────────── -->
+  <section class="content-block">
+    <div class="container">
+      <div class="content-grid">
+        <div class="side-label">
+          <div class="n">07</div>
+          <div class="t">Straight answers</div>
+        </div>
+        <div class="block-body" style="width:100%">
+          <h2>Questions, answered honestly</h2>
+          <div class="faq-list">
+            {faqs.map((f) => (
+              <details class="faq-item" open>
+                <summary>{f.q}</summary>
+                <p>{f.a}</p>
+              </details>
+            ))}
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <FinalCta
+    heading="Let's get you approved."
+    body="Two minutes to pre-qualify, or call and talk to a real person at the shop. No pressure, no runaround."
+  />
+</BaseLayout>
+
+<style>
+  .empty-state {
+    background: var(--surface-card);
+    border: 1px dashed var(--border-strong);
+    border-radius: var(--radius-2);
+    padding: 28px;
+    text-align: center;
+    color: var(--ink-2);
+    font-size: 15.5px;
+  }
+
+  .review {
+    background: rgb(255 255 255 / 0.06);
+    border: 1px solid var(--navy-500);
+    border-radius: var(--radius-2);
+    padding: 22px 20px;
+    margin: 0;
+  }
+  .review .stars {
+    display: flex;
+    gap: 3px;
+    color: var(--star);
+    margin-bottom: 10px;
+  }
+  .review p {
+    font-family: var(--font-body);
+    font-size: 15.5px;
+    line-height: 1.6;
+    color: #fff;
+    margin: 0 0 12px;
+  }
+  .review cite {
+    font-family: var(--font-mono);
+    font-size: 10px;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    color: var(--amber-400);
+    font-style: normal;
+  }
+</style>

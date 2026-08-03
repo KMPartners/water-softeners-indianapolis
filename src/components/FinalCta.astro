@@ -1,0 +1,28 @@
+---
+import Icon from './Icon.astro';
+import { NAP } from '../lib/site.js';
+
+interface Props {
+  heading: string;
+  body: string;
+  ctaLabel?: string;
+  ctaHref?: string;
+}
+const {
+  heading,
+  body,
+  ctaLabel = `Call ${NAP.phoneDisplay}`,
+  ctaHref = NAP.phoneTel,
+} = Astro.props;
+---
+
+<section class="final-cta">
+  <div class="container">
+    <h2>{heading}</h2>
+    <p>{body}</p>
+    <a class="btn-dark" href={ctaHref}>
+      <Icon name="phone" size={16} />
+      {ctaLabel}
+    </a>
+  </div>
+</section>

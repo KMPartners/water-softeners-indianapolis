@@ -1,0 +1,221 @@
+---
+/**
+ * Sticky site header — identical on every page (NAP = the GBP listing).
+ * Markup ported from the reference; the mobile menu below 920px is new code,
+ * since the static reference only hides the nav (README.md:66).
+ */
+import Icon from './Icon.astro';
+import { HEADER_NAV, isActive } from '../lib/nav.js';
+import { NAP } from '../lib/site.js';
+
+interface Props {
+  current?: string;
+}
+const { current } = Astro.props;
+---
+
+<header class="site-header">
+  <div class="container bar">
+    <a class="brand-lockup" href="/">
+      <span class="logo-mark">BFA</span>
+      <span>
+        <span class="wm-1">Beach Family</span><br />
+        <span class="wm-2">Automotive · Anderson IN</span>
+      </span>
+    </a>
+
+    <nav class="site-nav" aria-label="Primary">
+      {HEADER_NAV.map((item) => (
+        <a href={item.href} aria-current={isActive(item.href, current) ? 'page' : undefined}>
+          {item.label}
+        </a>
+      ))}
+    </nav>
+
+    <div class="header-right">
+      <a class="header-phone" href={NAP.phoneTel}>
+        <Icon name="phone" size={15} />
+        <span>{NAP.phoneDisplay}</span>
+      </a>
+      <button
+        class="header-menu-btn"
+        type="button"
+        aria-label="Open menu"
+        aria-expanded="false"
+        aria-controls="mobile-nav"
+        data-menu-open
+      >
+        <Icon name="menu" size={22} />
+      </button>
+    </div>
+  </div>
+</header>
+
+<!-- Mobile nav (<920px). Implemented here; the static reference only mocks it. -->
+<div class="mobile-nav" id="mobile-nav" hidden>
+  <div class="mobile-nav-panel" role="dialog" aria-modal="true" aria-label="Menu">
+    <div class="mobile-nav-head">
+      <span class="wm-1">Beach Family Automotive</span>
+      <button class="mobile-nav-close" type="button" aria-label="Close menu" data-menu-close>
+        <Icon name="close" size={22} />
+      </button>
+    </div>
+    <nav aria-label="Mobile">
+      {HEADER_NAV.map((item) => (
+        <a href={item.href} aria-current={isActive(item.href, current) ? 'page' : undefined}>
+          {item.label}
+        </a>
+      ))}
+    </nav>
+    <a class="btn-primary mobile-nav-cta" href={NAP.phoneTel}>
+      <Icon name="phone" size={16} />
+      Call {NAP.phoneDisplay}
+    </a>
+  </div>
+</div>
+
+<script>
+  // Progressive enhancement: without JS the nav is simply absent below 920px,
+  // exactly as the static reference behaves. Nothing here is load-bearing for
+  // crawlers — every link is also in the footer (mirror linking).
+  const root = document.getElementById('mobile-nav');
+  const openBtn = document.querySelector('[data-menu-open]');
+  const closeBtn = document.querySelector('[data-menu-close]');
+
+  if (root && openBtn && closeBtn) {
+    let lastFocus = null;
+
+    const open = () => {
+      lastFocus = document.activeElement;
+      root.hidden = false;
+      openBtn.setAttribute('aria-expanded', 'true');
+      document.body.style.overflow = 'hidden';
+      // Signals the mobile bottom CTA bar to hide behind the nav overlay.
+      document.body.classList.add('nav-open');
+      closeBtn.focus();
+    };
+
+    const close = () => {
+      root.hidden = true;
+      openBtn.setAttribute('aria-expanded', 'false');
+      document.body.style.overflow = '';
+      document.body.classList.remove('nav-open');
+      if (lastFocus instanceof HTMLElement) lastFocus.focus();
+    };
+
+    openBtn.addEventListener('click', open);
+    closeBtn.addEventListener('click', close);
+
+    // Click the scrim (but not the panel) to dismiss.
+    root.addEventListener('click', (e) => {
+      if (e.target === root) close();
+    });
+
+    document.addEventListener('keydown', (e) => {
+      if (e.key === 'Escape' && !root.hidden) close();
+    });
+  }
+</script>
+
+<style>
+  .header-right {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+  }
+
+  .mobile-nav {
+    position: fixed;
+    inset: 0;
+    z-index: 100;
+    background: rgb(10 24 38 / 0.6);
+    display: grid;
+    justify-items: end;
+  }
+  .mobile-nav[hidden] {
+    display: none;
+  }
+
+  .mobile-nav-panel {
+    background: var(--navy-700);
+    color: #fff;
+    width: min(320px, 86vw);
+    height: 100%;
+    padding: 18px clamp(16px, 5vw, 24px) 28px;
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+    overflow-y: auto;
+    border-left: 3px solid var(--amber-500);
+  }
+
+  .mobile-nav-head {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 12px;
+    padding-bottom: 14px;
+    margin-bottom: 6px;
+    border-bottom: 1px solid var(--navy-500);
+  }
+  .mobile-nav-head .wm-1 {
+    font-family: var(--font-display);
+    font-weight: 800;
+    font-size: 15px;
+    letter-spacing: -0.01em;
+  }
+
+  .mobile-nav-close {
+    display: grid;
+    place-items: center;
+    width: 42px;
+    height: 42px;
+    flex-shrink: 0;
+    background: none;
+    border: 1px solid var(--navy-500);
+    border-radius: var(--radius-1);
+    color: #fff;
+    cursor: pointer;
+  }
+
+  .mobile-nav-panel nav {
+    display: flex;
+    flex-direction: column;
+  }
+  .mobile-nav-panel nav a {
+    font-family: var(--font-body);
+    font-weight: 600;
+    font-size: 16px;
+    color: #d7e0ea;
+    text-decoration: none;
+    padding: 14px 0;
+    border-bottom: 1px solid var(--navy-600);
+  }
+  .mobile-nav-panel nav a:hover,
+  .mobile-nav-panel nav a[aria-current] {
+    color: var(--amber-400);
+  }
+
+  .mobile-nav-cta {
+    margin-top: 18px;
+    justify-content: center;
+  }
+
+  /* The panel is unreachable above the breakpoint, where .site-nav is visible. */
+  @media (min-width: 921px) {
+    .mobile-nav {
+      display: none;
+    }
+  }
+
+  @media (prefers-reduced-motion: no-preference) {
+    .mobile-nav-panel {
+      animation: slide-in 0.2s cubic-bezier(0.2, 0.7, 0.2, 1);
+    }
+    @keyframes slide-in {
+      from {
+        transform: translateX(100%);
+      }
+    }
+  }
+</style>

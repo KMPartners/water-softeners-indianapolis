@@ -1,0 +1,87 @@
+---
+/**
+ * Global footer. Carries the full parent link set on every page, which is half
+ * of mirror linking (Core30 rule 3) — children link UP from here as well as
+ * from the breadcrumb.
+ */
+import { FOOTER_COLUMNS } from '../lib/nav.js';
+import { NAP, HOURS_DISPLAY } from '../lib/site.js';
+
+interface Props {
+  /** Adds the Indiana financing disclaimer (copy deck §12) above the legal line. */
+  financing?: boolean;
+}
+const { financing = false } = Astro.props;
+---
+
+<footer class="footer">
+  <div class="container">
+    <div class="footer-grid">
+      <div>
+        <a class="brand-lockup" href="/">
+          <span class="logo-mark">BFA</span>
+          <span>
+            <span class="wm-1">Beach Family</span><br />
+            <span class="wm-2">Automotive · Anderson IN</span>
+          </span>
+        </a>
+        <p class="nap" style="margin-top:16px;max-width:260px">
+          A licensed Indiana used-vehicle dealer and full-service repair shop.
+          Family-owned, right here in Anderson.
+        </p>
+      </div>
+
+      {FOOTER_COLUMNS.map((col) => (
+        <div>
+          <h4>{col.heading}</h4>
+          {col.links.map((l) => <a href={l.href}>{l.label}</a>)}
+        </div>
+      ))}
+
+      <div>
+        <h4>Visit</h4>
+        <p class="nap num">
+          {NAP.streetAddress}<br />
+          {NAP.addressLocality}, {NAP.addressRegion} {NAP.postalCode}<br />
+          {NAP.phoneDisplay}<br />
+          {/* VERIFY:hours — see src/lib/site.js, two sources disagree. */}
+          <span style="color:var(--navy-400)">{HOURS_DISPLAY}</span>
+        </p>
+      </div>
+    </div>
+
+    {financing && (
+      <p class="legal legal-financing">
+        Financing subject to approval and verification of information; not all
+        applicants will qualify for all terms. Beach Family Automotive is a
+        licensed Indiana used-vehicle dealer offering in-house financing.
+        Advertised prices exclude tax, title, and registration. Vehicle
+        availability and down-payment amounts vary; contact us for current
+        details.
+        {/* PUBLISH GATE — copy deck §12: client + Indiana counsel must review this
+            disclaimer and all financing claims, and DFI consumer-credit
+            registration + dealer license must be confirmed, before any financing
+            page goes live. Building and staging is fine. */}
+      </p>
+    )}
+
+    <div class="legal">
+      © Beach Family Automotive. Auto repair estimates provided before work
+      begins. Service specifications are general references sized to your
+      vehicle's manufacturer specs. Vehicles sold as-is unless a written
+      warranty is provided.
+    </div>
+  </div>
+</footer>
+
+<style>
+  .legal-financing {
+    border-top: 1px solid var(--navy-600);
+    margin: 0;
+  }
+  /* The two legal blocks stack; only the upper one needs the rule. */
+  .legal-financing + .legal {
+    border-top: none;
+    padding-top: 0;
+  }
+</style>

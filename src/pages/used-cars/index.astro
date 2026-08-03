@@ -1,0 +1,311 @@
+---
+/**
+ * Inventory grid. Trinity: "Used Cars for Sale Anderson, IN".
+ * Schema: ItemList of the vehicles actually rendered (spec §3.4).
+ *
+ * The static reference mocks the filter chips and sort; both are implemented
+ * here as real client-side code (README.md:89). Filtering/sorting operate on
+ * already-rendered cards — no fetch, no reload — so the page works with JS off
+ * (all cards simply show, unfiltered) and crawlers still see every vehicle.
+ */
+import BaseLayout from '../../layouts/BaseLayout.astro';
+import Icon from '../../components/Icon.astro';
+import Breadcrumbs from '../../components/Breadcrumbs.astro';
+import FinalCta from '../../components/FinalCta.astro';
+import VehicleCard from '../../components/VehicleCard.astro';
+import { ROUTES } from '../../lib/nav.js';
+import { NAP, NEARBY_TOWNS_PROSE } from '../../lib/site.js';
+import { inventoryListSchema, breadcrumbSchema } from '../../lib/schema.js';
+import { getListableVehicles } from '../../lib/inventory.js';
+
+const TRINITY = ROUTES.usedCars.trinity;
+const vehicles = await getListableVehicles();
+
+// Chips are derived from the inventory actually present, in the canonical body
+// order — so a body style with zero cars never shows an empty chip.
+const BODY_ORDER = ['Sedan', 'Coupe', 'SUV', 'Truck', 'Van'];
+const presentBodies = BODY_ORDER.filter((b) => vehicles.some((v) => v.body === b));
+
+const crumbs = [
+  { label: 'Home', href: '/' },
+  { label: 'Used Cars for Sale' },
+];
+
+const description =
+  'Used cars for sale in Anderson, IN. Inspected, honestly-priced vehicles with in-house financing for all credit types.';
+---
+
+<BaseLayout
+  title={TRINITY}
+  description={description}
+  canonical={ROUTES.usedCars.href}
+  schemas={[inventoryListSchema(vehicles), breadcrumbSchema(crumbs)]}
+>
+  <Breadcrumbs crumbs={crumbs} />
+
+  <section class="page-hero page-hero--slim">
+    <div class="plate"></div>
+    <div class="container">
+      <span class="eyebrow on-dark">Inventory · Anderson, IN</span>
+      <h1>{TRINITY}</h1>
+      <p class="lede">
+        <strong>Shop inspected, honestly-priced used cars in Anderson with
+        in-house financing for every credit type.</strong> Weekly payments shown
+        are estimates for qualified buyers.
+      </p>
+    </div>
+  </section>
+
+  <!-- Sticky filter + sort bar. aria-pressed drives both state and styling. -->
+  <div class="filter-bar" data-filter-bar>
+    <div class="container inner">
+      <div class="chip-row" role="group" aria-label="Filter by body style">
+        <button class="chip" type="button" aria-pressed="true" data-filter="all">All</button>
+        {presentBodies.map((b) => (
+          <button class="chip" type="button" aria-pressed="false" data-filter={b}>{b}</button>
+        ))}
+      </div>
+
+      <div class="filter-right">
+        <span class="filter-count" data-count>
+          {vehicles.length} vehicle{vehicles.length === 1 ? '' : 's'}
+        </span>
+        <label class="sort-label">
+          <span class="sr-only">Sort by</span>
+          <select data-sort>
+            <option value="price-asc">Price: low to high</option>
+            <option value="price-desc">Price: high to low</option>
+            <option value="miles-asc">Mileage: low to high</option>
+            <option value="year-desc">Year: newest first</option>
+          </select>
+        </label>
+      </div>
+    </div>
+  </div>
+
+  <section class="content-block" style="padding-top:28px">
+    <div class="container">
+      {vehicles.length > 0 ? (
+        <div class="inv-grid" data-grid>
+          {vehicles.map((v) => (
+            <div
+              class="inv-cell"
+              data-body={v.body ?? ''}
+              data-price={v.price ?? ''}
+              data-miles={v.mileage ?? ''}
+              data-year={v.year ?? ''}
+            >
+              <VehicleCard vehicle={v} />
+            </div>
+          ))}
+        </div>
+      ) : (
+        /* Empty-lot state (spec §3.3) — never let an empty feed look broken. */
+        <p class="empty-state">
+          New inventory is arriving. Text us at <a href={NAP.phoneSms}>{NAP.phoneDisplay}</a>
+          {' '}and tell us what you're looking for.
+        </p>
+      )}
+
+      <!-- Shown by JS only when a filter yields nothing. -->
+      <p class="empty-state" data-no-results hidden>
+        No vehicles in that category right now. Try “All”, or text us at
+        <a href={NAP.phoneSms}>{NAP.phoneDisplay}</a> and we'll keep an eye out.
+      </p>
+    </div>
+  </section>
+
+  <section class="content-block alt">
+    <div class="container">
+      <div class="honest" style="display:flex;justify-content:space-between;gap:20px;flex-wrap:wrap;align-items:center">
+        <div>
+          <h3>Don't see the right one?</h3>
+          <p>We get new trades every week. Get pre-qualified and we'll keep an eye out for you.</p>
+        </div>
+        <a class="btn-primary" href={ROUTES.bhph.href}>
+          Get Pre-Qualified First
+          <Icon name="arrow-right" size={16} />
+        </a>
+      </div>
+    </div>
+  </section>
+
+  <section class="content-block">
+    <div class="container">
+      <div class="content-grid">
+        <div class="side-label"><div class="n">01</div><div class="t">Local Notes</div></div>
+        <div class="block-body">
+          <h2>Used cars for Anderson &amp; Madison County</h2>
+          <p>
+            Every vehicle is inspected on our own lifts at {NAP.streetAddress}
+            before it hits the lot, and we title through the Indiana BMV
+            in-house. We serve buyers from Anderson, {NEARBY_TOWNS_PROSE}.
+          </p>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <section class="content-block alt">
+    <div class="container">
+      <div class="content-grid">
+        <div class="side-label"><div class="n">02</div><div class="t">External</div></div>
+        <div class="block-body">
+          <h2>Check before you buy</h2>
+          <p>
+            You can look up open safety recalls on any used vehicle by VIN
+            through NHTSA — we're happy to walk through it with you.
+          </p>
+          <p>
+            {/* Core30 rule 6 — this page's single external authority link. */}
+            <a class="backlink" href="https://www.nhtsa.gov/recalls" target="_blank" rel="noopener">
+              NHTSA — Recalls by VIN ↗
+            </a>
+          </p>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <FinalCta
+    heading="Find your next car."
+    body="Get pre-qualified in minutes, then come see it in person in Anderson."
+    ctaLabel="Get Pre-Qualified"
+    ctaHref={ROUTES.bhph.href}
+  />
+</BaseLayout>
+
+<script>
+  // Filter + sort operate on rendered DOM only. No data round-trip.
+  const bar = document.querySelector('[data-filter-bar]');
+  const grid = document.querySelector('[data-grid]');
+  if (bar && grid) {
+    const cells = /** @type {HTMLElement[]} */ ([...grid.querySelectorAll('.inv-cell')]);
+    const chips = /** @type {HTMLButtonElement[]} */ ([...bar.querySelectorAll('[data-filter]')]);
+    const countEl = bar.querySelector('[data-count]');
+    const sortEl = /** @type {HTMLSelectElement} */ (bar.querySelector('[data-sort]'));
+    const noResults = document.querySelector('[data-no-results]');
+
+    let activeFilter = 'all';
+
+    const num = (el, key) => {
+      const v = el.dataset[key];
+      return v === '' || v == null ? NaN : Number(v);
+    };
+
+    const apply = () => {
+      // Filter
+      let visible = 0;
+      for (const cell of cells) {
+        const show = activeFilter === 'all' || cell.dataset.body === activeFilter;
+        cell.hidden = !show;
+        if (show) visible++;
+      }
+
+      if (countEl) countEl.textContent = `${visible} vehicle${visible === 1 ? '' : 's'}`;
+      if (noResults) noResults.hidden = visible !== 0;
+
+      // Sort — reorder the visible cells by reappending in the chosen order.
+      const [key, dir] = sortEl.value.split('-');
+      const shown = cells.filter((c) => !c.hidden);
+      shown.sort((a, b) => {
+        const map = { price: 'price', miles: 'miles', year: 'year' };
+        const na = num(a, map[key]);
+        const nb = num(b, map[key]);
+        // Missing values (e.g. "Call for price") always sort last.
+        if (isNaN(na) && isNaN(nb)) return 0;
+        if (isNaN(na)) return 1;
+        if (isNaN(nb)) return -1;
+        return dir === 'asc' ? na - nb : nb - na;
+      });
+      shown.forEach((c) => grid.appendChild(c));
+    };
+
+    chips.forEach((chip) => {
+      chip.addEventListener('click', () => {
+        chips.forEach((c) => c.setAttribute('aria-pressed', String(c === chip)));
+        activeFilter = chip.dataset.filter ?? 'all';
+        apply();
+      });
+    });
+
+    sortEl.addEventListener('change', apply);
+    apply(); // default sort on load (price asc)
+  }
+</script>
+
+<style>
+  .page-hero--slim .container {
+    padding: clamp(28px, 4vw, 44px) clamp(16px, 4vw, 32px);
+    position: relative;
+  }
+  .page-hero--slim h1 {
+    font-size: clamp(28px, 4.5vw, 46px);
+    margin: 14px 0 12px;
+  }
+
+  .filter-right {
+    display: flex;
+    align-items: center;
+    gap: 14px;
+  }
+  .filter-count {
+    font-family: var(--font-mono);
+    font-size: 11px;
+    letter-spacing: 0.06em;
+    text-transform: uppercase;
+    color: var(--ink-3);
+    white-space: nowrap;
+  }
+  .sort-label select {
+    font-family: var(--font-mono);
+    font-size: 11px;
+    letter-spacing: 0.04em;
+    color: var(--ink);
+    background: var(--surface-card);
+    border: 1px solid var(--border-strong);
+    border-radius: var(--radius-1);
+    padding: 8px 10px;
+    cursor: pointer;
+  }
+  /* Same iOS zoom trap as the pre-qual form: a focused control under 16px
+     zooms the whole page, which then pans sideways. The mono chip look is
+     kept on desktop; on phones legibility and no-zoom win anyway. */
+  @media (max-width: 640px) {
+    .sort-label select {
+      font-size: 16px;
+      letter-spacing: 0.02em;
+    }
+  }
+  .sort-label select:focus-visible {
+    outline: none;
+    box-shadow: var(--focus-ring);
+    border-color: var(--amber-500);
+  }
+
+  .inv-cell[hidden] {
+    display: none;
+  }
+
+  .empty-state {
+    background: var(--surface-card);
+    border: 1px dashed var(--border-strong);
+    border-radius: var(--radius-2);
+    padding: 28px;
+    text-align: center;
+    color: var(--ink-2);
+    font-size: 15.5px;
+  }
+
+  .sr-only {
+    position: absolute;
+    width: 1px;
+    height: 1px;
+    padding: 0;
+    margin: -1px;
+    overflow: hidden;
+    clip: rect(0, 0, 0, 0);
+    white-space: nowrap;
+    border: 0;
+  }
+</style>

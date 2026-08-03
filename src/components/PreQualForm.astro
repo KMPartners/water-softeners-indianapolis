@@ -1,0 +1,530 @@
+---
+/**
+ * Pre-qualification form.
+ *
+ * REBUILT, not ported. The React kit references <PreQualForm heading /> but the
+ * implementation lived in _ds_bundle.js, which was not shipped. Field list and
+ * framing come from _design-reference/README.md:151 ("name, phone, ZIP, income,
+ * money-down, consent + success state"); styling is assembled from tokens.
+ *
+ * Reviewer: this is the second of two components with no pixel reference.
+ *
+ * COMPLIANCE — every claim here is load-bearing (CLAUDE.md §guardrails):
+ *   · never "guaranteed approval" / "everyone approved" / any promised outcome
+ *   · "everyone is encouraged to apply" is the approved phrasing
+ *   · pre-qualification is explicitly NOT a decision
+ *   · the "no credit score impact" claim is gated behind SOFT_PULL_CONFIRMED
+ *     and does NOT render until the client confirms a genuine soft pull
+ */
+import Icon from './Icon.astro';
+import { NAP, SOFT_PULL_CONFIRMED } from '../lib/site.js';
+
+interface Props {
+  heading?: string;
+  /** Prefills the message when the form is on a vehicle page. */
+  vehicle?: string | null;
+}
+const { heading = 'Get Pre-Qualified', vehicle = null } = Astro.props;
+
+// VERIFY:form-endpoint — no lead destination confirmed yet (GoHighLevel vs
+// email is an open item in CLAUDE.md). Posts to a placeholder until then.
+//
+// 🔴 LAUNCH BLOCKER: while FORM_ENDPOINT is empty, EVERY submission is silently
+// discarded and the user still sees a success screen. This MUST be wired before
+// the site is on a real domain with real traffic. See LAUNCH-BLOCKERS.md #1.
+const endpoint = import.meta.env.FORM_ENDPOINT || '/api/pre-qualify';
+const LEAD_CAPTURE_LIVE = Boolean(import.meta.env.FORM_ENDPOINT);
+if (!LEAD_CAPTURE_LIVE) {
+  // Loud, unmissable at every build until a real destination is set.
+  console.warn(
+    '\x1b[33m[LAUNCH BLOCKER]\x1b[0m PreQualForm has NO lead destination ' +
+      '(FORM_ENDPOINT is empty). Submissions are discarded. Fine for a staging ' +
+      'demo; MUST be wired before a real-domain launch. See LAUNCH-BLOCKERS.md #1.'
+  );
+}
+---
+
+<form class="prequal" method="post" action={endpoint} novalidate data-prequal>
+  <h3 class="prequal-heading">{heading}</h3>
+  <p class="prequal-sub">
+    Tell us a little about yourself and we will get back to you. We finance all
+    credit types, and everyone is encouraged to apply.
+  </p>
+
+  {vehicle && <input type="hidden" name="vehicle" value={vehicle} />}
+
+  {/* Honeypot — hidden from humans; bots fill it and the Pages Function drops
+      them before anything reaches the CRM. Off-screen (not display:none, which
+      some bots skip). */}
+  <input
+    type="text"
+    name="company"
+    tabindex="-1"
+    autocomplete="off"
+    aria-hidden="true"
+    style="position:absolute;left:-9999px;width:1px;height:1px;opacity:0;pointer-events:none;"
+  />
+
+  <div class="prequal-grid">
+    <label class="field">
+      <span class="field-label">Full name</span>
+      {/* id is load-bearing: the iOS keyboard-pop handler below focuses this
+          exact field when a "Get Pre-Qualified" CTA is tapped. */}
+      <input id="prequal-name" type="text" name="name" autocomplete="name" required />
+      <span class="field-error" data-error></span>
+    </label>
+
+    <label class="field">
+      <span class="field-label">Phone</span>
+      <input type="tel" name="phone" autocomplete="tel" inputmode="tel" required />
+      <span class="field-error" data-error></span>
+    </label>
+
+    <label class="field">
+      <span class="field-label">ZIP code</span>
+      <input
+        type="text"
+        name="zip"
+        autocomplete="postal-code"
+        inputmode="numeric"
+        pattern="[0-9]{5}"
+        maxlength="5"
+        required
+      />
+      <span class="field-error" data-error></span>
+    </label>
+
+    <label class="field">
+      <span class="field-label">Monthly income</span>
+      <select name="income" required>
+        <option value="">Select…</option>
+        <option>Under $1,500</option>
+        <option>$1,500 – $2,500</option>
+        <option>$2,500 – $3,500</option>
+        <option>Over $3,500</option>
+      </select>
+      <span class="field-error" data-error></span>
+    </label>
+
+    <label class="field field-wide">
+      <span class="field-label">Money down available</span>
+      <select name="down" required>
+        <option value="">Select…</option>
+        <option>Under $500</option>
+        <option>$500 – $1,000</option>
+        <option>$1,000 – $2,000</option>
+        <option>Over $2,000</option>
+      </select>
+      <span class="field-error" data-error></span>
+    </label>
+  </div>
+
+  <label class="consent">
+    <input type="checkbox" name="consent" required />
+    <span>
+      I agree to be contacted by Beach Family Automotive about my inquiry, by
+      phone, text, or email.
+    </span>
+  </label>
+  <span class="field-error consent-error" data-error></span>
+
+  <button type="submit" class="btn-primary prequal-submit">
+    {heading}
+    <Icon name="arrow-right" size={18} />
+  </button>
+
+  {/* Shown only if the POST fails — never fake success and silently drop a
+      lead. Points the buyer to a live human channel as the fallback. */}
+  <p class="prequal-formerror" role="alert" hidden data-prequal-error>
+    Sorry — something went wrong sending your info. Please call or text us at
+    <a href={NAP.phoneTel}>{NAP.phoneDisplay}</a> and we will take care of you.
+  </p>
+
+  <ul class="prequal-assurances">
+    {/*
+      SOFT_PULL_CONFIRMED is true: the owner confirmed there is no credit check
+      to pre-qualify (site review 2026-07-28), so this claim is accurate. It
+      stays gated so it reverts cleanly if that ever changes — see src/lib/site.js.
+    */}
+    {SOFT_PULL_CONFIRMED && (
+      <li><Icon name="check" size={16} />No credit check to pre-qualify</li>
+    )}
+    <li><Icon name="check" size={16} />We finance all credit types</li>
+    <li><Icon name="check" size={16} />Everyone is encouraged to apply</li>
+  </ul>
+
+  <p class="prequal-legal">
+    Pre-qualification is not a credit decision and not a guarantee of approval.
+    Financing is subject to approval and verification of information; not all
+    applicants will qualify for all terms.
+  </p>
+</form>
+
+<div class="prequal-success" hidden data-prequal-success>
+  <span class="success-mark"><Icon name="check" size={26} /></span>
+  <h3>Thanks — we have got it.</h3>
+  <p>
+    Someone from Beach Family Automotive will reach out shortly. If you would
+    rather talk now, call us at <a href={NAP.phoneTel}>{NAP.phoneDisplay}</a>.
+  </p>
+</div>
+
+<script>
+  // Client-side validation + success state. The form still submits natively if
+  // JS is unavailable, so the lead is never lost.
+  const form = document.querySelector('[data-prequal]');
+  const success = document.querySelector('[data-prequal-success]');
+  const errorBox = document.querySelector('[data-prequal-error]');
+
+  if (form instanceof HTMLFormElement) {
+    const setError = (field, message) => {
+      const slot = field.closest('.field, .consent')?.parentElement?.querySelector('[data-error]')
+        ?? field.closest('.field')?.querySelector('[data-error]');
+      if (slot) slot.textContent = message;
+      field.setAttribute('aria-invalid', message ? 'true' : 'false');
+    };
+
+    const validate = (field) => {
+      if (!(field instanceof HTMLInputElement || field instanceof HTMLSelectElement)) return true;
+
+      if (field.validity.valueMissing) {
+        setError(field, field.type === 'checkbox' ? 'Please agree before continuing.' : 'Required.');
+        return false;
+      }
+      if (field.name === 'phone' && field.value.replace(/\D/g, '').length < 10) {
+        setError(field, 'Enter a 10-digit phone number.');
+        return false;
+      }
+      if (field.name === 'zip' && !/^\d{5}$/.test(field.value)) {
+        setError(field, 'Enter a 5-digit ZIP.');
+        return false;
+      }
+      setError(field, '');
+      return true;
+    };
+
+    form.querySelectorAll('input, select').forEach((f) => {
+      f.addEventListener('blur', () => validate(f));
+      f.addEventListener('input', () => {
+        if (f.getAttribute('aria-invalid') === 'true') validate(f);
+      });
+    });
+
+    form.addEventListener('submit', async (e) => {
+      const fields = [...form.querySelectorAll('input, select')];
+      const allValid = fields.map(validate).every(Boolean);
+
+      if (!allValid) {
+        e.preventDefault();
+        form.querySelector('[aria-invalid="true"]')?.focus();
+        return;
+      }
+
+      e.preventDefault();
+      if (errorBox instanceof HTMLElement) errorBox.hidden = true;
+
+      const submit = form.querySelector('button[type="submit"]');
+      let submitHTML = '';
+      if (submit instanceof HTMLButtonElement) {
+        submitHTML = submit.innerHTML;
+        submit.disabled = true;
+        submit.textContent = 'Sending…';
+      }
+
+      // POST to /api/pre-qualify (the Pages Function -> GoHighLevel). The
+      // function returns { ok: true } on capture AND in demo mode, so staging
+      // still shows success; only a real transport/server failure lands here.
+      let ok = false;
+      try {
+        const res = await fetch(form.action, { method: 'POST', body: new FormData(form) });
+        ok = res.ok;
+      } catch {
+        ok = false;
+      }
+
+      if (!ok) {
+        // Never fake success on failure — re-enable the button and surface the
+        // phone/text fallback so the lead is not silently lost.
+        if (submit instanceof HTMLButtonElement) {
+          submit.disabled = false;
+          submit.innerHTML = submitHTML;
+        }
+        if (errorBox instanceof HTMLElement) {
+          errorBox.hidden = false;
+          errorBox.scrollIntoView({ behavior: 'smooth', block: 'center' });
+        }
+        return;
+      }
+
+      // GTM/GA4 conversion signal. Works with or without GTM loaded, and is
+      // reusable across future forms via a data-intent attribute.
+      const vehicleVal = form.querySelector('input[name="vehicle"]')?.value || '';
+      (window.dataLayer = window.dataLayer || []).push({
+        event: 'lead_submit',
+        lead_form: form.getAttribute('data-intent') || 'prequal',
+        ...(vehicleVal ? { vehicle: vehicleVal } : {}),
+      });
+
+      form.hidden = true;
+      if (success instanceof HTMLElement) {
+        success.hidden = false;
+        success.scrollIntoView({ behavior: 'smooth', block: 'center' });
+      }
+    });
+  }
+
+  // ── iOS keyboard pop on "Get Pre-Qualified" ────────────────────────────────
+  //
+  // iOS Safari only opens the on-screen keyboard when focus() runs
+  // SYNCHRONOUSLY inside a real user gesture. Inside setTimeout, hashchange,
+  // rAF, or any awaited promise it is treated as programmatic: the field shows
+  // a caret but no keyboard appears, and the user is stuck staring at a form
+  // they can't type into.
+  //
+  // So we intercept the click on any CTA pointing at #pre-qualify, focus the
+  // first field in the same call stack, then do the scrolling ourselves
+  // (we cancelled the browser's default anchor jump to get here).
+  (function () {
+    const HASH_RE = /#pre-qualify$/;
+
+    document.addEventListener(
+      'click',
+      (e) => {
+        // Let cmd/ctrl/shift/alt + middle-click keep their normal meaning
+        // (open in new tab, etc.).
+        if (e.metaKey || e.ctrlKey || e.shiftKey || e.altKey || e.button !== 0) return;
+
+        const link = e.target instanceof Element ? e.target.closest('a[href]') : null;
+        if (!link) return;
+        if (!HASH_RE.test(link.getAttribute('href') || '')) return;
+
+        const input = document.getElementById('prequal-name');
+        const target = document.getElementById('pre-qualify');
+        // Form isn't on this page — let the browser navigate normally.
+        if (!input || !target) return;
+
+        e.preventDefault();
+
+        // SYNCHRONOUS — this is the whole trick. preventScroll stops the jump
+        // so our smooth scroll below is the only movement the user sees.
+        try {
+          input.focus({ preventScroll: true });
+        } catch {
+          input.focus();
+        }
+
+        target.scrollIntoView({ behavior: 'smooth', block: 'start' });
+        if (history.pushState) history.pushState(null, '', '#pre-qualify');
+      },
+      true // capture phase: run before the browser's default anchor handling
+    );
+
+    // Fallback for an external deep link or back/forward landing on the hash.
+    // No user gesture here, so iOS won't raise the keyboard — but moving focus
+    // is still the right behaviour, and it works everywhere else.
+    window.addEventListener('hashchange', () => {
+      if (!HASH_RE.test(location.hash)) return;
+      const input = document.getElementById('prequal-name');
+      if (!input) return;
+      setTimeout(() => {
+        try {
+          input.focus({ preventScroll: true });
+        } catch {
+          input.focus();
+        }
+      }, 380);
+    });
+  })();
+</script>
+
+<style>
+  .prequal {
+    background: var(--surface-card);
+    border: 1px solid var(--border);
+    border-radius: var(--radius-2);
+    padding: clamp(20px, 3vw, 28px);
+    box-shadow: var(--shadow-lg);
+  }
+
+  .prequal-heading {
+    font-family: var(--font-display);
+    font-weight: 800;
+    font-size: 22px;
+    letter-spacing: -0.02em;
+    color: var(--navy-700);
+    margin: 0 0 8px;
+  }
+  .prequal-sub {
+    font-size: 14.5px;
+    line-height: 1.55;
+    color: var(--ink-2);
+    margin: 0 0 20px;
+  }
+
+  .prequal-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 14px;
+  }
+  .field-wide {
+    grid-column: 1 / -1;
+  }
+  @media (max-width: 640px) {
+    .prequal-grid {
+      grid-template-columns: 1fr;
+    }
+  }
+
+  .field {
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+  }
+  .field-label {
+    font-family: var(--font-mono);
+    font-size: 10.5px;
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+    color: var(--ink-3);
+  }
+  .field input,
+  .field select {
+    font-family: var(--font-body);
+    font-size: 15px;
+    color: var(--ink);
+    background: var(--paper);
+    border: 1px solid var(--border-strong);
+    border-radius: var(--radius-1);
+    padding: 11px 12px;
+    width: 100%;
+  }
+
+  /* iOS Safari zooms the WHOLE PAGE when a focused control is under 16px, and
+     a zoomed page can be panned sideways. Since the CTA now focuses this field
+     on tap, that fired on every tap. 16px is the documented threshold.
+     This lives here rather than in a global sheet because Astro scopes
+     component styles with a [data-astro-cid-*] selector, which outranks any
+     unscoped `input {}` rule. Desktop keeps the designed 15px. */
+  @media (max-width: 640px) {
+    .field input,
+    .field select {
+      font-size: 16px;
+    }
+  }
+  .field input:focus-visible,
+  .field select:focus-visible,
+  .consent input:focus-visible {
+    outline: none;
+    box-shadow: var(--focus-ring);
+    border-color: var(--amber-500);
+  }
+  .field input[aria-invalid='true'],
+  .field select[aria-invalid='true'] {
+    border-color: var(--alert);
+  }
+
+  .field-error {
+    font-family: var(--font-mono);
+    font-size: 10.5px;
+    letter-spacing: 0.04em;
+    color: var(--alert);
+    min-height: 1em;
+  }
+  .field-error:empty {
+    display: none;
+  }
+
+  .consent {
+    display: flex;
+    gap: 10px;
+    align-items: flex-start;
+    margin: 18px 0 0;
+    font-size: 13.5px;
+    line-height: 1.5;
+    color: var(--ink-2);
+  }
+  .consent input {
+    margin-top: 3px;
+    flex-shrink: 0;
+    width: 17px;
+    height: 17px;
+    accent-color: var(--amber-600);
+  }
+
+  .prequal-submit {
+    width: 100%;
+    justify-content: center;
+    margin-top: 18px;
+  }
+  .prequal-submit:disabled {
+    opacity: 0.7;
+    cursor: default;
+  }
+
+  .prequal-assurances {
+    list-style: none;
+    padding: 0;
+    margin: 18px 0 0;
+    display: grid;
+    gap: 9px;
+  }
+  .prequal-assurances li {
+    display: flex;
+    gap: 9px;
+    align-items: flex-start;
+    font-size: 14px;
+    color: var(--ink-2);
+  }
+  .prequal-assurances :global(.ico) {
+    color: var(--go);
+    flex-shrink: 0;
+    margin-top: 2px;
+  }
+
+  .prequal-legal {
+    font-family: var(--font-mono);
+    font-size: 10px;
+    letter-spacing: 0.03em;
+    line-height: 1.65;
+    color: var(--ink-3);
+    margin: 16px 0 0;
+    padding-top: 14px;
+    border-top: 1px solid var(--border);
+  }
+
+  .prequal-success {
+    background: var(--surface-card);
+    border: 1px solid var(--go);
+    border-radius: var(--radius-2);
+    padding: clamp(24px, 4vw, 34px);
+    text-align: center;
+    box-shadow: var(--shadow-lg);
+  }
+  .prequal-success[hidden] {
+    display: none;
+  }
+  .success-mark {
+    display: grid;
+    place-items: center;
+    width: 52px;
+    height: 52px;
+    margin: 0 auto 14px;
+    border-radius: 50%;
+    background: var(--go-soft);
+    color: var(--go);
+  }
+  .prequal-success h3 {
+    font-family: var(--font-display);
+    font-weight: 800;
+    font-size: 22px;
+    letter-spacing: -0.02em;
+    color: var(--navy-700);
+    margin: 0 0 8px;
+  }
+  .prequal-success p {
+    font-size: 15px;
+    line-height: 1.6;
+    color: var(--ink-2);
+    margin: 0;
+  }
+</style>
