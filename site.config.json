@@ -73,6 +73,14 @@
 
   "brand": {
     "tokensFile": "src/styles/tokens/colors.css",
-    "logos": {}
+    "logos": {},
+
+    "wordmark": {
+      "$comment": "Two-line lockup in the header/footer. Kept explicit rather than split from business.name: where a name breaks is a design decision, and deriving it guesses wrong on most real names.",
+      "line1": "Example",
+      "line2": "Local Services · Anytown ST"
+    },
+
+    "ctaStatus": "Serving Anytown, ST"
   }
 }

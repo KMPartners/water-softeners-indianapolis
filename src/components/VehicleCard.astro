@@ -6,6 +6,7 @@
  */
 import Icon from './Icon.astro';
 import { formatPrice, formatMiles } from '../lib/inventory.js';
+import { NAP } from '../lib/site.js';
 
 interface Props {
   vehicle: any;
@@ -20,7 +21,7 @@ const titleLabel = v.titleStatus ? `${v.titleStatus} title` : null;
 <a class="inv-card" href={`/used-cars/${v.slug}/`}>
   <div class="inv-photo">
     {v.heroPhoto ? (
-      <img src={v.heroPhoto} alt={`${v.title} for sale in Anderson, IN`} loading="lazy" />
+      <img src={v.heroPhoto} alt={`${v.title} for sale in ${NAP.addressLocality}, ${NAP.addressRegion}`} loading="lazy" />
     ) : (
       <>
         <svg class="inv-watermark" viewBox="0 0 24 24"><use href="#i-car" /></svg>

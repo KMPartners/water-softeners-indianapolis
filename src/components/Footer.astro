@@ -5,7 +5,7 @@
  * from the breadcrumb.
  */
 import { FOOTER_COLUMNS } from '../lib/nav.js';
-import { NAP, HOURS_DISPLAY } from '../lib/site.js';
+import { NAP, HOURS_DISPLAY, WORDMARK, LEGAL_NAME } from '../lib/site.js';
 
 interface Props {
   /** Adds the Indiana financing disclaimer (copy deck §12) above the legal line. */
@@ -21,13 +21,13 @@ const { financing = false } = Astro.props;
         <a class="brand-lockup" href="/">
           <span class="logo-mark">BFA</span>
           <span>
-            <span class="wm-1">Beach Family</span><br />
-            <span class="wm-2">Automotive · Anderson IN</span>
+            <span class="wm-1">{WORDMARK.line1}</span><br />
+            <span class="wm-2">{WORDMARK.line2}</span>
           </span>
         </a>
         <p class="nap" style="margin-top:16px;max-width:260px">
           A licensed Indiana used-vehicle dealer and full-service repair shop.
-          Family-owned, right here in Anderson.
+          Family-owned, right here in {NAP.addressLocality}.
         </p>
       </div>
 
@@ -53,7 +53,7 @@ const { financing = false } = Astro.props;
     {financing && (
       <p class="legal legal-financing">
         Financing subject to approval and verification of information; not all
-        applicants will qualify for all terms. Beach Family Automotive is a
+        applicants will qualify for all terms. {LEGAL_NAME} is a
         licensed Indiana used-vehicle dealer offering in-house financing.
         Advertised prices exclude tax, title, and registration. Vehicle
         availability and down-payment amounts vary; contact us for current
@@ -66,7 +66,7 @@ const { financing = false } = Astro.props;
     )}
 
     <div class="legal">
-      © Beach Family Automotive. Auto repair estimates provided before work
+      © {LEGAL_NAME}. Estimates provided before work
       begins. Service specifications are general references sized to your
       vehicle's manufacturer specs. Vehicles sold as-is unless a written
       warranty is provided.

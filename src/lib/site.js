@@ -21,7 +21,7 @@
 
 import config from '../../site.config.json';
 
-const { business, compliance, geoScope, site } = config;
+const { business, compliance, geoScope, site, brand } = config;
 
 /* ── Phone ──────────────────────────────────────────────────────────────────
    Single E.164 source -> every rendered form. US/NANP numbers get a formatted
@@ -147,6 +147,16 @@ export const NEARBY_TOWNS_PROSE =
   townNames.length > 1
     ? `${townNames.slice(0, -1).join(', ')}, and ${townNames[townNames.length - 1]}`
     : townNames[0] || '';
+
+/**
+ * Brand wordmark — the two-line lockup in the header/footer. Explicit in config
+ * rather than split from `business.name`, because where a name breaks is a
+ * design decision and deriving it guesses wrong on most real names.
+ */
+export const WORDMARK = (brand && brand.wordmark) || { line1: business.name, line2: '' };
+
+/** Short status line on the mobile CTA bar. */
+export const CTA_STATUS = (brand && brand.ctaStatus) || '';
 
 /** Lead-tagging source + og fallback image, both per-client. */
 export const LEAD_SOURCE = site.leadSource;

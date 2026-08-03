@@ -56,7 +56,11 @@ export async function onRequestPost({ request, env }) {
 
   // Honeypot: bots fill a field a human never sees. Pretend success (so we do
   // not train the bot to adapt) but never forward it.
-  if (str(form.get('company')) !== '') return json({ ok: true }, 200);
+  //
+  // Must stay byte-identical to the `name=` in PreQualForm.astro, and must
+  // never be `company` — password managers auto-fill that even when hidden,
+  // silently dropping real leads with no symptom on either side.
+  if (str(form.get('hp_check')) !== '') return json({ ok: true }, 200);
 
   const name = str(form.get('name'));
   const phone = toE164(form.get('phone'));

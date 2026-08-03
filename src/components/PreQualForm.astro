@@ -53,12 +53,24 @@ if (!LEAD_CAPTURE_LIVE) {
 
   {vehicle && <input type="hidden" name="vehicle" value={vehicle} />}
 
-  {/* Honeypot — hidden from humans; bots fill it and the Pages Function drops
-      them before anything reaches the CRM. Off-screen (not display:none, which
-      some bots skip). */}
+  {/* Honeypot — hidden from humans; bots fill it and the endpoint drops them
+      before anything reaches the CRM. Off-screen (not display:none, which some
+      bots skip).
+
+      NAME IS LOAD-BEARING. It must NOT be `company`, `website`, `address`,
+      `organization`, or `fax`: password managers auto-fill those even when the
+      field is hidden, so a real user's submission trips the honeypot and is
+      dropped — and because honeypot rejection is deliberately silent (a bot
+      shown an error learns to adapt), the failure has no symptom on either
+      side. The user sees a form that did nothing; the CRM sees nothing at all.
+
+      TODO when the /lead Worker lands: derive this per-site from a slug prefix,
+      so a bot that learns one site's honeypot has not learned the next one's.
+      Kept as a shared constant for now because Pages Functions bundle
+      separately from the Astro build and cannot import site.config.json. */}
   <input
     type="text"
-    name="company"
+    name="hp_check"
     tabindex="-1"
     autocomplete="off"
     aria-hidden="true"
@@ -122,7 +134,7 @@ if (!LEAD_CAPTURE_LIVE) {
   <label class="consent">
     <input type="checkbox" name="consent" required />
     <span>
-      I agree to be contacted by Beach Family Automotive about my inquiry, by
+      I agree to be contacted by {NAP.name} about my inquiry, by
       phone, text, or email.
     </span>
   </label>
@@ -164,7 +176,7 @@ if (!LEAD_CAPTURE_LIVE) {
   <span class="success-mark"><Icon name="check" size={26} /></span>
   <h3>Thanks — we have got it.</h3>
   <p>
-    Someone from Beach Family Automotive will reach out shortly. If you would
+    Someone from {NAP.name} will reach out shortly. If you would
     rather talk now, call us at <a href={NAP.phoneTel}>{NAP.phoneDisplay}</a>.
   </p>
 </div>

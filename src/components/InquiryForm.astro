@@ -9,6 +9,7 @@
  * Self-contained, mirroring PreQualForm / ServiceForm.
  */
 import Icon from './Icon.astro';
+import { NAP } from '../lib/site.js';
 
 interface Props {
   heading?: string;
@@ -70,7 +71,7 @@ const endpoint = import.meta.env.FORM_ENDPOINT || '/api/pre-qualify';
   <label class="consent">
     <input type="checkbox" name="consent" required />
     <span>
-      I agree to be contacted by Beach Family Automotive about this vehicle, by
+      I agree to be contacted by {NAP.name} about this vehicle, by
       phone, text, or email.
     </span>
   </label>
@@ -83,7 +84,7 @@ const endpoint = import.meta.env.FORM_ENDPOINT || '/api/pre-qualify';
 
   <p class="inqform-formerror" role="alert" hidden data-inquiry-error>
     Sorry — something went wrong sending your message. Please call or text us at
-    <a href="tel:+17652741878">(765) 274-1878</a>.
+    <a href={NAP.phoneTel}>{NAP.phoneDisplay}</a>.
   </p>
 </form>
 
@@ -92,7 +93,7 @@ const endpoint = import.meta.env.FORM_ENDPOINT || '/api/pre-qualify';
   <h3>Thanks — we have got it.</h3>
   <p>
     We will reach out about this vehicle shortly. To talk now, call or text
-    <a href="tel:+17652741878">(765) 274-1878</a>.
+    <a href={NAP.phoneTel}>{NAP.phoneDisplay}</a>.
   </p>
 </div>
 

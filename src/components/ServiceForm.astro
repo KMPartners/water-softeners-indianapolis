@@ -11,6 +11,7 @@
  * pages). No pricing promises here.
  */
 import Icon from './Icon.astro';
+import { NAP } from '../lib/site.js';
 
 interface Props {
   heading?: string;
@@ -94,7 +95,7 @@ const endpoint = import.meta.env.FORM_ENDPOINT || '/api/pre-qualify';
   <label class="consent">
     <input type="checkbox" name="consent" required />
     <span>
-      I agree to be contacted by Beach Family Automotive about my request, by
+      I agree to be contacted by {NAP.name} about my request, by
       phone, text, or email.
     </span>
   </label>
@@ -107,7 +108,7 @@ const endpoint = import.meta.env.FORM_ENDPOINT || '/api/pre-qualify';
 
   <p class="svcform-formerror" role="alert" hidden data-service-error>
     Sorry — something went wrong sending your request. Please call or text us at
-    <a href="tel:+17652741878">(765) 274-1878</a> and we will take care of you.
+    <a href={NAP.phoneTel}>{NAP.phoneDisplay}</a> and we will take care of you.
   </p>
 </form>
 
@@ -115,8 +116,8 @@ const endpoint = import.meta.env.FORM_ENDPOINT || '/api/pre-qualify';
   <span class="success-mark"><Icon name="check" size={26} /></span>
   <h3>Thanks — we have got it.</h3>
   <p>
-    Someone from Beach Family Automotive will reach out to schedule. To talk now,
-    call us at <a href="tel:+17652741878">(765) 274-1878</a>.
+    Someone from {NAP.name} will reach out to schedule. To talk now,
+    call us at <a href={NAP.phoneTel}>{NAP.phoneDisplay}</a>.
   </p>
 </div>
 

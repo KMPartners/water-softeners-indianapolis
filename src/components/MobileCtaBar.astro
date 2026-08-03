@@ -16,7 +16,7 @@
  * "mobile mode" is cohesive — hamburger nav + bottom bar appear together.
  */
 import Icon from './Icon.astro';
-import { NAP } from '../lib/site.js';
+import { NAP, CTA_STATUS } from '../lib/site.js';
 
 interface Cta {
   label: string;
@@ -34,7 +34,7 @@ interface Props {
 }
 
 const {
-  status = 'In-house financing · Anderson, IN',
+  status = CTA_STATUS,
   statusTone = 'go',
   primary = { label: 'Get Pre-Qualified', href: '/buy-here-pay-here-anderson/', icon: 'arrow-right' },
   secondary = { label: 'Call', sublabel: NAP.phoneDisplay, href: NAP.phoneTel, icon: 'phone' },

@@ -6,7 +6,7 @@
  */
 import Icon from './Icon.astro';
 import { HEADER_NAV, isActive } from '../lib/nav.js';
-import { NAP } from '../lib/site.js';
+import { NAP, WORDMARK } from '../lib/site.js';
 
 interface Props {
   current?: string;
@@ -19,8 +19,8 @@ const { current } = Astro.props;
     <a class="brand-lockup" href="/">
       <span class="logo-mark">BFA</span>
       <span>
-        <span class="wm-1">Beach Family</span><br />
-        <span class="wm-2">Automotive · Anderson IN</span>
+        <span class="wm-1">{WORDMARK.line1}</span><br />
+        <span class="wm-2">{WORDMARK.line2}</span>
       </span>
     </a>
 
@@ -55,7 +55,7 @@ const { current } = Astro.props;
 <div class="mobile-nav" id="mobile-nav" hidden>
   <div class="mobile-nav-panel" role="dialog" aria-modal="true" aria-label="Menu">
     <div class="mobile-nav-head">
-      <span class="wm-1">Beach Family Automotive</span>
+      <span class="wm-1">{NAP.name}</span>
       <button class="mobile-nav-close" type="button" aria-label="Close menu" data-menu-close>
         <Icon name="close" size={22} />
       </button>
