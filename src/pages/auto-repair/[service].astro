@@ -17,8 +17,9 @@ import Breadcrumbs from '../../components/Breadcrumbs.astro';
 import FinalCta from '../../components/FinalCta.astro';
 import { ROUTES, REPAIR_SERVICES } from '../../lib/nav.js';
 import { NAP } from '../../lib/site.js';
-import { REPAIR_CONTENT, authorityLink } from '../../lib/repair-services.js';
-import { repairServiceSchema, breadcrumbSchema, faqSchema } from '../../lib/schema.js';
+import { REPAIR_CONTENT, authorityLink } from '../../../presets/auto/repair-services.js';
+import { breadcrumbSchema, faqSchema } from '../../lib/schema.js';
+import { repairServiceSchema } from '../../../presets/auto/schema.js';
 
 export function getStaticPaths() {
   return REPAIR_SERVICES.map((svc) => ({

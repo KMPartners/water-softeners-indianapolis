@@ -15,7 +15,8 @@ import FinalCta from '../../components/FinalCta.astro';
 import VehicleCard from '../../components/VehicleCard.astro';
 import { ROUTES } from '../../lib/nav.js';
 import { NAP, NEARBY_TOWNS_PROSE } from '../../lib/site.js';
-import { inventoryListSchema, breadcrumbSchema } from '../../lib/schema.js';
+import { breadcrumbSchema } from '../../lib/schema.js';
+import { inventoryListSchema } from '../../../presets/auto/schema.js';
 import { getListableVehicles } from '../../lib/inventory.js';
 
 const TRINITY = ROUTES.usedCars.trinity;

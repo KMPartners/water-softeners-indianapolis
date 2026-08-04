@@ -1,20 +1,20 @@
 /**
- * JSON-LD builders.
+ * JSON-LD builders — ENGINE primitives (vertical-agnostic).
  *
- * Type mapping follows the user's correction #2, which OVERRIDES the design
- * reference. _design-reference/README.md:54 says "every other page = Service
- * with a byte-identical provider block"; that is superseded here and matches
- * CLAUDE.md rule 7 instead:
+ * This file is Engine: it knows how to build a business node, a service node, an
+ * item list, breadcrumbs, and an FAQ — but it does NOT know what an AutoDealer or
+ * a Car is. The industry-specific builders (AutoDealer/AutoRepair/Car/…) live in
+ * the preset, e.g. presets/auto/schema.js, and are composed from the primitives
+ * exported here. Charter §3/§6: the generic node is Engine; the @type strings and
+ * the genuinely vertical builders (like vehicleSchema) are preset.
  *
- *   homepage / sales hub  -> AutoDealer
- *   vehicle pages         -> Car + nested Offer (seller -> AutoDealer)
- *   financing pages       -> FinancialService
- *   repair / service      -> AutoRepair / Service
- *
- * HARD RULE: aggregateRating appears ONLY on AutoDealer and AutoRepair. Never
- * on Car, never on Service, never on Offer. Google treats a rating on a product
- * that has no reviews of its own as a structured-data violation, and CLAUDE.md
- * calls it out by name.
+ * HARD RULE that every preset inherits: aggregateRating appears ONLY on a
+ * business node (LocalBusiness and its subtypes — AutoDealer, GeneralContractor,
+ * Dentist, …). NEVER on a Product/Car, a Service, or an Offer. Google treats a
+ * rating on a product that has no reviews of its own as a structured-data
+ * violation, and core30-lint fails the build on it (rule 7). The invariant is
+ * placement-independent: on a homepage the business node is top-level; on a
+ * service page it is the `provider`. Same rule, different position.
  */
 
 import {
@@ -33,7 +33,7 @@ import {
   KNOWS_ABOUT,
 } from './site.js';
 
-const abs = (path = '/') => new URL(path, SITE_URL).href;
+export const abs = (path = '/') => new URL(path, SITE_URL).href;
 
 function postalAddress() {
   return {
@@ -150,180 +150,85 @@ function openingHours() {
 }
 
 /**
- * The dealership — the primary entity. Used standalone on the homepage/sales
- * hub, and by reference (@id) as the seller/provider everywhere else.
+ * localBusiness — the Engine's generic business node. Every vertical's primary
+ * and secondary entities (AutoDealer, AutoRepair, GeneralContractor, Dentist, …)
+ * are this same node with a different `type` and `@id` fragment. Returns the node
+ * WITHOUT `@context` so it can be nested as a `provider`; wrap it for a top-level
+ * block (see homepageSchema in the preset).
+ *
+ *   type        — the schema.org @type (preset-supplied: 'AutoDealer', …)
+ *   idFragment  — the #fragment on the @id, so multiple entities never merge
+ *   path        — the entity's canonical path ('/', '/auto-repair/', …)
+ *   name        — defaults to the business name; a secondary entity may suffix it
+ *   withRating  — attach aggregateRating (only ever on a business node)
+ *   withIdentity — attach sameAs/naics/etc. TRUE only for the PRIMARY entity:
+ *                 those profiles belong to the primary listing, and putting them
+ *                 on a secondary node is the same wrong-entity fabrication that
+ *                 withRating guards against.
  */
-export function autoDealer({ withRating = true } = {}) {
+export function localBusiness({
+  type,
+  idFragment,
+  path = '/',
+  name = NAP.name,
+  withRating = false,
+  withIdentity = false,
+} = {}) {
   return {
-    '@type': 'AutoDealer',
-    '@id': `${abs('/')}#dealer`,
-    name: NAP.name,
-    url: abs('/'),
+    '@type': type,
+    '@id': `${abs(path)}#${idFragment}`,
+    name,
+    url: abs(path),
     telephone: NAP.phoneSchema,
     address: postalAddress(),
     areaServed: areaServedTyped(),
     ...geo(),
     ...openingHours(),
-    ...businessIdentity(),
+    ...(withIdentity ? businessIdentity() : {}),
     ...(withRating ? aggregateRating() : {}),
   };
 }
 
-/**
- * The repair shop — a SEPARATE entity with its own GBP listing (CLAUDE.md
- * "Two entities, separated"). Distinct @id so the two never merge.
- *
- * withRating defaults to FALSE: the 4.2/15 rating belongs to whichever GBP it
- * came from, and attaching it to both listings would be fabrication. Turn it on
- * only once the repair shop's own rating is confirmed.
- */
-export function autoRepair({ withRating = false } = {}) {
-  return {
-    '@type': 'AutoRepair',
-    '@id': `${abs('/auto-repair/')}#repair`,
-    name: `${NAP.name} — Auto Repair`,
-    url: abs('/auto-repair/'),
-    telephone: NAP.phoneSchema,
-    address: postalAddress(),
-    areaServed: areaServedTyped(),
-    ...geo(),
-    ...openingHours(),
-    // businessIdentity() is intentionally NOT spread here: sameAs/naics/etc.
-    // belong to the PRIMARY entity's own profiles. Attaching the dealer's Yelp
-    // and GBP to the repair node would be the same wrong-entity fabrication that
-    // withRating:false guards against.
-    ...(withRating ? aggregateRating() : {}),
-  };
-}
-
-/** Lightweight pointer to the dealer node, for use as seller/provider. */
-const dealerRef = () => ({ '@id': `${abs('/')}#dealer` });
-
-/** Homepage / sales hub. */
-export function homepageSchema() {
-  return { '@context': 'https://schema.org', ...autoDealer() };
-}
+/** Pointer to a business node by its path+fragment, for seller/provider @id refs. */
+export const entityRef = (path, idFragment) => ({ '@id': `${abs(path)}#${idFragment}` });
 
 /**
- * Vehicle detail — Car with a nested Offer whose seller is the AutoDealer.
- * No aggregateRating, by rule.
- *
- * A vehicle with no price gets availability but no price property, matching the
- * visible "Call for price" state — schema must mirror visible content only.
+ * serviceSchema — the Engine's generic Service-shaped node. A financing page, a
+ * repair service, a dental cleaning are all this: a typed service with a
+ * `provider` business node and optional entity links. `provider` is passed in by
+ * the preset (which knows whether it is the dealer, the repair arm, etc.).
+ * aggregateRating never appears here — it lives on the provider node.
  */
-export function vehicleSchema(v) {
-  const availability =
-    v.status === 'Pending'
-      ? 'https://schema.org/PreOrder'
-      : v.status === 'Sold'
-        ? 'https://schema.org/SoldOut'
-        : 'https://schema.org/InStock';
-
-  const offer = {
-    '@type': 'Offer',
-    availability,
-    itemCondition: 'https://schema.org/UsedCondition',
-    priceCurrency: 'USD',
-    ...(typeof v.price === 'number' ? { price: String(v.price) } : {}),
-    seller: dealerRef(),
-    url: abs(`/used-cars/${v.slug}/`),
-  };
-
+export function serviceSchema({ type = 'Service', name, serviceType, description, url, provider, about, mentions }) {
   return {
     '@context': 'https://schema.org',
-    '@type': 'Car',
-    name: v.title,
-    url: abs(`/used-cars/${v.slug}/`),
-    ...(v.vin ? { vehicleIdentificationNumber: v.vin } : {}),
-    ...(v.year ? { vehicleModelDate: String(v.year) } : {}),
-    ...(v.make ? { brand: { '@type': 'Brand', name: v.make } } : {}),
-    ...(v.model ? { model: v.model } : {}),
-    ...(v.trim ? { vehicleConfiguration: v.trim } : {}),
-    ...(v.body ? { bodyType: v.body } : {}),
-    ...(v.drivetrain ? { driveWheelConfiguration: v.drivetrain } : {}),
-    ...(v.transmission ? { vehicleTransmission: v.transmission } : {}),
-    ...(v.engine ? { vehicleEngine: { '@type': 'EngineSpecification', name: v.engine } } : {}),
-    ...(typeof v.mileage === 'number'
-      ? {
-          mileageFromOdometer: {
-            '@type': 'QuantitativeValue',
-            value: v.mileage,
-            unitCode: 'SMI',
-          },
-        }
-      : {}),
-    ...(v.owners ? { numberOfPreviousOwners: v.owners } : {}),
-    ...(v.extColor ? { color: v.extColor } : {}),
-    ...(v.description ? { description: v.description } : {}),
-    ...(v.photos?.length ? { image: v.photos.map((p) => p.url) } : {}),
-    offers: offer,
-    // The dealer node is inlined once here so the seller @id always resolves.
-    //
-    // withRating:false is deliberate and load-bearing. Technically the rating
-    // would sit on an AutoDealer node, which the rule permits — but inlining a
-    // rated node inside a Car invites Google to attribute those 15 dealership
-    // reviews to this individual vehicle, which is exactly the outcome the rule
-    // exists to prevent. The rating still reaches the entity via the homepage's
-    // AutoDealer node, which shares this @id.
-    provider: autoDealer({ withRating: false }),
-  };
-}
-
-/**
- * Financing pages (the crown jewels) -> FinancialService. No aggregateRating.
- *
- * COMPLIANCE: nothing in here may imply a promised outcome. No "offers" node
- * with terms, no rate, no approval language — Indiana exposure per CLAUDE.md.
- */
-export function financialServiceSchema({ name, description, url, about, mentions }) {
-  return {
-    '@context': 'https://schema.org',
-    '@type': 'FinancialService',
+    '@type': type,
     name,
-    description,
+    ...(serviceType ? { serviceType } : {}),
+    ...(description ? { description } : {}),
     url: abs(url),
     areaServed: areaServedTyped(),
     ...entityLinks({ about, mentions }),
-    provider: autoDealer(),
+    ...(provider ? { provider } : {}),
   };
 }
 
 /**
- * Repair service entity pages -> Service, provided by the AutoRepair entity.
- * `about`/`mentions` are optional entity links from the content row (see
- * entityLinks): pass the curated Wikipedia/Wikidata Things for the service and
- * they are emitted; omit them and the node is unchanged.
+ * itemListSchema — generic ItemList of `{ url, name }` rows. Vertical-agnostic:
+ * serves an inventory listing, a city×service index, a resource hub — anything
+ * that is an ordered list of internal links. Presets map their rows to
+ * `{ url, name }` and call this.
  */
-export function repairServiceSchema({ name, serviceType, description, url, about, mentions }) {
-  return {
-    '@context': 'https://schema.org',
-    '@type': 'Service',
-    name,
-    serviceType,
-    description,
-    url: abs(url),
-    areaServed: areaServedTyped(),
-    ...entityLinks({ about, mentions }),
-    provider: autoRepair(),
-  };
-}
-
-/** The repair hub itself is the AutoRepair entity, not a Service. */
-export function autoRepairHubSchema() {
-  return { '@context': 'https://schema.org', ...autoRepair() };
-}
-
-/** Inventory listing page — ItemList of the vehicles actually rendered. */
-export function inventoryListSchema(vehicles) {
+export function itemListSchema(items) {
   return {
     '@context': 'https://schema.org',
     '@type': 'ItemList',
-    numberOfItems: vehicles.length,
-    itemListElement: vehicles.map((v, i) => ({
+    numberOfItems: items.length,
+    itemListElement: items.map((it, i) => ({
       '@type': 'ListItem',
       position: i + 1,
-      url: abs(`/used-cars/${v.slug}/`),
-      name: v.title,
+      url: abs(it.url),
+      name: it.name,
     })),
   };
 }
