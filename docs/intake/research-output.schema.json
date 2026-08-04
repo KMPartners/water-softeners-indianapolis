@@ -10,7 +10,13 @@
     "$schema": { "const": "core30/intake-research/v1" },
     "vertical": {
       "type": "string",
-      "description": "The industry preset id this research targets (e.g. 'auto', 'concrete', 'hvac'). Selects the preset that validates schemaType and supplies the entity vocabulary."
+      "description": "The industry preset id this research targets (e.g. 'auto', 'concrete', 'hvac'). Selects the preset that validates schemaType and supplies the entity vocabulary. For a GREENFIELD project with no chosen vertical yet, this may be a new preset id the project defines."
+    },
+    "posture": {
+      "type": "string",
+      "default": "greenfield",
+      "description": "GREENFIELD = no Google Business Profile exists yet: the research OUTPUT DEFINES the GBP categories/services to create, and page-build approval comes from the owner, not from a GBP description. EXISTING-GBP = a live GBP exists: pages are gated by whether the GBP entry has a customer-facing description (the ghost rule). See gbp-alignment.md. The gbpDescribed field on each entity is only meaningful when posture is existing-gbp.",
+      "enum": ["greenfield", "existing-gbp"]
     },
 
     "business": {
@@ -117,7 +123,12 @@
           "priority": { "type": "string", "enum": ["high", "med", "low"] },
           "gbpDescribed": {
             "type": "boolean",
-            "description": "Does the GBP entry for this entity have a customer-facing description? See gbp-alignment.md: a NO-description entry is a GHOST (Google-suggested, not owner-approved) and gets NO page. Only true here earns a build.",
+            "description": "EXISTING-GBP posture only: does the GBP entry for this entity have a customer-facing description? A NO-description entry is a GHOST (Google-suggested, not owner-approved) and gets NO page. IGNORED when posture is greenfield — with no GBP, `ownerApproved` is the build gate instead.",
+            "default": false
+          },
+          "ownerApproved": {
+            "type": "boolean",
+            "description": "GREENFIELD posture: has the owner approved building this entity into a page (and, later, into a GBP category/service)? With no GBP to gate against, this is the build gate. The never-build-unapproved discipline is preserved; only the source of approval changes.",
             "default": false
           },
           "entityLinks": {

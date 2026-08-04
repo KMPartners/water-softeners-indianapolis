@@ -18,6 +18,29 @@ category/service structure, or Google sees two weakly-related entities instead o
 one strong one. This doc is where the two are reconciled and frozen before any
 page is built. Everything downstream conforms to it.
 
+## Greenfield vs. existing-GBP (`posture`)
+
+The research schema carries a `posture` field, because the two starting points run
+this stage in opposite directions:
+
+- **`existing-gbp`** — a live GBP already exists. The website is **aligned to it**:
+  each page conforms to a GBP category/service, and the description-gated ghost
+  rule (below) applies. This is the donor sites' situation.
+- **`greenfield`** — **no GBP exists yet** (a brand-new project: no site, no
+  listing, maybe no brand). The direction reverses: the research output **defines
+  the GBP to create.** The category/service hierarchy you settle here becomes the
+  spec for setting up the Business Profile later. There is no description to gate
+  on, so the ghost rule does not apply — the build gate is **owner approval**
+  (`ownerApproved`), and the discipline is preserved: still never build an entity
+  the owner has not approved, you just get approval from a person instead of from
+  a GBP field.
+
+Once a greenfield project's GBP is created from this map, its posture flips to
+`existing-gbp` and future changes align to the now-live listing.
+
+The locked rules below apply to **both** postures except rule 2, which is
+posture-specific as noted.
+
 ## The locked rules
 
 These carry forward from the donor site verbatim — they are hard-won, not
@@ -28,12 +51,18 @@ preferences:
    service that appears in two grids splits its own relevance. This is the
    `placement` field in the research schema.
 
-2. **Description-gated pages — no ghosts.** Build a page only if the GBP entry has
-   a real, customer-facing **description**. A GBP category/service with no
-   description is a **ghost** — Google-*suggested*, not owner-*approved* — and
-   gets no page, no grid slot, nothing. (`gbpDescribed: false` in the schema.) If
-   the owner later writes a description, the ghost is promoted. Record skipped
-   ghosts explicitly so the omission is a decision, not a silent gap.
+2. **Build only approved entities** *(posture-specific)*.
+   - **existing-gbp:** build a page only if the GBP entry has a real,
+     customer-facing **description**. A GBP category/service with no description is
+     a **ghost** — Google-*suggested*, not owner-*approved* — and gets no page, no
+     grid slot, nothing (`gbpDescribed: false`). If the owner later writes a
+     description, the ghost is promoted.
+   - **greenfield:** there is no GBP description to read, so build a page only if
+     the owner has approved the entity (`ownerApproved: true`). Same discipline,
+     human source of approval.
+
+   Either way, record skipped entities explicitly so the omission is a recorded
+   decision, not a silent gap.
 
 3. **Primary sub-groups, secondaries stay flat.** The **primary** GBP category is
    the homepage H1 and the one whose services get **sub-grouped** on the homepage
