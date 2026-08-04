@@ -6,16 +6,17 @@
   "type": "module",
   "scripts": {
     "dev": "astro dev",
-    "build": "astro build",
-    "build:cf": "astro build && node scripts/stamp-noindex-if-preview.mjs",
+    "build": "astro build && npm run lint",
+    "lint": "node scripts/core30-lint.mjs",
+    "build:cf": "astro build && node scripts/stamp-noindex-if-preview.mjs && npm run lint",
     "preview": "astro preview",
     "astro": "astro",
     "airtable:provision": "node --env-file-if-exists=.env scripts/provision-airtable.mjs",
     "airtable:seed": "node --env-file-if-exists=.env scripts/provision-airtable.mjs --seed",
     "airtable:check": "node --env-file-if-exists=.env scripts/provision-airtable.mjs --check",
     "ghl:test": "node --env-file-if-exists=.env scripts/ghl-test.mjs",
-    "deploy:staging": "astro build && node scripts/stamp-staging-noindex.mjs && npx wrangler pages deploy dist --project-name=$CF_PAGES_PROJECT --branch=staging --commit-dirty=true",
-    "deploy:prod": "astro build && npx wrangler pages deploy dist --project-name=$CF_PAGES_PROJECT --branch=main --commit-dirty=true"
+    "deploy:staging": "astro build && node scripts/stamp-staging-noindex.mjs && npm run lint && npx wrangler pages deploy dist --project-name=$CF_PAGES_PROJECT --branch=staging --commit-dirty=true",
+    "deploy:prod": "npm run build && npx wrangler pages deploy dist --project-name=$CF_PAGES_PROJECT --branch=main --commit-dirty=true"
   },
   "dependencies": {
     "astro": "^5.6.1"

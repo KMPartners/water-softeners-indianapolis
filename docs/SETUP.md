@@ -46,11 +46,28 @@ npm install
 npm run build
 ```
 
-That is the whole Phase 1 definition of done: `npm run build` (which is
-`astro build`) completes and writes `dist/`. A green build currently produces
-**23 pages** — homepage, one financing page, the used-cars listing + one detail
-page per fixture vehicle, and the auto-repair hub + one page per service, plus
-`sitemap.xml`.
+`npm run build` is now `astro build && npm run lint`: it renders `dist/` and
+then runs `core30-lint`, which **fails the build** on any Core30 violation
+(charter §8). A green build currently produces **23 pages** — homepage, one
+financing page, the used-cars listing + one detail page per fixture vehicle, and
+the auto-repair hub + one page per service, plus `sitemap.xml` — and a clean
+lint pass.
+
+Run the linter alone (against an existing `dist/`) with:
+
+```bash
+npm run lint
+```
+
+It checks, numbered to the charter §8 table: Trinity (rule 1 — `<title>`
+keyphrase === `<h1>` lead), Schema.org (rule 7 — JSON-LD parses; no
+`aggregateRating` on a Car/Service/Offer node), Canonicalization (rule 9 — one
+extensionless canonical per page; zero `.html` in the sitemap), FAQ-open (rule
+5a), external-link placeholders (rule 5b/6 — no `EXTERNAL-LINK-TODO`, no live
+`href="#"`), and committed secrets (a source scan, from the concrete audit).
+Heuristic checks are warnings, never build-failing — a lint that cries wolf gets
+disabled. The mirror-link graph and headless responsive checks need a DOM and
+come in a later batch.
 
 Two console messages during the build are **expected and non-fatal**:
 
