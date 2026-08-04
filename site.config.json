@@ -39,7 +39,21 @@
     "hoursDisplayOverride": null,
 
     "rating": { "value": "", "count": "" },
-    "ratingConfirmed": false
+    "ratingConfirmed": false,
+
+    "$comment_identity": [
+      "Entity-identity fields for the business JSON-LD node. Each is OMITTED",
+      "from the schema when blank/null — never emit a guessed NAICS code or a",
+      "founding year nobody confirmed. `sameAs` is the highest-value one: it",
+      "cites the business's own authoritative profiles (Google Business Profile,",
+      "Yelp, Facebook, BBB) so Google can reconcile this site with a known",
+      "entity in its graph. Use the REAL profile URLs or leave the array empty."
+    ],
+    "foundingYear": null,
+    "naics": "",
+    "priceRange": "",
+    "sameAs": [],
+    "knowsAbout": []
   },
 
   "compliance": {

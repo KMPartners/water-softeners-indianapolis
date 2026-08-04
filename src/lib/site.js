@@ -142,6 +142,18 @@ export const AREA_SERVED = [
 
 export const COUNTIES = geoScope.counties || [];
 
+/* ── Entity identity ────────────────────────────────────────────────────────
+   Feeds the business JSON-LD node. Every one is omitted from the schema when
+   empty (see schema.js) — a guessed NAICS or an unconfirmed founding year is a
+   fabricated fact, same rule as GEO/RATING. `SAMEAS` is the entity-reconciliation
+   signal: links to the business's own authoritative profiles (GBP, Yelp, etc.)
+   that let Google tie this site to a known entity. */
+export const FOUNDING_YEAR = business.foundingYear || null;
+export const NAICS = business.naics || '';
+export const PRICE_RANGE = business.priceRange || '';
+export const SAMEAS = business.sameAs || [];
+export const KNOWS_ABOUT = business.knowsAbout || [];
+
 const townNames = (geoScope.extendedAreas || []).map((t) => String(t).split(',')[0].trim());
 export const NEARBY_TOWNS_PROSE =
   townNames.length > 1

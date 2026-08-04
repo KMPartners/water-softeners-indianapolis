@@ -26,6 +26,11 @@ import {
   AREA_SERVED,
   HOURS_CONFIRMED,
   HOURS_SPEC,
+  FOUNDING_YEAR,
+  NAICS,
+  PRICE_RANGE,
+  SAMEAS,
+  KNOWS_ABOUT,
 } from './site.js';
 
 const abs = (path = '/') => new URL(path, SITE_URL).href;
@@ -38,6 +43,72 @@ function postalAddress() {
     addressRegion: NAP.addressRegion,
     postalCode: NAP.postalCode,
     addressCountry: NAP.addressCountry,
+  };
+}
+
+/**
+ * areaServed as typed schema.org `City` objects rather than bare strings.
+ * Google reconciles a typed place far better than a loose string, and this is
+ * what the mature sibling site emits. Same source list as the string form, so
+ * the visible service-area copy and the schema still agree.
+ */
+function areaServedTyped() {
+  return AREA_SERVED.map((name) => ({ '@type': 'City', name }));
+}
+
+/**
+ * Entity-identity block for the primary business node — the properties that let
+ * Google reconcile this site with a known entity in its Knowledge Graph.
+ *
+ * EVERY field is omitted when its config value is empty. A guessed NAICS code, a
+ * made-up founding year, or a fabricated citation URL is exactly the kind of
+ * unverifiable claim the never-fabricate rule (GEO/RATING) exists to block —
+ * and a wrong `sameAs` actively points Google at the wrong business. Ship-safe
+ * default is: emit nothing until the client supplies the real value.
+ *
+ *   sameAs      — the business's own authoritative profiles (GBP, Yelp, FB, BBB)
+ *   naics       — the confirmed industry code
+ *   foundingDate — from a confirmed founding year only
+ *   priceRange  — the "$$"/range string, when the client has one
+ *   knowsAbout  — the service vocabulary this entity covers
+ */
+function businessIdentity() {
+  return {
+    ...(SAMEAS.length ? { sameAs: SAMEAS } : {}),
+    ...(NAICS ? { naics: NAICS } : {}),
+    ...(FOUNDING_YEAR ? { foundingDate: String(FOUNDING_YEAR) } : {}),
+    ...(PRICE_RANGE ? { priceRange: PRICE_RANGE } : {}),
+    ...(KNOWS_ABOUT.length ? { knowsAbout: KNOWS_ABOUT } : {}),
+  };
+}
+
+/**
+ * Entity links for a Service node: `about` (the single primary entity the
+ * service concerns) and `mentions` (supporting entities). Each is a schema.org
+ * `Thing` with `sameAs` pointing at its Wikipedia + Wikidata pages — the
+ * strongest available signal for what a page is really about.
+ *
+ * These are NOT fabricated by the Engine. They come from the content row (or a
+ * preset entity registry), because the correct Wikipedia/Wikidata URL for a
+ * given service is curated data, not something to guess. Passed as:
+ *   about:    { name, sameAs: [wikipediaUrl, wikidataUrl] }
+ *   mentions: [ { name, sameAs: [...] }, ... ]
+ * Omitted entirely when the row supplies nothing.
+ */
+function entityThing(t) {
+  if (!t || !t.name) return null;
+  return {
+    '@type': 'Thing',
+    name: t.name,
+    ...(t.sameAs?.length ? { sameAs: t.sameAs } : {}),
+  };
+}
+function entityLinks({ about, mentions } = {}) {
+  const a = entityThing(about);
+  const m = (mentions || []).map(entityThing).filter(Boolean);
+  return {
+    ...(a ? { about: a } : {}),
+    ...(m.length ? { mentions: m } : {}),
   };
 }
 
@@ -90,9 +161,10 @@ export function autoDealer({ withRating = true } = {}) {
     url: abs('/'),
     telephone: NAP.phoneSchema,
     address: postalAddress(),
-    areaServed: AREA_SERVED,
+    areaServed: areaServedTyped(),
     ...geo(),
     ...openingHours(),
+    ...businessIdentity(),
     ...(withRating ? aggregateRating() : {}),
   };
 }
@@ -113,9 +185,13 @@ export function autoRepair({ withRating = false } = {}) {
     url: abs('/auto-repair/'),
     telephone: NAP.phoneSchema,
     address: postalAddress(),
-    areaServed: AREA_SERVED,
+    areaServed: areaServedTyped(),
     ...geo(),
     ...openingHours(),
+    // businessIdentity() is intentionally NOT spread here: sameAs/naics/etc.
+    // belong to the PRIMARY entity's own profiles. Attaching the dealer's Yelp
+    // and GBP to the repair node would be the same wrong-entity fabrication that
+    // withRating:false guards against.
     ...(withRating ? aggregateRating() : {}),
   };
 }
@@ -199,20 +275,26 @@ export function vehicleSchema(v) {
  * COMPLIANCE: nothing in here may imply a promised outcome. No "offers" node
  * with terms, no rate, no approval language — Indiana exposure per CLAUDE.md.
  */
-export function financialServiceSchema({ name, description, url }) {
+export function financialServiceSchema({ name, description, url, about, mentions }) {
   return {
     '@context': 'https://schema.org',
     '@type': 'FinancialService',
     name,
     description,
     url: abs(url),
-    areaServed: AREA_SERVED,
+    areaServed: areaServedTyped(),
+    ...entityLinks({ about, mentions }),
     provider: autoDealer(),
   };
 }
 
-/** Repair service entity pages -> Service, provided by the AutoRepair entity. */
-export function repairServiceSchema({ name, serviceType, description, url }) {
+/**
+ * Repair service entity pages -> Service, provided by the AutoRepair entity.
+ * `about`/`mentions` are optional entity links from the content row (see
+ * entityLinks): pass the curated Wikipedia/Wikidata Things for the service and
+ * they are emitted; omit them and the node is unchanged.
+ */
+export function repairServiceSchema({ name, serviceType, description, url, about, mentions }) {
   return {
     '@context': 'https://schema.org',
     '@type': 'Service',
@@ -220,7 +302,8 @@ export function repairServiceSchema({ name, serviceType, description, url }) {
     serviceType,
     description,
     url: abs(url),
-    areaServed: AREA_SERVED,
+    areaServed: areaServedTyped(),
+    ...entityLinks({ about, mentions }),
     provider: autoRepair(),
   };
 }
