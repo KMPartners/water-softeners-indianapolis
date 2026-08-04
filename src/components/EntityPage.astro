@@ -1,0 +1,161 @@
+---
+/**
+ * EntityPage — the generic content-tree template (charter §7), ENGINE.
+ *
+ * Renders one page from one data ROW. Every content page type — a service, a
+ * financing/category page, a city×service page — is an ordered list of typed
+ * blocks over the same Core30 spine, so one template serves them all and "new
+ * page" is "new row". Modeled on the proven auto-repair/[service] spine, made
+ * generic and vertical-agnostic.
+ *
+ * The caller (a page route) supplies the schema[] and breadcrumbs, since those
+ * are preset-specific; EntityPage owns the visible spine. All copy is
+ * interpolated ({{business.phoneDisplay}} …) and all gated items resolved before
+ * render, so an unconfirmed claim never appears.
+ *
+ * Row shape:
+ *   { trinity, description, canonical, eyebrow,
+ *     hero: { h1:{text,accent?}, lede:{strong,rest}, cta:{label,href},
+ *             card?: { title, rows:[[k,v],…] } },
+ *     blocks: [ …see the block types below… ],
+ *     finalCta: { heading, body } }
+ *
+ * Block types (each carries an optional `label` for the side-index):
+ *   { type:'prose',   h2, body|paras[] }
+ *   { type:'steps',   h2, items:[{title,body}] }
+ *   { type:'list',    h2, items:[ string | {requires,fallback} ] }
+ *   { type:'figure',  h2, prefix, value, unit, qualifier }   // qualifier required
+ *   { type:'faq',     items:[{q,a}] }                        // every <details open>
+ *   { type:'external',h2, blurb, authority:{href,label} }    // exactly one link
+ */
+import BaseLayout from '../layouts/BaseLayout.astro';
+import Icon from './Icon.astro';
+import Breadcrumbs from './Breadcrumbs.astro';
+import FinalCta from './FinalCta.astro';
+import { NAP } from '../lib/site.js';
+import { interpolate, interpolateDeep, resolveItems } from '../lib/content-tree.js';
+
+interface Props {
+  page: any;
+  crumbs?: { label: string; href?: string }[];
+  schemas?: unknown[];
+  /** Row-local interpolation values, e.g. { city: 'Springfield' }. */
+  ctx?: Record<string, string>;
+}
+const { page, crumbs = [], schemas = [], ctx = {} } = Astro.props;
+
+const t = (s: unknown) => interpolate(s as string, ctx);
+const hero = interpolateDeep(page.hero, ctx);
+const finalCta = interpolateDeep(page.finalCta, ctx);
+
+// Numbering is derived from position, so inserting a block never means
+// renumbering markup by hand (a real hazard in the hand-authored pages).
+const blocks = (page.blocks || []).map((b: any, i: number) => ({ ...b, n: String(i + 1).padStart(2, '0') }));
+---
+
+<BaseLayout title={t(page.trinity)} description={t(page.description)} canonical={page.canonical} schemas={schemas}>
+  {crumbs.length > 0 && <Breadcrumbs crumbs={crumbs} />}
+
+  <section class="page-hero">
+    <div class="plate"></div>
+    <div class="container page-hero-grid">
+      <div>
+        {page.eyebrow && <span class="eyebrow on-dark">{t(page.eyebrow)}</span>}
+        {/* Core30 rule 1: this H1 lead is byte-identical to the <title> keyphrase. */}
+        <h1>{hero.h1.text}{hero.h1.accent && <> <span class="accent">{hero.h1.accent}</span></>}</h1>
+        {/* Core30 rule 2: goal-completion in sentence one. */}
+        <p class="lede"><strong>{hero.lede.strong}</strong> {hero.lede.rest}</p>
+        <div class="page-hero-cta">
+          <a href={NAP.phoneTel} class="click-to-call">
+            <Icon name="phone" size={16} />
+            {NAP.phoneDisplay}
+          </a>
+          {hero.cta && (
+            <a href={hero.cta.href} class="btn-primary">
+              {hero.cta.label}
+              <Icon name="arrow-right" size={16} />
+            </a>
+          )}
+        </div>
+      </div>
+
+      {hero.card && (
+        <div class="page-hero-card">
+          <div class="ph-title">{hero.card.title}</div>
+          {hero.card.rows.map(([k, v]: [string, string]) => (
+            <div class="ph-row"><span class="k">{k}</span><span class="v">{v}</span></div>
+          ))}
+        </div>
+      )}
+    </div>
+  </section>
+
+  {blocks.map((b: any, i: number) => (
+    <section class={`content-block${i % 2 === 1 ? ' alt' : ''}`} id={b.anchor}>
+      <div class="container">
+        <div class="content-grid">
+          <div class="side-label"><div class="n">{b.n}</div><div class="t">{t(b.label)}</div></div>
+          <div class="block-body" style="width:100%">
+            {b.h2 && <h2>{t(b.h2)}</h2>}
+
+            {b.type === 'prose' && (
+              (b.paras || [b.body]).map((p: string) => <p>{t(p)}</p>)
+            )}
+
+            {b.type === 'steps' && (
+              <div class="steps">
+                {b.items.map((s: any, j: number) => (
+                  <div class="step">
+                    <div class="step-num">{String(j + 1).padStart(2, '0')}</div>
+                    <div class="step-title">{t(s.title)}</div>
+                    <div class="step-body">{t(s.body)}</div>
+                  </div>
+                ))}
+              </div>
+            )}
+
+            {b.type === 'list' && (
+              <ul class="reassurances">
+                {resolveItems(b.items, ctx).map((it: string) => <li><Icon name="check" size={16} />{it}</li>)}
+              </ul>
+            )}
+
+            {b.type === 'figure' && (
+              <p class="figure">
+                {t(b.prefix)} <strong class="num">{b.value}</strong>{b.unit}
+                {/* qualifier is mandatory and must sit WITH the number — the
+                    hand-authored page carried a comment saying so; here it is
+                    structural (core30-lint can assert figure.qualifier != ''). */}
+                <span class="figure-qualifier"> {t(b.qualifier)}</span>
+              </p>
+            )}
+
+            {b.type === 'faq' && (
+              <div class="faq-list">
+                {b.items.map((f: any) => (
+                  <details class="faq-item" open>
+                    <summary>{t(f.q)}</summary>
+                    <p>{t(f.a)}</p>
+                  </details>
+                ))}
+              </div>
+            )}
+
+            {b.type === 'external' && (
+              <>
+                {b.blurb && <p>{t(b.blurb)}</p>}
+                <p>
+                  <a class="backlink" href={b.authority.href} target="_blank" rel="noopener">
+                    {b.authority.label}
+                  </a>
+                </p>
+              </>
+            )}
+          </div>
+        </div>
+      </div>
+    </section>
+  ))}
+
+  {finalCta && <FinalCta heading={finalCta.heading} body={finalCta.body} />}
+</BaseLayout>

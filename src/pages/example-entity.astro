@@ -1,0 +1,35 @@
+---
+/**
+ * DELETABLE demo route for the content-tree template (charter §7). Renders the
+ * neutral example row through the generic EntityPage. Delete this file and
+ * src/content/example-entity.js once you have your own content-tree pages.
+ *
+ * It carries a plain LocalBusiness Service schema from the ENGINE primitives (no
+ * preset), so the demo stands alone with no vertical dependency.
+ */
+import EntityPage from '../components/EntityPage.astro';
+import { EXAMPLE_ENTITY } from '../content/example-entity.js';
+import { serviceSchema, breadcrumbSchema, faqSchema, localBusiness } from '../lib/schema.js';
+import { interpolate } from '../lib/content-tree.js';
+
+const crumbs = [
+  { label: 'Home', href: '/' },
+  { label: 'Example Entity' },
+];
+
+const faqBlock = EXAMPLE_ENTITY.blocks.find((b) => b.type === 'faq');
+
+const schemas = [
+  serviceSchema({
+    name: interpolate(EXAMPLE_ENTITY.trinity),
+    description: interpolate(EXAMPLE_ENTITY.description),
+    url: EXAMPLE_ENTITY.canonical,
+    // Generic business provider from the Engine — no preset needed for the demo.
+    provider: localBusiness({ type: 'LocalBusiness', idFragment: 'business', path: '/', withIdentity: true }),
+  }),
+  breadcrumbSchema(crumbs),
+  faqSchema(faqBlock.items.map((f) => ({ q: interpolate(f.q), a: interpolate(f.a) }))),
+];
+---
+
+<EntityPage page={EXAMPLE_ENTITY} crumbs={crumbs} schemas={schemas} />
