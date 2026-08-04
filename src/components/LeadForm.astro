@@ -1,0 +1,424 @@
+---
+/**
+ * LeadForm — the single lead-capture form (ENGINE).
+ *
+ * Replaces PreQualForm / InquiryForm / ServiceForm, which were three near-
+ * identical components with a copy-pasted submit handler. That duplication was
+ * not cosmetic: it caused a real bug — the honeypot field name was fixed in one
+ * copy and left stale in the other two, silently disabling their spam guard.
+ * One component, one handler, driven by a field-set config (see e.g.
+ * presets/auto/lead-forms.js), means a fix lands once.
+ *
+ * Behavior preserved from the originals, exactly:
+ *   - honeypot `hp_check` (never `company` — password managers auto-fill that
+ *     even hidden, silently dropping real leads; byte-identical to the check in
+ *     functions/api/pre-qualify.js)
+ *   - per-field client validation (required, 10-digit phone, 5-digit ZIP), with
+ *     native submit still working if JS is off (the lead is never lost)
+ *   - POST to the Pages Function; on failure, re-enable and surface the phone
+ *     fallback — NEVER fake success and silently drop a lead
+ *   - dataLayer `lead_submit` with the intent, for GTM/GA4
+ *   - iOS synchronous-focus keyboard pop when a CTA points at the form's anchor
+ *
+ * Config-gated `assurances` reuse the content-tree gating primitive, so a claim
+ * (e.g. "no credit check") renders only when its site.config flag is confirmed.
+ */
+import Icon from './Icon.astro';
+import { NAP } from '../lib/site.js';
+import { interpolate, resolveItems } from '../lib/content-tree.js';
+
+interface FieldDef {
+  name: string;
+  label: string;
+  type: 'text' | 'tel' | 'zip' | 'email' | 'select' | 'textarea';
+  required?: boolean;
+  options?: string[];
+  placeholder?: string;
+  autocomplete?: string;
+  wide?: boolean;
+  value?: string;
+}
+interface Props {
+  intent: string;
+  heading: string;
+  sub?: string;
+  fields: FieldDef[];
+  consent: string;
+  anchorId?: string;
+  submitLabel?: string;
+  assurances?: any[];
+  legal?: string;
+  successBody?: string;
+  /** Hidden context fields, e.g. { vehicle: '2014 Chevrolet Malibu' }. */
+  hidden?: Record<string, string>;
+}
+const {
+  intent, heading, sub, fields, consent,
+  anchorId = 'lead-form', submitLabel, assurances = [], legal,
+  successBody = '', hidden = {},
+} = Astro.props;
+
+const endpoint = import.meta.env.FORM_ENDPOINT || '/api/pre-qualify';
+if (!import.meta.env.FORM_ENDPOINT) {
+  // Loud at every build until a real destination is wired: while FORM_ENDPOINT
+  // is empty, submissions are accepted and discarded (demo mode).
+  console.warn(
+    '\x1b[33m[LAUNCH BLOCKER]\x1b[0m LeadForm has NO lead destination ' +
+      '(FORM_ENDPOINT is empty). Submissions are discarded. Fine for a staging ' +
+      'demo; MUST be wired before a real-domain launch.'
+  );
+}
+
+const t = (s?: string) => (s ? interpolate(s) : s);
+const shownAssurances = resolveItems(assurances);
+// The first field gets a stable id so the iOS keyboard-pop handler can focus it.
+const firstId = `${anchorId}-${fields[0]?.name}`;
+---
+
+<form class="leadform" method="post" action={endpoint} novalidate data-leadform data-intent={intent} id={anchorId}>
+  <h3 class="leadform-heading">{heading}</h3>
+  {sub && <p class="leadform-sub">{t(sub)}</p>}
+
+  {/* Honeypot — hidden from humans; bots fill it and the endpoint drops them.
+      NAME IS LOAD-BEARING and byte-identical to functions/api/pre-qualify.js.
+      Must NOT be company/website/address/organization/fax — password managers
+      auto-fill those even when hidden, silently dropping real leads. */}
+  <input type="text" name="hp_check" tabindex="-1" autocomplete="off" aria-hidden="true"
+    style="position:absolute;left:-9999px;width:1px;height:1px;opacity:0;pointer-events:none;" />
+
+  <input type="hidden" name="intent" value={intent} />
+  {Object.entries(hidden).map(([k, v]) => <input type="hidden" name={k} value={v} />)}
+
+  <div class="leadform-grid">
+    {fields.map((f, i) => (
+      <label class={`field${f.wide ? ' field-wide' : ''}`}>
+        <span class="field-label">{f.label}</span>
+        {f.type === 'select' ? (
+          <select name={f.name} required={f.required}>
+            <option value="">Select…</option>
+            {(f.options || []).map((o) => <option>{o}</option>)}
+          </select>
+        ) : f.type === 'textarea' ? (
+          <textarea name={f.name} rows="3" placeholder={f.placeholder}></textarea>
+        ) : (
+          <input
+            id={i === 0 ? firstId : undefined}
+            type={f.type === 'zip' ? 'text' : f.type}
+            name={f.name}
+            value={f.value}
+            placeholder={f.placeholder}
+            autocomplete={f.autocomplete}
+            inputmode={f.type === 'tel' ? 'tel' : f.type === 'zip' ? 'numeric' : undefined}
+            pattern={f.type === 'zip' ? '[0-9]{5}' : undefined}
+            maxlength={f.type === 'zip' ? '5' : undefined}
+            required={f.required}
+          />
+        )}
+        <span class="field-error" data-error></span>
+      </label>
+    ))}
+  </div>
+
+  <label class="consent">
+    <input type="checkbox" name="consent" required />
+    <span>{t(consent)}</span>
+  </label>
+  <span class="field-error consent-error" data-error></span>
+
+  <button type="submit" class="btn-primary leadform-submit">
+    {submitLabel || heading}
+    <Icon name="arrow-right" size={18} />
+  </button>
+
+  {/* Shown only if the POST fails — never fake success and silently drop a lead. */}
+  <p class="leadform-formerror" role="alert" hidden data-leadform-error>
+    Sorry — something went wrong sending your info. Please call or text us at
+    <a href={NAP.phoneTel}>{NAP.phoneDisplay}</a> and we will take care of you.
+  </p>
+
+  {shownAssurances.length > 0 && (
+    <ul class="leadform-assurances">
+      {shownAssurances.map((a) => <li><Icon name="check" size={16} />{a}</li>)}
+    </ul>
+  )}
+
+  {legal && <p class="leadform-legal">{t(legal)}</p>}
+</form>
+
+<div class="leadform-success" hidden data-leadform-success>
+  <span class="success-mark"><Icon name="check" size={26} /></span>
+  <h3>Thanks — we have got it.</h3>
+  <p>
+    {t(successBody)} If you would rather talk now, call or text us at
+    <a href={NAP.phoneTel}>{NAP.phoneDisplay}</a>.
+  </p>
+</div>
+
+<script>
+  // One handler for every LeadForm on the page. Native submit still works with
+  // JS off, so the lead is never lost.
+  document.querySelectorAll('[data-leadform]').forEach((formEl) => {
+    if (!(formEl instanceof HTMLFormElement)) return;
+    const form = formEl;
+    const root = form.parentElement ?? document;
+    const success = root.querySelector('[data-leadform-success]');
+    const errorBox = form.querySelector('[data-leadform-error]');
+
+    const setError = (field, message) => {
+      const slot = field.closest('.field, .consent')?.parentElement?.querySelector('[data-error]')
+        ?? field.closest('.field')?.querySelector('[data-error]');
+      if (slot) slot.textContent = message;
+      field.setAttribute('aria-invalid', message ? 'true' : 'false');
+    };
+
+    const validate = (field) => {
+      if (!(field instanceof HTMLInputElement || field instanceof HTMLSelectElement)) return true;
+      if (field.validity.valueMissing) {
+        setError(field, field.type === 'checkbox' ? 'Please agree before continuing.' : 'Required.');
+        return false;
+      }
+      if (field.name === 'phone' && field.value.replace(/\D/g, '').length < 10) {
+        setError(field, 'Enter a 10-digit phone number.');
+        return false;
+      }
+      if (field.name === 'zip' && !/^\d{5}$/.test(field.value)) {
+        setError(field, 'Enter a 5-digit ZIP.');
+        return false;
+      }
+      setError(field, '');
+      return true;
+    };
+
+    form.querySelectorAll('input, select').forEach((f) => {
+      f.addEventListener('blur', () => validate(f));
+      f.addEventListener('input', () => {
+        if (f.getAttribute('aria-invalid') === 'true') validate(f);
+      });
+    });
+
+    form.addEventListener('submit', async (e) => {
+      const fields = [...form.querySelectorAll('input, select')];
+      if (!fields.map(validate).every(Boolean)) {
+        e.preventDefault();
+        form.querySelector('[aria-invalid="true"]')?.focus();
+        return;
+      }
+      e.preventDefault();
+      if (errorBox instanceof HTMLElement) errorBox.hidden = true;
+
+      const submit = form.querySelector('button[type="submit"]');
+      let submitHTML = '';
+      if (submit instanceof HTMLButtonElement) {
+        submitHTML = submit.innerHTML;
+        submit.disabled = true;
+        submit.textContent = 'Sending…';
+      }
+
+      let ok = false;
+      try {
+        const res = await fetch(form.action, { method: 'POST', body: new FormData(form) });
+        ok = res.ok;
+      } catch { ok = false; }
+
+      if (!ok) {
+        // Never fake success on failure — re-enable and surface the fallback.
+        if (submit instanceof HTMLButtonElement) { submit.disabled = false; submit.innerHTML = submitHTML; }
+        if (errorBox instanceof HTMLElement) {
+          errorBox.hidden = false;
+          errorBox.scrollIntoView({ behavior: 'smooth', block: 'center' });
+        }
+        return;
+      }
+
+      const vehicleVal = form.querySelector('input[name="vehicle"]')?.value || '';
+      (window.dataLayer = window.dataLayer || []).push({
+        event: 'lead_submit',
+        lead_form: form.getAttribute('data-intent') || 'lead',
+        ...(vehicleVal ? { vehicle: vehicleVal } : {}),
+      });
+
+      form.hidden = true;
+      if (success instanceof HTMLElement) {
+        success.hidden = false;
+        success.scrollIntoView({ behavior: 'smooth', block: 'center' });
+      }
+    });
+  });
+
+  // iOS keyboard pop: iOS Safari opens the keyboard only when focus() runs
+  // SYNCHRONOUSLY inside a real user gesture. When a CTA points at a LeadForm's
+  // anchor (#<id>), focus that form's first field in the same call stack, then
+  // scroll ourselves (we cancelled the default anchor jump).
+  document.addEventListener('click', (e) => {
+    if (e.metaKey || e.ctrlKey || e.shiftKey || e.altKey || e.button !== 0) return;
+    const link = e.target instanceof Element ? e.target.closest('a[href]') : null;
+    if (!link) return;
+    const href = link.getAttribute('href') || '';
+    const m = href.match(/#([\w-]+)$/);
+    if (!m) return;
+    const target = document.getElementById(m[1]);
+    if (!target || !target.matches('[data-leadform]')) return;
+    const input = target.querySelector('input, select, textarea');
+    if (!(input instanceof HTMLElement)) return;
+
+    e.preventDefault();
+    try { input.focus({ preventScroll: true }); } catch { input.focus(); }
+    target.scrollIntoView({ behavior: 'smooth', block: 'start' });
+    if (history.pushState) history.pushState(null, '', href);
+  }, true);
+</script>
+
+<style>
+  .leadform {
+    background: var(--surface-card);
+    border: 1px solid var(--border);
+    border-radius: var(--radius-2);
+    padding: clamp(20px, 3vw, 28px);
+    box-shadow: var(--shadow-lg);
+  }
+  .leadform-heading {
+    font-family: var(--font-display);
+    font-weight: 800;
+    font-size: 22px;
+    letter-spacing: -0.02em;
+    color: var(--navy-700);
+    margin: 0 0 8px;
+  }
+  .leadform-sub {
+    font-size: 14.5px;
+    line-height: 1.55;
+    color: var(--ink-2);
+    margin: 0 0 20px;
+  }
+  .leadform-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 14px;
+  }
+  .field-wide { grid-column: 1 / -1; }
+  @media (max-width: 640px) {
+    .leadform-grid { grid-template-columns: 1fr; }
+  }
+  .field { display: flex; flex-direction: column; gap: 6px; }
+  .field-label {
+    font-family: var(--font-mono);
+    font-size: 10.5px;
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+    color: var(--ink-3);
+  }
+  .field input,
+  .field select,
+  .field textarea {
+    font-family: var(--font-body);
+    font-size: 15px;
+    color: var(--ink);
+    background: var(--paper);
+    border: 1px solid var(--border-strong);
+    border-radius: var(--radius-1);
+    padding: 11px 12px;
+    width: 100%;
+  }
+  /* iOS zooms the page when a focused control is under 16px; the CTA focuses the
+     first field on tap, so bump to 16px on small screens. Scoped here so it
+     outranks any global input rule. */
+  @media (max-width: 640px) {
+    .field input,
+    .field select,
+    .field textarea { font-size: 16px; }
+  }
+  .field input:focus-visible,
+  .field select:focus-visible,
+  .field textarea:focus-visible,
+  .consent input:focus-visible {
+    outline: none;
+    box-shadow: var(--focus-ring);
+    border-color: var(--amber-500);
+  }
+  .field input[aria-invalid='true'],
+  .field select[aria-invalid='true'] { border-color: var(--alert); }
+  .field-error {
+    font-family: var(--font-mono);
+    font-size: 10.5px;
+    letter-spacing: 0.04em;
+    color: var(--alert);
+    min-height: 1em;
+  }
+  .field-error:empty { display: none; }
+  .consent {
+    display: flex;
+    gap: 10px;
+    align-items: flex-start;
+    margin: 18px 0 0;
+    font-size: 13.5px;
+    line-height: 1.5;
+    color: var(--ink-2);
+  }
+  .consent input {
+    margin-top: 3px;
+    flex-shrink: 0;
+    width: 17px;
+    height: 17px;
+    accent-color: var(--amber-600);
+  }
+  .leadform-submit { width: 100%; justify-content: center; margin-top: 18px; }
+  .leadform-submit:disabled { opacity: 0.7; cursor: default; }
+  .leadform-assurances {
+    list-style: none;
+    padding: 0;
+    margin: 18px 0 0;
+    display: grid;
+    gap: 9px;
+  }
+  .leadform-assurances li {
+    display: flex;
+    gap: 9px;
+    align-items: flex-start;
+    font-size: 14px;
+    color: var(--ink-2);
+  }
+  .leadform-assurances :global(.ico) { color: var(--go); flex-shrink: 0; margin-top: 2px; }
+  .leadform-legal {
+    font-family: var(--font-mono);
+    font-size: 10px;
+    letter-spacing: 0.03em;
+    line-height: 1.65;
+    color: var(--ink-3);
+    margin: 16px 0 0;
+    padding-top: 14px;
+    border-top: 1px solid var(--border);
+  }
+  .leadform-success {
+    background: var(--surface-card);
+    border: 1px solid var(--go);
+    border-radius: var(--radius-2);
+    padding: clamp(24px, 4vw, 34px);
+    text-align: center;
+    box-shadow: var(--shadow-lg);
+  }
+  .leadform-success[hidden] { display: none; }
+  .success-mark {
+    display: grid;
+    place-items: center;
+    width: 52px;
+    height: 52px;
+    margin: 0 auto 14px;
+    border-radius: 50%;
+    background: var(--go-soft);
+    color: var(--go);
+  }
+  .leadform-success h3 {
+    font-family: var(--font-display);
+    font-weight: 800;
+    font-size: 22px;
+    letter-spacing: -0.02em;
+    color: var(--navy-700);
+    margin: 0 0 8px;
+  }
+  .leadform-success p {
+    font-size: 15px;
+    line-height: 1.6;
+    color: var(--ink-2);
+    margin: 0;
+  }
+</style>

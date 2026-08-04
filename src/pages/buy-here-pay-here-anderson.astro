@@ -16,7 +16,8 @@ import BaseLayout from '../layouts/BaseLayout.astro';
 import Icon from '../components/Icon.astro';
 import Breadcrumbs from '../components/Breadcrumbs.astro';
 import FinalCta from '../components/FinalCta.astro';
-import PreQualForm from '../components/PreQualForm.astro';
+import LeadForm from '../components/LeadForm.astro';
+import { PREQUAL_FORM } from '../../presets/auto/lead-forms.js';
 import { ROUTES } from '../lib/nav.js';
 import {
   NAP,
@@ -97,7 +98,7 @@ const description =
   noindex
   {/* The form is ON this page, so the bottom bar jumps to it rather than
       navigating (the default href is this very page — a dead CTA). Tapping it
-      also pops the iOS keyboard, see PreQualForm. */}
+      also pops the iOS keyboard, see LeadForm. */}
   mobileCta={{
     status: 'All credit types · Anderson, IN',
     primary: { label: 'Get Pre-Qualified', href: '#pre-qualify', icon: 'arrow-right' },
@@ -211,12 +212,12 @@ const description =
     </div>
   </section>
 
-  <section class="content-block alt" id="pre-qualify">
+  <section class="content-block alt">
     <div class="container">
       <div class="content-grid">
         <div class="side-label"><div class="n">04</div><div class="t">Apply</div></div>
         <div class="block-body" style="width:100%;max-width:640px">
-          <PreQualForm heading="Get Pre-Qualified" />
+          <LeadForm {...PREQUAL_FORM} />
         </div>
       </div>
     </div>

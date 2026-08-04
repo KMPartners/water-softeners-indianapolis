@@ -72,7 +72,7 @@ html {
    CSS with a [data-astro-cid-*] attribute selector, which
    outranks a bare `input {}` rule here -- so the authoritative
    fixes live next to the controls themselves, in
-   PreQualForm.astro and used-cars/index.astro.
+   LeadForm.astro and used-cars/index.astro.
 
    Also note this is NOT document overflow, so the overflow-x
    guard above does not address it. 16px on the control is the
