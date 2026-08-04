@@ -1,0 +1,243 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "$id": "core30/intake-research/v1",
+  "title": "Core30 intake research output",
+  "description": "The machine-readable contract between entity research (docs/intake/entity-research-prompt.md) and the build. Its purpose is that research drops STRAIGHT into site.config + the content tree with no human retyping — the drift the whole starter exists to kill (one NAP fact was copied into five documents on the donor sites). `entities[]` is the content-tree seed; `business`/`compliance` map onto site.config.json. Nothing here is fabricated: every fact carries provenance, and anything unverified is marked, never guessed.",
+  "type": "object",
+  "required": ["$schema", "vertical", "business", "geoScope", "entities", "compliance"],
+  "additionalProperties": false,
+  "properties": {
+    "$schema": { "const": "core30/intake-research/v1" },
+    "vertical": {
+      "type": "string",
+      "description": "The industry preset id this research targets (e.g. 'auto', 'concrete', 'hvac'). Selects the preset that validates schemaType and supplies the entity vocabulary."
+    },
+
+    "business": {
+      "description": "Maps onto site.config.json -> business, verbatim. `_provenance` records where each fact came from so an unverified value is never silently promoted to the page.",
+      "type": "object",
+      "required": ["name", "primaryCategory", "address", "phone"],
+      "properties": {
+        "name": { "type": "string" },
+        "primaryCategory": { "type": "string", "description": "The GBP primary category, in Google's own wording. Drives the homepage H1 keyphrase." },
+        "address": {
+          "type": "object",
+          "required": ["street", "city", "state", "zip"],
+          "properties": {
+            "street": { "type": "string" }, "city": { "type": "string" },
+            "state": { "type": "string" }, "zip": { "type": "string" },
+            "county": { "type": "string" }
+          }
+        },
+        "phone": { "type": "string", "description": "E.164, e.g. +15555550123." },
+        "geo": {
+          "type": ["object", "null"],
+          "description": "Real coordinate or null. NEVER fabricate — a wrong coordinate maps the business to an address it does not occupy.",
+          "properties": { "lat": { "type": "number" }, "lng": { "type": "number" } }
+        },
+        "hoursSpec": { "type": "array", "items": { "type": "object" } },
+        "rating": {
+          "type": "object",
+          "description": "Real Google Business Profile numbers only. Omit / leave blank until confirmed — an invented aggregateRating is a rich-result penalty and a Core30 violation.",
+          "properties": { "value": { "type": "string" }, "count": { "type": "string" } }
+        },
+        "foundingYear": { "type": ["integer", "null"] },
+        "naics": { "type": "string" },
+        "priceRange": { "type": "string" },
+        "sameAs": {
+          "type": "array",
+          "description": "The business's OWN authoritative profiles (GBP CID URL, Yelp, Facebook, BBB) — the entity-reconciliation signal. Real URLs only.",
+          "items": { "type": "string", "format": "uri" }
+        },
+        "_provenance": {
+          "type": "object",
+          "description": "Per-field source: a URL, 'client-stated', or 'UNVERIFIED'. A field marked UNVERIFIED must not render a claim until confirmed.",
+          "additionalProperties": { "type": "string" }
+        }
+      }
+    },
+
+    "geoScope": {
+      "description": "Maps onto site.config.json -> geoScope. `buildPage` marks a city that earns its own city×service page vs. one merely named in areaServed.",
+      "type": "object",
+      "required": ["primaryCity", "counties"],
+      "properties": {
+        "primaryCity": { "type": "string" },
+        "counties": { "type": "array", "items": { "type": "string" } },
+        "extendedAreas": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "required": ["city", "state"],
+            "properties": {
+              "city": { "type": "string" }, "state": { "type": "string" },
+              "distanceMi": { "type": "number" },
+              "buildPage": { "type": "boolean", "default": false }
+            }
+          }
+        }
+      }
+    },
+
+    "entities": {
+      "description": "THE core output — the content-tree seed. One entry per distinct entity that passed the ENTITY TEST (see entity-research-prompt.md §Validation). `slug`+`trinity`+`parent`+`schemaType`+`placement` are exactly what a content-tree row needs; `parent` builds the mirror-link graph that core30-lint enforces (charter §8, rule 3).",
+      "type": "array",
+      "items": {
+        "type": "object",
+        "required": ["slug", "trinity", "placement", "priority"],
+        "additionalProperties": false,
+        "properties": {
+          "slug": { "type": "string", "pattern": "^[a-z0-9]+(?:-[a-z0-9]+)*$", "description": "URL keyphrase, kebab-case. Interpolable with {{city}} for city×service multiplication." },
+          "trinity": { "type": "string", "description": "The one string that must be <title>, <h1>, and the URL keyphrase (Core30 rule 1). {{city}}/{{state}} tokens allowed; resolved at build." },
+          "buyerPhrasing": {
+            "type": "array",
+            "description": "The words real people use for this entity — feeds the goal-completion first sentence (Core30 rule 2). NOT keyword variants; the distinct phrasings buyers actually search.",
+            "items": { "type": "string" }
+          },
+          "evidence": {
+            "type": "array",
+            "description": "Where real demand for this entity was observed. One entry is enough; zero means it did not pass the ENTITY TEST and should not be here.",
+            "items": {
+              "type": "object",
+              "properties": {
+                "claim": { "type": "string" }, "source": { "type": "string" },
+                "competitor": { "type": "string" }
+              }
+            }
+          },
+          "cluster": { "type": "string", "description": "The vertical's grouping axis (e.g. credit-situation, vehicle-segment, service-category). Preset-defined." },
+          "schemaType": { "type": "string", "description": "The JSON-LD @type this page emits. Validated by the preset (e.g. auto: AutoDealer|Car|FinancialService|Service)." },
+          "placement": {
+            "type": "string",
+            "description": "Where this entity lives. One entity, one placement (the donor's locked rule — no entity duplicated across surfaces).",
+            "enum": ["page", "section", "gbp-category", "gbp-service-item"]
+          },
+          "parent": { "type": "string", "description": "slug of the parent entity — builds the mirror-link graph. A page must link up to its parent and the parent must link down to it (Core30 rule 3)." },
+          "tier": { "type": "string", "enum": ["A", "B", "C"], "description": "Build priority. A = build now, B = core authority, C = niche/post-launch." },
+          "priority": { "type": "string", "enum": ["high", "med", "low"] },
+          "gbpDescribed": {
+            "type": "boolean",
+            "description": "Does the GBP entry for this entity have a customer-facing description? See gbp-alignment.md: a NO-description entry is a GHOST (Google-suggested, not owner-approved) and gets NO page. Only true here earns a build.",
+            "default": false
+          },
+          "entityLinks": {
+            "type": "object",
+            "description": "Curated Knowledge-Graph links for the page's about/mentions JSON-LD (schema.js entityLinks). NEVER hand-written — every QID fetched live and label-matched (see gbp-alignment.md §Entity map). A wrong sameAs tells Google the page is about the wrong thing.",
+            "properties": {
+              "about": { "$ref": "#/$defs/kgThing" },
+              "mentions": { "type": "array", "items": { "$ref": "#/$defs/kgThing" } }
+            }
+          },
+          "gatedBy": {
+            "type": "array",
+            "description": "compliance.claimGates ids that gate content on this page. An item whose gate is unconfirmed does not render (charter §5).",
+            "items": { "type": "string" }
+          }
+        }
+      }
+    },
+
+    "compliance": {
+      "description": "Maps onto site.config.json -> compliance. The per-client legal posture; core30-lint reads it. Every flag defaults to the CONSERVATIVE (claim-suppressing) value — a missing true claim costs some conversion, a present false claim is legal exposure, and those are not symmetric.",
+      "type": "object",
+      "required": ["jurisdiction"],
+      "properties": {
+        "jurisdiction": { "type": "string" },
+        "bannedPhrases": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "properties": { "phrase": { "type": "string" }, "statute": { "type": "string" }, "note": { "type": "string" } }
+          }
+        },
+        "allowedClaims": {
+          "type": "array",
+          "description": "Phrases the client MAY use, each with the condition that makes it true (e.g. 'licensed' allowed only where the client holds the license). Polarity is per-client: one vertical bans a word another requires.",
+          "items": {
+            "type": "object",
+            "properties": { "phrase": { "type": "string" }, "condition": { "type": "string" } }
+          }
+        },
+        "claimGates": {
+          "type": "array",
+          "description": "Verified-or-suppressed flags. Each becomes a site.config claimGate defaulting false; the Engine withholds the claim until the owner confirms. `question` is the exact wording the owner answers — the client fact-check questionnaire generates from this list.",
+          "items": {
+            "type": "object",
+            "required": ["id", "question"],
+            "properties": {
+              "id": { "type": "string" },
+              "question": { "type": "string" },
+              "risk": { "type": "string", "enum": ["critical", "important", "optional"] },
+              "defaultWhenUnconfirmed": { "const": "suppress" }
+            }
+          }
+        },
+        "publishGate": {
+          "type": "array",
+          "description": "Things that must be true before specific pages go live (e.g. a registration a page depends on). Blocks the named slugs until met.",
+          "items": {
+            "type": "object",
+            "properties": { "id": { "type": "string" }, "requirement": { "type": "string" }, "blocks": { "type": "array", "items": { "type": "string" } } }
+          }
+        },
+        "excludedEntities": {
+          "type": "array",
+          "description": "Entities that are a legal problem to build even though demand exists — captured so the exclusion is a recorded decision, not a silent omission.",
+          "items": {
+            "type": "object",
+            "properties": { "slug": { "type": "string" }, "reason": { "type": "string" }, "requiresCounsel": { "type": "boolean" } }
+          }
+        }
+      }
+    },
+
+    "localSpecificity": {
+      "description": "Core30 rule 4 ammunition — verifiable local facts (permit names, code limits, corridor names) injectable into copy via {{...}}. Each traces to a source; an unsourced 'local fact' is not one.",
+      "type": "array",
+      "items": {
+        "type": "object",
+        "properties": { "fact": { "type": "string" }, "source": { "type": "string" }, "appliesTo": { "type": "array", "items": { "type": "string" } } }
+      }
+    },
+
+    "externalAuthorities": {
+      "description": "Core30 rule 6 registry — authoritative outbound links (.gov, standards bodies, manufacturer specs). `verified:false` is the machine form of the EXTERNAL-LINK-TODO pattern; core30-lint fails the build on an unverified link at publish.",
+      "type": "array",
+      "items": {
+        "type": "object",
+        "required": ["key", "href", "label"],
+        "properties": {
+          "key": { "type": "string" }, "href": { "type": "string", "format": "uri" },
+          "label": { "type": "string" }, "verified": { "type": "boolean", "default": false },
+          "appliesTo": { "type": "array", "items": { "type": "string" } }
+        }
+      }
+    },
+
+    "caveats": {
+      "description": "Facts the researcher is UNCERTAIN about, kept explicit so downstream work does not treat inference as verified. This discipline is why the donor sites do not publish fabricated claims; it must survive the format change.",
+      "type": "array",
+      "items": {
+        "type": "object",
+        "properties": { "claim": { "type": "string" }, "confidence": { "type": "string" }, "whyUncertain": { "type": "string" } }
+      }
+    }
+  },
+
+  "$defs": {
+    "kgThing": {
+      "type": "object",
+      "required": ["name", "sameAs"],
+      "properties": {
+        "name": { "type": "string" },
+        "sameAs": {
+          "type": "array",
+          "minItems": 1,
+          "description": "Wikipedia URL + Wikidata URL for this entity. Both forms so Google resolves from either graph. Fetched live and label-matched on a dated pass — never hand-written from memory.",
+          "items": { "type": "string", "format": "uri" }
+        },
+        "verifiedOn": { "type": "string", "description": "ISO date the QID was last live-verified against wikidata.org." }
+      }
+    }
+  }
+}
