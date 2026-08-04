@@ -30,8 +30,10 @@ Engine.
 
 | You want to… | Read |
 |---|---|
+| **Build a new site start to finish (design → ship)** | [`docs/NEW-PROJECT-WORKFLOW.md`](docs/NEW-PROJECT-WORKFLOW.md) — the full playbook, incl. the Claude design prompts |
 | Understand *why* this exists and every decision behind it | [`core30starterCHARTER.md`](core30starterCHARTER.md) — the charter, this repo's founding document and law |
-| Spin up a brand-new project from zero | [`docs/QUICKSTART.md`](docs/QUICKSTART.md) |
+| Spin up a brand-new project from zero (condensed) | [`docs/QUICKSTART.md`](docs/QUICKSTART.md) |
+| Copy-paste prompts (design, design→tokens, research) | [`docs/prompts/`](docs/prompts/design-brief.md) · [`docs/intake/`](docs/intake/README.md) |
 | Get the engine building locally | [`docs/SETUP.md`](docs/SETUP.md) |
 | Research a client and produce config + content | [`docs/intake/`](docs/intake/README.md) — the entity-research → GBP-alignment → content-tree pipeline |
 | Know which donor commit each carve came from | [`docs/DONOR-PROVENANCE.md`](docs/DONOR-PROVENANCE.md) |
