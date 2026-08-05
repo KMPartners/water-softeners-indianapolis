@@ -21,7 +21,7 @@
 
 import config from '../../site.config.json';
 
-const { business, compliance, geoScope, site, brand } = config;
+const { business, compliance, geoScope, site, brand, legal } = config;
 
 /* ── Phone ──────────────────────────────────────────────────────────────────
    Single E.164 source -> every rendered form. US/NANP numbers get a formatted
@@ -130,6 +130,36 @@ export const LICENSE_NUMBER = compliance.licenseNumber;
 const gates = compliance.claimGates || {};
 export const SOFT_PULL_CONFIRMED = gates.softPullConfirmed === true;
 export const CREDIT_REPORTING_CONFIRMED = gates.creditReportingConfirmed === true;
+
+/* ── Legal / TCPA-A2P posture (charter §5, legal task §1.3) ──────────────────
+   The per-client legal seam for the Privacy Policy, Terms of Service, and the
+   SMS opt-in. The Engine holds none of these values; the legal-doc builders and
+   the lead form read them from here.
+
+   `smsConsentRequired` is a deliberate business decision, NOT a default to
+   inherit (task §3). The Engine supplies NO fallback: a config missing the key,
+   or giving a non-boolean, fails the build here rather than silently picking a
+   TCPA posture for the client. */
+const legalCfg = legal || {};
+if (typeof legalCfg.smsConsentRequired !== 'boolean') {
+  throw new Error(
+    'site.config.json → legal.smsConsentRequired must be set to true or false. ' +
+      'It is a per-client business decision (required = a lead implies SMS consent ' +
+      'but adds submit friction; optional = no friction but the CRM must filter on ' +
+      'sms_consent before any SMS action). The Engine has no default — decide it.'
+  );
+}
+
+export const LEGAL = {
+  /** HARDCODED string, never a computed date — see site.config.json note. */
+  effectiveDate: legalCfg.effectiveDate || '',
+  governingState: legalCfg.governingState || '',
+  venueCounty: legalCfg.venueCounty || '',
+  smsConsentRequired: legalCfg.smsConsentRequired === true,
+  /** null until counsel signs off; lint reads it as an unresolved publish gate. */
+  legalReviewedBy: legalCfg.legalReviewedBy || null,
+  a2pBrandRegistered: legalCfg.a2pBrandRegistered === true,
+};
 
 /* ── Service area ───────────────────────────────────────────────────────────
    `AREA_SERVED` is the schema list (primary + extended). `NEARBY_TOWNS_PROSE`

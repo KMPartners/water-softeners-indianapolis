@@ -247,6 +247,31 @@ export function breadcrumbSchema(crumbs) {
   };
 }
 
+/**
+ * Legal / policy pages (Privacy Policy, Terms of Service) -> WebPage. ENGINE.
+ *
+ * WebPage, NOT Service: these describe the site's own terms, they are not an
+ * offering. `publisher` is a business node with NO aggregateRating — a legal
+ * page must never carry review stars (task §2.7). Defaults to the generic
+ * primary LocalBusiness node (#business), matching the no-preset demo; a
+ * preset-based site passes its own primary node (e.g. the AutoDealer) so the
+ * publisher @id reconciles with the homepage entity.
+ *
+ * `withRating: false` is the whole point and is not overridable here.
+ */
+export function legalPageSchema({ name, description, url, publisher } = {}) {
+  return {
+    '@context': 'https://schema.org',
+    '@type': 'WebPage',
+    name,
+    description,
+    url: abs(url),
+    publisher:
+      publisher ||
+      localBusiness({ type: 'LocalBusiness', idFragment: 'business', path: '/', withRating: false, withIdentity: true }),
+  };
+}
+
 /** FAQPage — only emit when the questions are visibly on the page. */
 export function faqSchema(items) {
   return {

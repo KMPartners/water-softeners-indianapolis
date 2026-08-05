@@ -25,6 +25,7 @@
  */
 import Icon from './Icon.astro';
 import { NAP } from '../lib/site.js';
+import { SMS_CONSENT_REQUIRED, smsConsentLabelHtml } from '../lib/legal.js';
 import { interpolate, resolveItems } from '../lib/content-tree.js';
 
 interface FieldDef {
@@ -43,7 +44,14 @@ interface Props {
   heading: string;
   sub?: string;
   fields: FieldDef[];
+  /** General contact consent — required, phone/email only. Keep "text" OUT of
+      this wording when an SMS block is present, or the two re-blend (task §2). */
   consent: string;
+  /** SMS opt-in block. Preset supplies only the subject phrase ("my service
+      request"); the Engine builds the full A2P-mandated label + Privacy Policy
+      link around it. Omit to render no SMS opt-in. The `required` attribute
+      derives from site.config → legal.smsConsentRequired, never from here. */
+  smsConsent?: { subject?: string };
   anchorId?: string;
   submitLabel?: string;
   assurances?: any[];
@@ -53,10 +61,16 @@ interface Props {
   hidden?: Record<string, string>;
 }
 const {
-  intent, heading, sub, fields, consent,
+  intent, heading, sub, fields, consent, smsConsent,
   anchorId = 'lead-form', submitLabel, assurances = [], legal,
   successBody = '', hidden = {},
 } = Astro.props;
+
+// The A2P SMS consent label (an authored-constant HTML string), or null when
+// this form has no SMS opt-in. `subject` is interpolated so it may carry tokens.
+const smsLabelHtml = smsConsent
+  ? smsConsentLabelHtml({ subject: interpolate(smsConsent.subject || '') })
+  : null;
 
 const endpoint = import.meta.env.FORM_ENDPOINT || '/api/lead';
 if (!import.meta.env.FORM_ENDPOINT) {
@@ -119,11 +133,33 @@ const firstId = `${anchorId}-${fields[0]?.name}`;
     ))}
   </div>
 
+  {/* General contact consent — always required. `.consent-text` is load-bearing:
+      lead-capture.js reads the wording from this exact span at submit, so the
+      stored record reproduces what the customer saw. */}
   <label class="consent">
     <input type="checkbox" name="consent" required />
-    <span>{t(consent)}</span>
+    <span class="consent-text">{t(consent)}</span>
   </label>
   <span class="field-error consent-error" data-error></span>
+
+  {smsLabelHtml && (
+    <>
+      {/* SMS opt-in — A2P 10DLC. NEVER pre-checked (pre-checking is a TCPA
+          violation and an automatic brand-review rejection; core30-lint fails
+          the build if a `checked` attribute ever appears here). Required-ness
+          is the per-client decision in site.config → legal.smsConsentRequired,
+          NEVER a hardcoded default. Captured independently of the general
+          consent as sms_consent_* — the two are never merged. */}
+      <label class="consent consent-sms">
+        <input type="checkbox" name="sms_consent" value="yes" required={SMS_CONSENT_REQUIRED} />
+        <span class="consent-text">
+          {!SMS_CONSENT_REQUIRED && <span class="consent-optional">Optional</span>}
+          <Fragment set:html={smsLabelHtml} />
+        </span>
+      </label>
+      <span class="field-error consent-error" data-error></span>
+    </>
+  )}
 
   <button type="submit" class="btn-primary leadform-submit">
     {submitLabel || heading}
@@ -155,6 +191,12 @@ const firstId = `${anchorId}-${fields[0]?.name}`;
 </div>
 
 <script>
+  import { rememberAttribution, decorate } from '../lib/lead-capture.js';
+
+  // Time-trap baseline + first-touch UTM capture, once per page load.
+  const loadedAt = Date.now();
+  rememberAttribution();
+
   // One handler for every LeadForm on the page. Native submit still works with
   // JS off, so the lead is never lost.
   document.querySelectorAll('[data-leadform]').forEach((formEl) => {
@@ -165,8 +207,16 @@ const firstId = `${anchorId}-${fields[0]?.name}`;
     const errorBox = form.querySelector('[data-leadform-error]');
 
     const setError = (field, message) => {
-      const slot = field.closest('.field, .consent')?.parentElement?.querySelector('[data-error]')
-        ?? field.closest('.field')?.querySelector('[data-error]');
+      // A .field label CONTAINS its own [data-error]; a .consent label has it as
+      // the NEXT sibling. Walking up to the form and taking the first [data-error]
+      // would write every consent error into the first field's slot — already
+      // wrong with one consent box, and with two it puts both messages in the
+      // same wrong place. Resolve the slot relative to THIS field's label.
+      const label = field.closest('.field, .consent');
+      const next = label?.nextElementSibling;
+      const slot =
+        label?.querySelector('[data-error]') ??
+        (next?.hasAttribute?.('data-error') ? next : null);
       if (slot) slot.textContent = message;
       field.setAttribute('aria-invalid', message ? 'true' : 'false');
     };
@@ -216,7 +266,10 @@ const firstId = `${anchorId}-${fields[0]?.name}`;
 
       let ok = false;
       try {
-        const res = await fetch(form.action, { method: 'POST', body: new FormData(form) });
+        // decorate() appends the two independent consent packages (read from the
+        // DOM), first-touch attribution, name split, and the spam signal — all
+        // additive, never touching the fields the endpoint already expects.
+        const res = await fetch(form.action, { method: 'POST', body: decorate(form, new FormData(form), loadedAt) });
         ok = res.ok;
       } catch { ok = false; }
 
@@ -368,6 +421,37 @@ const firstId = `${anchorId}-${fields[0]?.name}`;
     width: 17px;
     height: 17px;
     accent-color: var(--amber-600);
+  }
+  /* The SMS opt-in must read as a deliberate consent moment, not fine print —
+     A2P brand review looks for a clear, distinct opt-in. Tokens, not literals. */
+  .consent-sms {
+    padding: 12px 14px;
+    border: 1px solid color-mix(in srgb, var(--amber-500) 34%, transparent);
+    border-radius: var(--radius-1);
+    background: color-mix(in srgb, var(--amber-500) 7%, transparent);
+    font-size: 12.5px;
+  }
+  .consent-sms .consent-text :global(strong) { color: var(--ink); font-weight: 700; }
+  .consent-sms .consent-text :global(a) {
+    color: var(--navy-600);
+    text-decoration: underline;
+    text-underline-offset: 2px;
+  }
+  /* Says plainly that this box can be skipped. Without it an optional checkbox
+     looks identical to a required one and gets ticked by reflex — which defeats
+     the point and weakens the "voluntary and explicit" claim. */
+  .consent-optional {
+    display: inline-block;
+    font-family: var(--font-mono);
+    font-size: 9px;
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+    color: var(--ink-3);
+    border: 1px solid var(--border-strong);
+    border-radius: 3px;
+    padding: 1px 5px;
+    margin-right: 6px;
+    vertical-align: 1px;
   }
   .leadform-submit { width: 100%; justify-content: center; margin-top: 18px; }
   .leadform-submit:disabled { opacity: 0.7; cursor: default; }

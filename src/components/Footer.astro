@@ -5,6 +5,7 @@
  * from the breadcrumb.
  */
 import { FOOTER_COLUMNS } from '../lib/nav.js';
+import { LEGAL_LINKS } from '../lib/legal.js';
 import { NAP, HOURS_DISPLAY, WORDMARK, LOGO_MARK, FOOTER_BLURB, FOOTER_LEGAL } from '../lib/site.js';
 
 interface Props {
@@ -50,11 +51,32 @@ const { disclaimer } = Astro.props;
 
     {disclaimer && <p class="legal legal-disclaimer">{disclaimer}</p>}
 
-    <div class="legal">{FOOTER_LEGAL}</div>
+    <div class="legal">
+      {/* Every page links to both legal docs. A2P brand review expects to reach
+          the Privacy Policy from the footer as well as from the consent
+          checkbox (task §1.1). */}
+      <p class="legal-links">
+        {LEGAL_LINKS.map((l, i) => (
+          <>
+            {i > 0 && <span aria-hidden="true"> · </span>}
+            <a href={l.href}>{l.label}</a>
+          </>
+        ))}
+      </p>
+      {FOOTER_LEGAL}
+    </div>
   </div>
 </footer>
 
 <style>
+  .legal-links {
+    margin: 0 0 10px;
+  }
+  .legal-links a {
+    color: var(--amber-400);
+    text-decoration: underline;
+    text-underline-offset: 2px;
+  }
   .legal-disclaimer {
     border-top: 1px solid var(--navy-600);
     margin: 0;

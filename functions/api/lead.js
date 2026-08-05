@@ -71,15 +71,60 @@ export async function onRequestPost({ request, env }) {
   const payload = {
     name,
     phone,
-    zip: str(form.get('zip')),
-    income: str(form.get('income')),
-    down: str(form.get('down')),
-    vehicle: str(form.get('vehicle')),
     consent: form.get('consent') != null,
     tag: LEAD_TAG,
     source: LEAD_SOURCE,
     submittedAt: new Date().toISOString(),
   };
+
+  // Optional fields. Only forward non-empty ones so each lead type's payload
+  // stays clean. The consent_* / sms_consent_* / utm_* / name-split / source_page
+  // fields are appended in the browser by src/lib/lead-capture.js — they are
+  // ADDITIVE; `name`, `phone`, and `consent` keep their existing meaning.
+  const optional = {
+    zip: str(form.get('zip')),
+    income: str(form.get('income')),
+    down: str(form.get('down')),
+    vehicle: str(form.get('vehicle')),
+    service: str(form.get('service')),
+    timeframe: str(form.get('timeframe')),
+    message: str(form.get('message')),
+
+    // Name split for CRM personalization tokens; `name` above is kept intact.
+    first_name: str(form.get('first_name')),
+    last_name: str(form.get('last_name')),
+
+    // TCPA / A2P consent DEFENSE PACKAGE — ten distinct fields. `consent` above
+    // records THAT they agreed to general contact; consent_* record what they
+    // agreed to, when, where, and on what. sms_consent_* are the SAME package
+    // for the SEPARATE SMS opt-in and are NEVER merged with the general one — a
+    // blended box cannot evidence SMS-specific consent, and A2P 10DLC brand
+    // review expects the SMS record to stand alone. `sms_consent_text` must be
+    // provisioned as LARGE_TEXT in the CRM or it truncates (see src/lib/legal.js
+    // CONSENT_CRM_FIELDS).
+    consent_timestamp: str(form.get('consent_timestamp')),
+    consent_text: str(form.get('consent_text')),
+    consent_url: str(form.get('consent_url')),
+    consent_user_agent: str(form.get('consent_user_agent')),
+
+    sms_consent: str(form.get('sms_consent')),
+    sms_consent_timestamp: str(form.get('sms_consent_timestamp')),
+    sms_consent_text: str(form.get('sms_consent_text')),
+    sms_consent_url: str(form.get('sms_consent_url')),
+    sms_consent_user_agent: str(form.get('sms_consent_user_agent')),
+
+    // Attribution. First-touch UTMs survive navigation via sessionStorage.
+    utm_source: str(form.get('utm_source')),
+    utm_medium: str(form.get('utm_medium')),
+    utm_campaign: str(form.get('utm_campaign')),
+    utm_term: str(form.get('utm_term')),
+    utm_content: str(form.get('utm_content')),
+    source_page: str(form.get('source_page')),
+
+    // Advisory only — the time trap flags, it never blocks.
+    spam_signal: str(form.get('spam_signal')),
+  };
+  for (const [k, v] of Object.entries(optional)) if (v) payload[k] = v;
 
   // Demo mode: no webhook configured -> accept + discard. No PII logged.
   if (!env.GHL_WEBHOOK_URL) return json({ ok: true, mode: 'demo' });

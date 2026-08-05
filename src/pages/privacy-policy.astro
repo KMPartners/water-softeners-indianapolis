@@ -1,0 +1,38 @@
+---
+/**
+ * Privacy Policy. Trinity: "Privacy Policy". ENGINE route.
+ *
+ * Required for A2P 10DLC brand registration — the review asks for this URL and
+ * checks the SMS section for the mandated disclosures and the exact
+ * no-third-party-sharing sentence. The SMS consent checkbox on every lead form
+ * links here.
+ *
+ * INDEXABLE and in the sitemap (task §2.6): brand review must be able to fetch
+ * it, and nothing about it is gated. Do not pass `noindex`.
+ *
+ * Content is Engine (src/lib/legal-content.js); the spine is
+ * components/LegalDoc.astro. To retitle or restructure, edit the content module,
+ * never this wrapper.
+ */
+import BaseLayout from '../layouts/BaseLayout.astro';
+import Breadcrumbs from '../components/Breadcrumbs.astro';
+import LegalDoc from '../components/LegalDoc.astro';
+import { PRIVACY_POLICY as doc } from '../lib/legal-content.js';
+import { legalPageSchema, breadcrumbSchema } from '../lib/schema.js';
+
+const crumbs = [{ label: 'Home', href: '/' }, { label: doc.trinity }];
+---
+
+<BaseLayout
+  title={doc.trinity}
+  description={doc.description}
+  canonical={doc.slug}
+  mobileCta={{ status: 'Privacy Policy' }}
+  schemas={[
+    legalPageSchema({ name: doc.trinity, description: doc.description, url: doc.slug }),
+    breadcrumbSchema(crumbs),
+  ]}
+>
+  <Breadcrumbs crumbs={crumbs} />
+  <LegalDoc doc={doc} />
+</BaseLayout>

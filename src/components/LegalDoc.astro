@@ -1,0 +1,198 @@
+---
+/**
+ * Shared renderer for the legal documents (Privacy Policy, Terms of Service) —
+ * ENGINE.
+ *
+ * One spine, content from src/lib/legal-content.js (Privacy) and the industry
+ * preset (Terms) — so the two pages cannot drift apart structurally, the same
+ * way the repair pages share one [service].astro spine.
+ *
+ * Deliberately plain: no hero slab, no CTAs. These are reference documents
+ * someone reads top to bottom, often after clicking a link from a consent
+ * checkbox. Measure is capped for readability. All values are token vars — no
+ * brand-specific literals (ported from the donor with its hex/color values
+ * replaced by --tokens).
+ */
+import { EFFECTIVE, LEGAL_DISCLAIMER } from '../lib/legal-content.js';
+import { LEGAL_REVIEWED } from '../lib/legal.js';
+
+interface Props {
+  doc: {
+    trinity: string;
+    intro: string;
+    sections: {
+      h: string;
+      paras?: (string | { html: string })[];
+      list?: string[];
+    }[];
+  };
+}
+const { doc } = Astro.props;
+---
+
+<article class="legal-doc">
+  <div class="container">
+    <header class="legal-head">
+      <h1>{doc.trinity}</h1>
+      <p class="legal-effective">Effective {EFFECTIVE}</p>
+      <p class="legal-intro">{doc.intro}</p>
+
+      {/* Visible until counsel signs off (site.config → legal.legalReviewedBy).
+          Placeholder legal prose must never be mistaken for reviewed text. */}
+      {!LEGAL_REVIEWED && (
+        <p class="legal-draft" role="note">
+          <strong>Draft — pending legal review.</strong> This document is
+          placeholder language and has not yet been reviewed by counsel. It must
+          not be relied upon until review is complete.
+        </p>
+      )}
+    </header>
+
+    {doc.sections.map((s, i) => (
+      <section class="legal-section">
+        <h2>
+          <span class="legal-n">{String(i + 1).padStart(2, '0')}</span>
+          {s.h}
+        </h2>
+        {s.paras?.map((p) =>
+          typeof p === 'string' ? <p>{p}</p> : <p set:html={p.html} />
+        )}
+        {s.list && (
+          <ul>
+            {s.list.map((li) => <li set:html={li} />)}
+          </ul>
+        )}
+      </section>
+    ))}
+
+    <p class="legal-disclaimer">{LEGAL_DISCLAIMER}</p>
+  </div>
+</article>
+
+<style>
+  .legal-doc {
+    padding: clamp(32px, 5vw, 64px) 0 clamp(48px, 7vw, 88px);
+  }
+
+  .legal-head {
+    max-width: 68ch;
+    padding-bottom: clamp(20px, 3vw, 30px);
+    margin-bottom: clamp(20px, 3vw, 30px);
+    border-bottom: 3px solid var(--amber-500);
+  }
+  .legal-head h1 {
+    font-family: var(--font-display);
+    font-weight: 900;
+    letter-spacing: -0.03em;
+    line-height: 1;
+    font-size: clamp(30px, 4.5vw, 46px);
+    color: var(--navy-700);
+    margin: 0 0 12px;
+  }
+  .legal-effective {
+    font-family: var(--font-mono);
+    font-size: 11px;
+    letter-spacing: 0.12em;
+    text-transform: uppercase;
+    color: var(--ink-3);
+    margin: 0 0 18px;
+  }
+  .legal-intro {
+    font-size: clamp(15.5px, 1.6vw, 17.5px);
+    line-height: 1.6;
+    color: var(--ink-2);
+    margin: 0;
+  }
+  .legal-draft {
+    margin: 18px 0 0;
+    padding: 12px 14px;
+    border: 1px solid var(--alert);
+    border-radius: var(--radius-1);
+    background: color-mix(in srgb, var(--alert) 8%, transparent);
+    font-size: 13.5px;
+    line-height: 1.55;
+    color: var(--ink-2);
+  }
+  .legal-draft strong {
+    color: var(--ink);
+  }
+
+  .legal-section {
+    max-width: 68ch;
+    margin-bottom: clamp(26px, 3.5vw, 38px);
+  }
+  .legal-section h2 {
+    font-family: var(--font-display);
+    font-weight: 800;
+    font-size: clamp(18px, 2.2vw, 22px);
+    letter-spacing: -0.02em;
+    color: var(--navy-700);
+    margin: 0 0 12px;
+    display: flex;
+    gap: 12px;
+    align-items: baseline;
+  }
+  .legal-n {
+    font-family: var(--font-mono);
+    font-size: 12px;
+    font-weight: 500;
+    letter-spacing: 0.06em;
+    color: var(--amber-600);
+    flex-shrink: 0;
+  }
+
+  .legal-section p {
+    font-size: 15.5px;
+    line-height: 1.65;
+    color: var(--ink-2);
+    margin: 0 0 12px;
+  }
+  .legal-section p:last-child {
+    margin-bottom: 0;
+  }
+  .legal-section :global(a) {
+    color: var(--navy-600);
+    text-decoration: underline;
+    text-underline-offset: 2px;
+  }
+  .legal-section :global(strong) {
+    color: var(--ink);
+    font-weight: 700;
+  }
+
+  .legal-section ul {
+    margin: 0;
+    padding: 0;
+    list-style: none;
+    display: grid;
+    gap: 10px;
+  }
+  .legal-section li {
+    position: relative;
+    padding-left: 20px;
+    font-size: 15.5px;
+    line-height: 1.6;
+    color: var(--ink-2);
+  }
+  .legal-section li::before {
+    content: '';
+    position: absolute;
+    left: 0;
+    top: 0.62em;
+    width: 7px;
+    height: 2px;
+    background: var(--amber-500);
+  }
+
+  .legal-disclaimer {
+    max-width: 68ch;
+    margin: clamp(30px, 4vw, 44px) 0 0;
+    padding-top: 18px;
+    border-top: 1px solid var(--border);
+    font-family: var(--font-mono);
+    font-size: 11px;
+    line-height: 1.7;
+    letter-spacing: 0.02em;
+    color: var(--ink-3);
+  }
+</style>

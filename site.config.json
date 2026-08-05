@@ -71,6 +71,32 @@
     "licenseNumber": null
   },
 
+  "legal": {
+    "$comment": [
+      "Legal-doc + TCPA/A2P posture. Every value is a per-client fact — the",
+      "Engine holds NONE of these (charter §1). `effectiveDate` is a HARDCODED",
+      "string, NEVER a computed date: a legal document's effective date must not",
+      "change silently on every rebuild.",
+      "",
+      "`smsConsentRequired` is a real business decision, not a default to inherit",
+      "(charter/task §3). Required = cleanest TCPA position (a lead implies SMS",
+      "consent) but no one unwilling to be texted can submit. Optional = no",
+      "friction, but the CRM workflow MUST filter on sms_consent before any SMS",
+      "action. Decide it deliberately for THIS client; the Engine refuses to build",
+      "if it is missing or non-boolean.",
+      "",
+      "`legalReviewedBy` stays null until counsel signs off — core30-lint reads it",
+      "as an unresolved publish gate and the legal pages show a draft banner while",
+      "it is null. `a2pBrandRegistered` gates turning SMS actions ON in the CRM."
+    ],
+    "effectiveDate": "January 1, 2026",
+    "governingState": "",
+    "venueCounty": "",
+    "smsConsentRequired": true,
+    "legalReviewedBy": null,
+    "a2pBrandRegistered": false
+  },
+
   "geoScope": {
     "primaryCities": ["Anytown, ST"],
     "extendedAreas": [],

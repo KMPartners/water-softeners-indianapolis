@@ -13,6 +13,11 @@
  *
  * Copy strings may use {{business.name}} etc. (resolved from site.config), and
  * an `assurances` item may be gated: { requires: '<claimGate>', value, fallback }.
+ *
+ * `smsConsent.subject` is the ONLY SMS-consent copy a preset owns — the noun
+ * phrase that drops into "…about my {subject}". Every A2P-mandated disclosure
+ * (STOP/HELP, rates, frequency, no-sharing, Privacy Policy link) and the
+ * required-vs-optional decision are Engine/config, not here (see src/lib/legal.js).
  */
 
 /** Buy-here-pay-here pre-qualification. The live form on the financing page. */
@@ -34,7 +39,11 @@ export const PREQUAL_FORM = {
       options: ['Under $500', '$500 – $1,000', '$1,000 – $2,000', 'Over $2,000'],
     },
   ],
-  consent: 'I agree to be contacted by {{business.name}} about my inquiry, by phone, text, or email.',
+  // General contact consent — phone/email only. "Text" is deliberately NOT here:
+  // SMS permission is the separate sms_consent box below, and blending the two
+  // would make neither record able to evidence SMS-specific consent (task §2).
+  consent: 'I agree to be contacted by {{business.name}} about my inquiry, by phone or email.',
+  smsConsent: { subject: 'my financing pre-qualification' },
   // Gated: the no-credit-check claim renders only when softPull is confirmed in
   // site.config; otherwise it is dropped (no fallback). The other two always show.
   assurances: [
@@ -58,7 +67,8 @@ export const INQUIRY_FORM = {
     { name: 'phone', label: 'Phone', type: 'tel', autocomplete: 'tel', required: true },
     { name: 'message', label: 'Message (optional)', type: 'textarea', wide: true },
   ],
-  consent: 'I agree to be contacted by {{business.name}} about this vehicle, by phone, text, or email.',
+  consent: 'I agree to be contacted by {{business.name}} about this vehicle, by phone or email.',
+  smsConsent: { subject: 'my vehicle inquiry' },
   submitLabel: 'Send inquiry',
   successBody: 'We will reach out about this vehicle shortly.',
 };
@@ -80,7 +90,8 @@ export const SERVICE_FORM = {
     },
     { name: 'message', label: 'Notes (optional)', type: 'textarea', wide: true },
   ],
-  consent: 'I agree to be contacted by {{business.name}} about my request, by phone, text, or email.',
+  consent: 'I agree to be contacted by {{business.name}} about my request, by phone or email.',
+  smsConsent: { subject: 'my service request' },
   submitLabel: 'Request service',
   successBody: 'We will reach out to schedule shortly.',
 };

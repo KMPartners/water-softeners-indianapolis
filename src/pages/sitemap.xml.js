@@ -11,6 +11,7 @@
  */
 import { SITE_URL } from '../lib/site.js';
 import { ROUTES, REPAIR_SERVICES } from '../lib/nav.js';
+import { PRIVACY_ROUTE, TERMS_ROUTE } from '../lib/legal.js';
 import { getListableVehicles } from '../lib/inventory.js';
 
 const abs = (path) => new URL(path, SITE_URL).href;
@@ -19,11 +20,15 @@ export async function GET() {
   const vehicles = await getListableVehicles();
 
   // Indexable routes only. The four financing pages are intentionally absent.
+  // The legal pages ARE included — they are indexable and A2P brand review must
+  // be able to fetch the Privacy Policy (task §2.6).
   const staticRoutes = [
     ROUTES.home.href,
     ROUTES.usedCars.href,
     ROUTES.autoRepair.href,
     ...REPAIR_SERVICES.map((s) => s.href),
+    PRIVACY_ROUTE,
+    TERMS_ROUTE,
   ];
 
   const urls = [

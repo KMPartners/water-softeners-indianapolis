@@ -25,6 +25,7 @@ import { join, relative, sep } from 'node:path';
 import { execSync } from 'node:child_process';
 import { fileURLToPath } from 'node:url';
 import { dirname, resolve } from 'node:path';
+import { NO_SHARE_SENTENCE, PRIVACY_ROUTE, TERMS_ROUTE } from '../src/lib/legal-constants.js';
 
 const ROOT = resolve(dirname(fileURLToPath(import.meta.url)), '..');
 const DIST = resolve(ROOT, process.argv[2] || 'dist');
@@ -65,6 +66,18 @@ function findRatingViolations(node, hits = []) {
     for (const v of Object.values(node)) findRatingViolations(v, hits);
   }
   return hits;
+}
+
+/* Does an aggregateRating appear ANYWHERE in this JSON-LD value? On a legal page
+   a rating must not appear at all — not even on the publisher business node —
+   because a legal page must never carry review stars (task §2.7). */
+function hasAggregateRatingAnywhere(node) {
+  if (Array.isArray(node)) return node.some(hasAggregateRatingAnywhere);
+  if (node && typeof node === 'object') {
+    if ('aggregateRating' in node) return true;
+    return Object.values(node).some(hasAggregateRatingAnywhere);
+  }
+  return false;
 }
 
 /* ── 1. Source scan: no committed secrets (audit rule C6) ──────────────────
@@ -168,12 +181,109 @@ function checkSitemap() {
   for (const loc of htmlLocs) err('9', rel(sm), `sitemap lists a .html URL: ${loc}`);
 }
 
+/* ── TCPA / A2P consent + legal-page checks (legal task §2) ────────────────
+   Each of these is an A2P brand-review rejection encoded as a build failure so
+   it cannot be got wrong per site. A "legal page" is identified by its canonical
+   route (the fixed Engine routes); "SMS enabled" means any built page renders an
+   sms_consent input. */
+function checkConsentAndLegal() {
+  const pages = walk(DIST, '.html');
+  if (!pages.length) return; // checkPages already errored on the empty dist
+
+  let smsEnabled = false;
+  let privacyHasNoShare = false;
+  let sawPrivacy = false;
+
+  for (const file of pages) {
+    const html = readFileSync(file, 'utf8');
+    const f = rel(file);
+    const canon = (html.match(/<link\s+rel="canonical"\s+href="([^"]*)"/i) || [])[1] || '';
+    const path = (() => { try { return new URL(canon).pathname; } catch { return canon; } })();
+    const isPrivacy = path === PRIVACY_ROUTE || /\/privacy-policy\//.test(canon);
+    const isTerms = path === TERMS_ROUTE || /\/terms-of-service\//.test(canon);
+    const isLegal = isPrivacy || isTerms;
+
+    /* A2P-2 — never pre-check the SMS box. A `checked` attribute on any
+       sms_consent input is a TCPA violation and an automatic rejection. */
+    const smsInputs = [...html.matchAll(/<input\b[^>]*\bname="sms_consent"[^>]*>/gi)].map((m) => m[0]);
+    if (smsInputs.length) smsEnabled = true;
+    for (const tag of smsInputs) {
+      if (/\bchecked\b/i.test(tag)) err('A2P-2', f, 'sms_consent checkbox is pre-checked (`checked`) — a TCPA violation and an automatic A2P rejection');
+    }
+
+    /* A2P-3 — the SMS consent block must link to the Privacy Policy (linking
+       only to Terms is a review red flag). Check the <label> that wraps each
+       sms_consent input contains a link to the privacy route. */
+    for (const m of html.matchAll(/<label\b[^>]*>([\s\S]*?)<\/label>/gi)) {
+      const block = m[0];
+      if (!/\bname="sms_consent"/i.test(block)) continue;
+      if (!new RegExp(`href="${PRIVACY_ROUTE}"`).test(block)) {
+        err('A2P-3', f, 'SMS consent block does not link to the Privacy Policy (' + PRIVACY_ROUTE + ')');
+      }
+    }
+
+    if (isLegal) {
+      /* A2P-6 — legal pages must be indexable and reachable (brand review has to
+         fetch the Privacy Policy). A noindex legal page fails the build. */
+      if (/<meta\s+name="robots"\s+content="[^"]*noindex/i.test(html)) {
+        err('A2P-6', f, 'legal page is noindex — it must be indexable and in the sitemap');
+      }
+
+      /* A2P-7 — a legal page must never carry review stars. aggregateRating
+         anywhere in its JSON-LD (e.g. a publisher built withRating:true) fails. */
+      for (const m of html.matchAll(/<script type="application\/ld\+json">([\s\S]*?)<\/script>/gi)) {
+        let data;
+        try { data = JSON.parse(m[1]); } catch { continue; } // rule 7 reports the parse error
+        if (hasAggregateRatingAnywhere(data)) {
+          err('A2P-7', f, 'aggregateRating present on a legal page — a legal page must never carry review stars');
+        }
+      }
+    }
+
+    if (isPrivacy) {
+      sawPrivacy = true;
+      /* A2P-1 — the no-third-party-sharing sentence must appear VERBATIM. Compare
+         the page's plain text (tags stripped) against the locked constant. */
+      const plain = norm(stripTags(html));
+      if (plain.includes(NO_SHARE_SENTENCE)) privacyHasNoShare = true;
+    }
+  }
+
+  /* A2P-1 (cross-page) — only enforced when the site actually enables SMS. A
+     site with no SMS opt-in has no A2P obligation, and firing here would nag
+     every non-SMS site (the "lint that cries wolf" failure mode). */
+  if (smsEnabled) {
+    if (!sawPrivacy) {
+      err('A2P-1', rel(DIST), 'SMS opt-in is present but no Privacy Policy page was built — A2P brand review requires one');
+    } else if (!privacyHasNoShare) {
+      err('A2P-1', PRIVACY_ROUTE, 'Privacy Policy is missing the verbatim no-third-party-sharing sentence (paraphrase is not accepted): "' + NO_SHARE_SENTENCE + '"');
+    }
+  }
+
+  /* Publish gate (task §6) — legal prose is a draft until counsel signs off.
+     A WARN, not an ERROR: it must not block dev/staging builds, but it must be
+     visible so a site does not go live on unreviewed legal text. */
+  if (sawPrivacy || existsSync(join(DIST, 'terms-of-service', 'index.html'))) {
+    try {
+      const cfg = JSON.parse(readFileSync(join(ROOT, 'site.config.json'), 'utf8'));
+      if (!(cfg.legal && cfg.legal.legalReviewedBy)) {
+        warn('A2P-0', 'site.config.json', 'legal.legalReviewedBy is null — legal pages are unreviewed placeholder prose (publish gate)');
+      }
+    } catch { /* no readable config — skip */ }
+  }
+}
+
 /* ── run ────────────────────────────────────────────────────────────────── */
 scanSecrets();
 checkPages();
 checkSitemap();
+checkConsentAndLegal();
 
-const tag = { C6: 'secrets', 1: 'trinity', '5a': 'faq', '5b': 'ext-link', 6: 'ext-link', 7: 'schema', 9: 'canonical' };
+const tag = {
+  C6: 'secrets', 1: 'trinity', '5a': 'faq', '5b': 'ext-link', 6: 'ext-link', 7: 'schema', 9: 'canonical',
+  'A2P-0': 'legal-gate', 'A2P-1': 'no-share', 'A2P-2': 'sms-precheck', 'A2P-3': 'sms-link',
+  'A2P-6': 'legal-index', 'A2P-7': 'legal-rating',
+};
 for (const w of warnings) console.log(`\x1b[33mWARN\x1b[0m  [${tag[w.rule] || w.rule}] ${w.file}: ${w.msg}`);
 for (const e of errors) console.log(`\x1b[31mERROR\x1b[0m [${tag[e.rule] || e.rule}] ${e.file}: ${e.msg}`);
 

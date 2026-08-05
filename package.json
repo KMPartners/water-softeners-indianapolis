@@ -8,6 +8,7 @@
     "dev": "astro dev",
     "build": "astro build && npm run lint",
     "lint": "node scripts/core30-lint.mjs",
+    "test": "node --test \"scripts/**/*.test.mjs\"",
     "build:cf": "astro build && node scripts/stamp-noindex-if-preview.mjs && npm run lint",
     "preview": "astro preview",
     "astro": "astro",
