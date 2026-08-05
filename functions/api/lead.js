@@ -23,11 +23,18 @@
  * Route: POST /api/lead
  */
 
-// Per-client lead tag. Mirrors site.config.json -> site.leadSource; kept as a
-// literal because Cloudflare Pages Functions are bundled separately from the
-// Astro build and cannot import the config module. Phase 2 follow-up: inject it
-// at build time so the two cannot drift.
-const LEAD_SOURCE = 'example-website-lead';
+import { buildLeadSummary } from './_lead-summary.js';
+// Build-time-injected client config. Pages Functions can't import
+// site.config.json at runtime, so scripts/gen-function-config.mjs writes this
+// generated module from config during prebuild — retiring the old hardcoded
+// LEAD_SOURCE (which could drift from site.config.leadSource) and giving the
+// summary block a per-client timeZone. Generated + gitignored; run
+// `npm run config:gen` if your editor flags it missing.
+import { SITE } from './_config.generated.js';
+
+// Sourced from config via the generated module so it can't drift from
+// site.config.leadSource. Tag stays a literal for now (one intent).
+const LEAD_SOURCE = SITE.leadSource || 'example-website-lead';
 const LEAD_TAG = 'web-prequal';
 
 const str = (v) => (v == null ? '' : String(v).trim());
@@ -125,6 +132,22 @@ export async function onRequestPost({ request, env }) {
     spam_signal: str(form.get('spam_signal')),
   };
   for (const [k, v] of Object.entries(optional)) if (v) payload[k] = v;
+
+  // The human-readable lead-details block GHL would otherwise not have (an
+  // inbound webhook creates no form-submission record, so the crew sees no
+  // project detail — see functions/api/_lead-summary.js and
+  // docs/lead-summary-block.md). Built HERE, LAST, from the fully-populated
+  // payload, so the SMS-consent row and every forwarded field are included.
+  //
+  // INJECTION GUARD — load-bearing, do not "clean up": `lead_summary` and
+  // `lead_summary_html` are NOT read from `form` and are NOT in the allow-list
+  // above. Building them from the already-allow-listed `payload` means a client
+  // that POSTs its own `lead_summary` has it ignored and then overwritten. All
+  // values are HTML-escaped in buildLeadSummary, so a `<script>` typed into a
+  // field lands inert in the notification email.
+  const summary = buildLeadSummary(payload, { timeZone: SITE.timeZone });
+  payload.lead_summary = summary.text;
+  payload.lead_summary_html = summary.html;
 
   // Demo mode: no webhook configured -> accept + discard. No PII logged.
   if (!env.GHL_WEBHOOK_URL) return json({ ok: true, mode: 'demo' });

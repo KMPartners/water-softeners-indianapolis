@@ -108,7 +108,9 @@
     "canonicalHost": "www",
     "leadSecretName": "GHL_WEBHOOK_URL",
     "leadSource": "example-website-lead",
-    "ogImage": "/og-image.png"
+    "ogImage": "/og-image.png",
+    "$comment_timeZone": "IANA zone for lead-summary local times (the crew reads them in a truck; UTC would be wrong). REQUIRED — the build fails if unset. e.g. America/New_York, America/Chicago, America/Indiana/Indianapolis.",
+    "timeZone": "America/New_York"
   },
 
   "brand": {

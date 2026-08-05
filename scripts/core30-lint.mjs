@@ -181,6 +181,31 @@ function checkSitemap() {
   for (const loc of htmlLocs) err('9', rel(sm), `sitemap lists a .html URL: ${loc}`);
 }
 
+/* ── Lead-pipeline injection guard (extraction plan Phase 1b / §5) ──────────
+   The lead-summary block is built at the edge from the already-allow-listed
+   payload and must NEVER be read from the incoming form — that ordering is the
+   whole injection guard: a client that POSTs its own `lead_summary` would
+   otherwise land pre-rendered markup in a note the crew reads. A future
+   "cleanup" that allow-lists the field would break it silently, so assert the
+   invariant over the intake source. */
+function checkLeadPipeline() {
+  const p = join(ROOT, 'functions', 'api', 'lead.js');
+  if (!existsSync(p)) return;
+  const src = readFileSync(p, 'utf8');
+  const f = 'functions/api/lead.js';
+
+  if (!/buildLeadSummary\s*\(/.test(src)) {
+    warn('LP', f, 'no buildLeadSummary() call — leads reach the CRM with no readable project detail (see docs/lead-summary-block.md)');
+    return;
+  }
+  if (/form\.get\(\s*['"](?:lead_summary|lead_summary_html)['"]\s*\)/.test(src)) {
+    err('LP', f, 'lead_summary/lead_summary_html read from the client form — it must be built at the edge, never accepted from the client (injection guard)');
+  }
+  if (!/payload\.lead_summary\s*=/.test(src)) {
+    err('LP', f, 'lead_summary is not assigned from buildLeadSummary() after the allow-list — the block will ship empty');
+  }
+}
+
 /* ── TCPA / A2P consent + legal-page checks (legal task §2) ────────────────
    Each of these is an A2P brand-review rejection encoded as a build failure so
    it cannot be got wrong per site. A "legal page" is identified by its canonical
@@ -277,10 +302,12 @@ function checkConsentAndLegal() {
 scanSecrets();
 checkPages();
 checkSitemap();
+checkLeadPipeline();
 checkConsentAndLegal();
 
 const tag = {
   C6: 'secrets', 1: 'trinity', '5a': 'faq', '5b': 'ext-link', 6: 'ext-link', 7: 'schema', 9: 'canonical',
+  LP: 'lead-pipeline',
   'A2P-0': 'legal-gate', 'A2P-1': 'no-share', 'A2P-2': 'sms-precheck', 'A2P-3': 'sms-link',
   'A2P-6': 'legal-index', 'A2P-7': 'legal-rating',
 };
