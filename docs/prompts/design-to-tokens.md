@@ -46,10 +46,15 @@ RULES
 
 6. Update the header comment to name the new palette (replace "Steel & Brass").
 
-7. Regenerate src/styles/tokens/fonts.css: one Google Fonts @import for
-   font_display + font_body + font_mono (include the weights the engine uses:
-   display 400–900, body 400/500/600/700 + italics, mono 400/500/600). Update the
-   header comment to name the three families.
+7. Set the fonts — this is TWO files, do both:
+   a. src/styles/tokens/fonts.css: one Google Fonts @import for font_display +
+      font_body + font_mono (include the weights the engine uses: display
+      400–900, body 400/500/600/700 + italics, mono 400/500/600). Update the
+      header comment to name the three families.
+   b. src/styles/tokens/typography.css: update --font-display / --font-body /
+      --font-mono to the new family NAMES (e.g. --font-display: 'Sora',
+      system-ui, sans-serif;). fonts.css only LOADS the fonts; typography.css is
+      what actually assigns them, so skipping (b) loads a font nobody uses.
 
 8. VERIFY before finishing:
    - `npm run build` is green and `core30-lint` is clean.
@@ -78,7 +83,9 @@ two-layer system. Do **not** rewire the aliases.
 - **Neutrals** → `--paper*` (surfaces) and `--ink*` (text).
 - **Status** → keep `--go / --pending / --sold / --alert` unless the brand needs
   otherwise; `--star` = accent.
-- **Fonts** → the one `@import` line in `fonts.css`.
+- **Fonts** → **two files**: the `@import` line in `fonts.css` (loads them) AND
+  `--font-display` / `--font-body` / `--font-mono` in `typography.css` (assigns
+  them). Change both or you load a font that never gets used.
 
 Then `npm run build`. If it's green and lint is clean, the reskin is done — check
 the built pages in `dist/` render with the new brand.

@@ -30,15 +30,38 @@ Steps 1–2 are the "Claude Designer" part. Steps 3–5 are the
 
 ---
 
-## Step 0 — clone and confirm green
+> **Proven end to end.** This exact workflow was run start-to-finish on a
+> throwaway example (a pressure-washing company in a brand-new vertical): design →
+> tokens → config → a content-tree page with an embedded lead form → build. It
+> produced a 25-page, lint-clean site with the new brand, new business facts, and
+> working compliance gating. The detailed steps below incorporate what that
+> shakedown surfaced.
 
-```bash
-npm install && npm run build
-```
+## Step 0 — clone and confirm it's green
 
-A green build (and clean lint) means the engine is intact. It renders the auto
-reference preset so you always have a working site on screen while you build
-yours. You delete that reference in step 4.
+1. **Make your own copy of the repo.** Create a new repo for the client from this
+   starter (GitHub "Use this template", or clone then re-point the remote):
+   ```bash
+   git clone https://github.com/KMPartners/core30-starter.git my-client-site
+   cd my-client-site
+   git remote set-url origin <your-new-client-repo-url>
+   ```
+2. **Install and build:**
+   ```bash
+   npm install
+   npm run build
+   ```
+3. **Confirm the result.** You should see `24 page(s) built` and
+   `core30-lint: clean`. Two console messages are expected and fine: an inventory
+   fixture notice and a `[LAUNCH BLOCKER]` about the lead form having no
+   destination yet (that's demo mode; you wire it before launch).
+
+A green build means the engine is intact. It renders the **auto reference preset**
+so you always have a working site on screen while you build yours — not a blank
+page. You delete that reference in Step 4.
+
+> **Prereqs:** Node 18+ and npm (that's it to build). Python 3 + Pillow only if
+> you'll use the image optimizer. See [SETUP.md](SETUP.md).
 
 ## Step 1 — design the brand skin with Claude
 
@@ -53,14 +76,20 @@ engine reskins by two files:
 - `src/styles/tokens/fonts.css` — a display / body / mono type trio.
 
 So the design deliverable is a **skin spec**: a primary brand color, an accent
-color, a neutral temperature, a type pairing, and a tone. Use the ready prompt:
+color, a neutral temperature, a type pairing, and a tone. Concretely:
 
-> **Copy-paste:** [`docs/prompts/design-brief.md`](prompts/design-brief.md)
-
-Run it on claude.ai (you'll get a visual mockup artifact you can react to) or in
-Claude Code. Iterate until the palette and type feel right. The output you carry
-forward is the **skin spec block** at the end of that prompt — five or six
-concrete values.
+1. **Open** [`docs/prompts/design-brief.md`](prompts/design-brief.md) and copy the
+   fenced prompt block.
+2. **Fill the four inputs** at the top (business name, industry, city, tone words).
+3. **Paste it into Claude** — use [claude.ai](https://claude.ai) if you want a
+   visual mockup artifact to react to; Claude Code works too if you just need the
+   spec.
+4. **Iterate.** Tell Claude what to change ("warmer", "the accent competes with the
+   brand", "try a serif display") until the palette and type feel right.
+5. **Copy the `--- SKIN SPEC ---` block** Claude produces at the end. That's the
+   five-or-six-value handoff you carry to Step 2. (Worked example from the
+   shakedown: deep-teal brand `#0f4c5c`, citrus accent `#f4791f`, cool paper, Sora
+   / Inter / JetBrains Mono.)
 
 > **Why not a from-scratch layout?** The engine's value is its Core30-proven
 > structure (Trinity, schema, mirror-linking, the spine). A bespoke layout throws
@@ -68,18 +97,29 @@ concrete values.
 
 ## Step 2 — turn the skin into tokens
 
-Translate the skin spec into the two token files. The second ready prompt does
-exactly this — it expands your two seed colors into the full base scales the
-engine expects and writes valid `colors.css` + `fonts.css`:
+1. **Open** [`docs/prompts/design-to-tokens.md`](prompts/design-to-tokens.md) in
+   **Claude Code, from inside the project** (so it can read the current tokens and
+   write the new ones).
+2. **Paste the prompt** and drop your `SKIN SPEC` block where marked. It expands
+   your two seed colors into the full base scales in OKLCH and writes the files.
+3. It edits **three files** (this is the one thing easy to miss):
+   - `src/styles/tokens/colors.css` — the color base scale.
+   - `src/styles/tokens/fonts.css` — the `@import` that **loads** the fonts.
+   - `src/styles/tokens/typography.css` — the `--font-display/body/mono` variables
+     that **assign** the fonts. Loading a font without assigning it does nothing,
+     so this file is not optional.
+4. **Rebuild:** `npm run build`. The whole site reskins — every component reads the
+   semantic aliases, which read your new base scale. Confirm the new brand color
+   appears in `dist/_astro/*.css` (the CSS is bundled into a hashed file, not
+   inlined in the HTML).
+5. **Set the name/brand** in `site.config.json`: `business.name`,
+   `business.legalDisclaimerName`, and `brand.wordmark.line1/line2`.
 
-> **Copy-paste:** [`docs/prompts/design-to-tokens.md`](prompts/design-to-tokens.md)
+> **By hand instead?** You only ever change base-scale **values** and the two font
+> spots — never rename a variable. The rules are written out at the bottom of the
+> design-to-tokens prompt.
 
-Drop the result into `src/styles/tokens/`. Rebuild — the whole site reskins,
-because every component reads the semantic aliases, which read your new base
-scale. Nothing else changes. Put the business name, legal name, and wordmark into
-`site.config.json` (`business`, `brand.wordmark`).
-
-No brand yet? Skip steps 1–2 and leave the placeholder tokens; the site stays
+No brand yet? Skip Steps 1–2 and leave the placeholder tokens; the site stays
 neutral and buildable until you have one.
 
 ## Step 3 — entity research (greenfield)
@@ -101,13 +141,53 @@ Require the output to conform to
   `geoScope`. Every claim gate defaults to **suppress**; flip one only when you've
   confirmed it. `geo` and `rating` stay empty until real. This is your entire
   per-client fact surface.
-- **Content tree** — each approved entity becomes a content-tree row. One
-  template renders them all; page types are **archetypes** (block sequences), not
-  new files. See [`docs/CONTENT-TREE.md`](CONTENT-TREE.md). Start from the neutral
-  [`example-entity`](../src/pages/example-entity.astro) demo — it shows every
-  block, interpolation, and compliance gating.
-- **Delete the auto reference** (`presets/auto/`, the auto example pages) once
-  your own content exists, so nothing auto-flavored ships.
+- **Content tree** — each approved entity becomes a content-tree row + a thin
+  page route. One template (`EntityPage`) renders them all; page types are
+  **archetypes** (block sequences), not new files. See
+  [`docs/CONTENT-TREE.md`](CONTENT-TREE.md). Two files per page:
+
+  1. **The row** — `src/content/<slug>.js`, exporting the page data. Copy the
+     neutral [`example-entity.js`](../src/content/example-entity.js) — it shows
+     every block type (`prose`, `steps`, `list`, `figure`, `faq`, `external`, and
+     `form` for an embedded lead form), `{{...}}` interpolation, and compliance
+     gating (a `{ requires, fallback }` item renders only when its `site.config`
+     claim gate is confirmed).
+  2. **The route** — `src/pages/<slug>.astro`, which feeds the row to
+     `EntityPage` and supplies the schema + breadcrumbs. Copyable stub:
+
+     ```astro
+     ---
+     import EntityPage from '../components/EntityPage.astro';
+     import { MY_PAGE } from '../content/my-page.js';
+     import { serviceSchema, breadcrumbSchema, faqSchema, localBusiness } from '../lib/schema.js';
+     import { interpolate } from '../lib/content-tree.js';
+
+     const crumbs = [{ label: 'Home', href: '/' }, { label: 'My Page' }];
+     const faq = MY_PAGE.blocks.find((b) => b.type === 'faq');
+     const schemas = [
+       serviceSchema({
+         name: interpolate(MY_PAGE.trinity),
+         serviceType: 'My Service',
+         description: interpolate(MY_PAGE.description),
+         url: MY_PAGE.canonical,
+         provider: localBusiness({ type: 'LocalBusiness', idFragment: 'business', path: '/', withIdentity: true }),
+       }),
+       breadcrumbSchema(crumbs),
+       faqSchema(faq.items.map((f) => ({ q: interpolate(f.q), a: interpolate(f.a) }))),
+     ];
+     ---
+     <EntityPage page={MY_PAGE} crumbs={crumbs} schemas={schemas} />
+     ```
+
+     Swap `serviceType` and the `localBusiness` `type` for your vertical's
+     schema.org type (e.g. `Plumber`, `Electrician`, `HousePainter`). A lead form
+     lives inside the row as a `form` block — no separate component to wire.
+- **Delete the auto reference** once your own content exists, so nothing
+  auto-flavored ships. That means removing: `presets/auto/`, the auto example
+  pages (`src/pages/index.astro`, `buy-here-pay-here-anderson.astro`,
+  `used-cars/`, `auto-repair/`), and their helpers if unused (`src/lib/nav.js`,
+  `inventory.js`, `airtable-schema.mjs`, `src/data/`). Rebuild after — the linter
+  will flag anything you left dangling.
 
 ## Step 5 — build, lint, ship
 

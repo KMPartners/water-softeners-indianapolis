@@ -32,6 +32,7 @@ import BaseLayout from '../layouts/BaseLayout.astro';
 import Icon from './Icon.astro';
 import Breadcrumbs from './Breadcrumbs.astro';
 import FinalCta from './FinalCta.astro';
+import LeadForm from './LeadForm.astro';
 import { NAP } from '../lib/site.js';
 import { interpolate, interpolateDeep, resolveItems } from '../lib/content-tree.js';
 
@@ -151,6 +152,11 @@ const blocks = (page.blocks || []).map((b: any, i: number) => ({ ...b, n: String
                 </p>
               </>
             )}
+
+            {/* A lead form embedded as a content-tree block. `b.form` is a
+                LeadForm config (see the preset lead-forms files). Its anchorId
+                is what a hero/CTA hash link targets to open and focus it. */}
+            {b.type === 'form' && <LeadForm {...b.form} />}
           </div>
         </div>
       </div>

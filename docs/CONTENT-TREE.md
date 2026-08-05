@@ -37,6 +37,7 @@ position. The Engine block types (extend in the preset if a vertical needs more)
 | `figure` | a headline number with a **mandatory** qualifier |
 | `faq` | `<details>` accordions, every one `open` (Core30 rule 5a) |
 | `external` | exactly one authoritative outbound link (Core30 rule 6) |
+| `form` | an embedded lead form — carries a `LeadForm` config in `b.form`; its `anchorId` is what a hero/CTA hash link targets |
 
 Every string flows through `{{...}}` interpolation, so a row cites client facts
 (`{{business.phoneDisplay}}`, `{{business.city}}`) without re-typing them.
