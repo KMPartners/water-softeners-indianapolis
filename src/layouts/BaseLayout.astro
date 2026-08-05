@@ -13,22 +13,23 @@ import IconSprite from '../components/IconSprite.astro';
 import Header from '../components/Header.astro';
 import Footer from '../components/Footer.astro';
 import MobileCtaBar from '../components/MobileCtaBar.astro';
-import { SITE_URL, NAP, OG_IMAGE } from '../lib/site.js';
+import { SITE_URL, NAP, OG_IMAGE, FAVICON } from '../lib/site.js';
 
 interface Props {
   /** Core30 rule 1 — must be byte-identical to the page's <h1> text. */
   title: string;
   description: string;
-  /** Path only, e.g. "/buy-here-pay-here-anderson/". */
+  /** Path only, e.g. "/services/listing-photography/". */
   canonical: string;
   /** One or more JSON-LD objects, emitted in <head>. */
   schemas?: unknown[];
-  /** Adds the Indiana financing disclaimer to the footer (copy deck §12). */
-  financingFooter?: boolean;
-  /** Keeps financing pages out of the index until the DFI publish gate clears. */
+  /** Optional vertical-specific legal/disclaimer paragraph for the footer. The
+      engine footer carries none of its own — a page passes one when it needs it. */
+  footerDisclaimer?: string;
+  /** Keeps a page out of the index until a publish gate clears. */
   noindex?: boolean;
-  /** og/twitter share image. Absolute URL or site-root path. Defaults to the
-      brand card in public/og-image.png; vehicle pages can pass a real photo. */
+  /** og/twitter share image. Absolute URL or site-root path. Defaults to
+      brand.ogImage; a detail page can pass a real photo. */
   image?: string;
   /** Context CTAs for the mobile bottom bar (spec §5). Omit for the default. */
   mobileCta?: {
@@ -44,7 +45,7 @@ const {
   description,
   canonical,
   schemas = [],
-  financingFooter = false,
+  footerDisclaimer,
   noindex = false,
   mobileCta = {},
   image = OG_IMAGE,
@@ -52,8 +53,8 @@ const {
 
 const canonicalUrl = new URL(canonical, SITE_URL).href;
 const titleTag = `${title} | ${NAP.name}`;
-// Absolute share image. new URL() passes an already-absolute photo URL (e.g. an
-// Airtable vehicle photo) through unchanged, and absolutizes a site-root path.
+// Absolute share image. new URL() passes an already-absolute photo URL
+// through unchanged, and absolutizes a site-root path.
 const ogImage = new URL(image, SITE_URL).href;
 // Google Tag Manager container id. Set PUBLIC_GTM_ID as a Cloudflare build var
 // to activate; unset (e.g. local/preview) => GTM is simply not injected.
@@ -93,7 +94,7 @@ const gtmId = import.meta.env.PUBLIC_GTM_ID;
     <meta name="twitter:description" content={description} />
     <meta name="twitter:image" content={ogImage} />
 
-    <link rel="icon" href="/assets/monogram.svg" />
+    <link rel="icon" href={FAVICON} />
     <link rel="preconnect" href="https://fonts.googleapis.com" />
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
 
@@ -112,7 +113,7 @@ const gtmId = import.meta.env.PUBLIC_GTM_ID;
     <main>
       <slot />
     </main>
-    <Footer financing={financingFooter} />
+    <Footer disclaimer={footerDisclaimer} />
     <MobileCtaBar {...mobileCta} />
   </body>
 </html>

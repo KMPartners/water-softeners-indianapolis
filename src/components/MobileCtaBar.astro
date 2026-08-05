@@ -9,14 +9,14 @@
  * env(safe-area-inset-bottom).
  *
  * Context-aware CTAs via props:
- *   - default (homepage / financing / service): Get Pre-Qualified + Call
- *   - vehicle pages: Text about this VIN (sms: deep link) + Get Pre-Qualified
+ *   - default: the client's primary CTA (from brand.primaryCta) + Call
+ *   - a detail page can override `primary` with a context-specific action
  *
  * Breakpoint: 920px, matching where the mobile nav takes over (Header.astro) so
  * "mobile mode" is cohesive — hamburger nav + bottom bar appear together.
  */
 import Icon from './Icon.astro';
-import { NAP, CTA_STATUS } from '../lib/site.js';
+import { NAP, CTA_STATUS, PRIMARY_CTA } from '../lib/site.js';
 
 interface Cta {
   label: string;
@@ -36,7 +36,7 @@ interface Props {
 const {
   status = CTA_STATUS,
   statusTone = 'go',
-  primary = { label: 'Get Pre-Qualified', href: '/buy-here-pay-here-anderson/', icon: 'arrow-right' },
+  primary = PRIMARY_CTA,
   secondary = { label: 'Call', sublabel: NAP.phoneDisplay, href: NAP.phoneTel, icon: 'phone' },
 } = Astro.props;
 ---

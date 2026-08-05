@@ -95,6 +95,13 @@
       "line2": "Local Services · Anytown ST"
     },
 
-    "ctaStatus": "Serving Anytown, ST"
+    "ctaStatus": "Serving Anytown, ST",
+
+    "$comment_footer": "logoMark/footerBlurb/footerLegal/favicon each fall back to a sensible derived default when blank (see src/lib/site.js). primaryCta is the mobile bar's main button.",
+    "logoMark": "",
+    "footerBlurb": "",
+    "footerLegal": "",
+    "favicon": "/favicon.svg",
+    "primaryCta": { "label": "Get a Quote", "href": "#lead-form" }
   }
 }

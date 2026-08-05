@@ -12,7 +12,7 @@
  * Behavior preserved from the originals, exactly:
  *   - honeypot `hp_check` (never `company` — password managers auto-fill that
  *     even hidden, silently dropping real leads; byte-identical to the check in
- *     functions/api/pre-qualify.js)
+ *     functions/api/lead.js)
  *   - per-field client validation (required, 10-digit phone, 5-digit ZIP), with
  *     native submit still working if JS is off (the lead is never lost)
  *   - POST to the Pages Function; on failure, re-enable and surface the phone
@@ -49,7 +49,7 @@ interface Props {
   assurances?: any[];
   legal?: string;
   successBody?: string;
-  /** Hidden context fields, e.g. { vehicle: '2014 Chevrolet Malibu' }. */
+  /** Hidden context fields, e.g. { propertyAddress: '...' } or { sku: '...' }. */
   hidden?: Record<string, string>;
 }
 const {
@@ -58,7 +58,7 @@ const {
   successBody = '', hidden = {},
 } = Astro.props;
 
-const endpoint = import.meta.env.FORM_ENDPOINT || '/api/pre-qualify';
+const endpoint = import.meta.env.FORM_ENDPOINT || '/api/lead';
 if (!import.meta.env.FORM_ENDPOINT) {
   // Loud at every build until a real destination is wired: while FORM_ENDPOINT
   // is empty, submissions are accepted and discarded (demo mode).
@@ -80,7 +80,7 @@ const firstId = `${anchorId}-${fields[0]?.name}`;
   {sub && <p class="leadform-sub">{t(sub)}</p>}
 
   {/* Honeypot — hidden from humans; bots fill it and the endpoint drops them.
-      NAME IS LOAD-BEARING and byte-identical to functions/api/pre-qualify.js.
+      NAME IS LOAD-BEARING and byte-identical to functions/api/lead.js.
       Must NOT be company/website/address/organization/fax — password managers
       auto-fill those even when hidden, silently dropping real leads. */}
   <input type="text" name="hp_check" tabindex="-1" autocomplete="off" aria-hidden="true"
@@ -230,11 +230,19 @@ const firstId = `${anchorId}-${fields[0]?.name}`;
         return;
       }
 
-      const vehicleVal = form.querySelector('input[name="vehicle"]')?.value || '';
+      // Include any hidden CONTEXT fields (property address, sku, campaign — set
+      // by the page, never user PII) so the conversion carries what it's about,
+      // vertical-agnostically. Honeypot / intent / consent are excluded.
+      const context = {};
+      form.querySelectorAll('input[type="hidden"]').forEach((el) => {
+        if (el instanceof HTMLInputElement && !['hp_check', 'intent', 'consent'].includes(el.name) && el.value) {
+          context[el.name] = el.value;
+        }
+      });
       (window.dataLayer = window.dataLayer || []).push({
         event: 'lead_submit',
         lead_form: form.getAttribute('data-intent') || 'lead',
-        ...(vehicleVal ? { vehicle: vehicleVal } : {}),
+        ...context,
       });
 
       form.hidden = true;

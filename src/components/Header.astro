@@ -6,7 +6,7 @@
  */
 import Icon from './Icon.astro';
 import { HEADER_NAV, isActive } from '../lib/nav.js';
-import { NAP, WORDMARK } from '../lib/site.js';
+import { NAP, WORDMARK, LOGO_MARK } from '../lib/site.js';
 
 interface Props {
   current?: string;
@@ -17,7 +17,7 @@ const { current } = Astro.props;
 <header class="site-header">
   <div class="container bar">
     <a class="brand-lockup" href="/">
-      <span class="logo-mark">BFA</span>
+      <span class="logo-mark">{LOGO_MARK}</span>
       <span>
         <span class="wm-1">{WORDMARK.line1}</span><br />
         <span class="wm-2">{WORDMARK.line2}</span>

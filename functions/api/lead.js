@@ -1,5 +1,5 @@
 /**
- * Cloudflare Pages Function — pre-qualification lead intake (Path A).
+ * Cloudflare Pages Function — lead intake (Path A).
  *
  *   browser form (multipart/form-data)
  *     -> this function (holds the webhook URL server-side, drops spam)
@@ -20,7 +20,7 @@
  * PII: income / down / phone are personal + financial. This function NEVER logs
  * the payload.
  *
- * Route: POST /api/pre-qualify
+ * Route: POST /api/lead
  */
 
 // Per-client lead tag. Mirrors site.config.json -> site.leadSource; kept as a

@@ -170,6 +170,46 @@ export const WORDMARK = (brand && brand.wordmark) || { line1: business.name, lin
 /** Short status line on the mobile CTA bar. */
 export const CTA_STATUS = (brand && brand.ctaStatus) || '';
 
+/** GBP primary category (H1 keyphrase source, footer-blurb default). */
+export const PRIMARY_CATEGORY = business.primaryCategory || '';
+
+/* ── Footer / brand chrome ──────────────────────────────────────────────────
+   Each derives a sensible default when its config value is blank, so a new site
+   never shows a donor's monogram or legal text. Override any of them in
+   site.config.json -> brand. */
+
+/** Monogram in the header/footer lockup. Defaults to the initials of the
+    wordmark/business name (significant words only, max 3) — e.g. "Listed by
+    Ally" -> "LA", never a hardcoded "BFA". */
+function deriveInitials(name) {
+  const words = String(name || '')
+    .replace(/[^A-Za-z0-9 ]/g, ' ')
+    .split(/\s+/)
+    .filter((w) => w.length >= 3 || /^[A-Z]/.test(w));
+  return words.slice(0, 3).map((w) => w[0].toUpperCase()).join('') || 'CO';
+}
+export const LOGO_MARK =
+  (brand && brand.logoMark) || deriveInitials((brand && brand.wordmark && brand.wordmark.line1) || business.name);
+
+/** One-line description under the footer logo. Defaults to "<category> in
+    <city>, <state>." — generic and true, never an auto/industry-specific claim. */
+export const FOOTER_BLURB =
+  (brand && brand.footerBlurb) ||
+  (PRIMARY_CATEGORY
+    ? `${PRIMARY_CATEGORY} in ${business.address.city}, ${business.address.state}.`
+    : `Proudly serving ${business.address.city}, ${business.address.state}.`);
+
+/** Base footer legal line. Defaults to a plain copyright — no vertical-specific
+    disclaimer (a page that needs one passes it via BaseLayout `footerDisclaimer`). */
+export const FOOTER_LEGAL = (brand && brand.footerLegal) || `© ${LEGAL_NAME}.`;
+
+/** Favicon href. */
+export const FAVICON = (brand && brand.favicon) || '/favicon.svg';
+
+/** Mobile CTA bar primary button. Per-client; no auto default. */
+export const PRIMARY_CTA =
+  (brand && brand.primaryCta) || { label: 'Get a Quote', href: '#lead-form', icon: 'arrow-right' };
+
 /** Lead-tagging source + og fallback image, both per-client. */
 export const LEAD_SOURCE = site.leadSource;
 export const OG_IMAGE = site.ogImage;
