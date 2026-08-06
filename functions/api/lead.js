@@ -24,6 +24,7 @@
  */
 
 import { buildLeadSummary } from './_lead-summary.js';
+import { OPTIONAL_FORWARD_KEYS } from './_lead-fields.js';
 // Build-time-injected client config. Pages Functions can't import
 // site.config.json at runtime, so scripts/gen-function-config.mjs writes this
 // generated module from config during prebuild — retiring the old hardcoded
@@ -88,15 +89,15 @@ export async function onRequestPost({ request, env }) {
   // stays clean. The consent_* / sms_consent_* / utm_* / name-split / source_page
   // fields are appended in the browser by src/lib/lead-capture.js — they are
   // ADDITIVE; `name`, `phone`, and `consent` keep their existing meaning.
-  const optional = {
-    zip: str(form.get('zip')),
-    income: str(form.get('income')),
-    down: str(form.get('down')),
-    vehicle: str(form.get('vehicle')),
-    service: str(form.get('service')),
-    timeframe: str(form.get('timeframe')),
-    message: str(form.get('message')),
+  //
+  // The form-field keys are DERIVED from the field manifest (_lead-fields.js) —
+  // the single source — so adding a `forward: true` field there extends this
+  // allow-list with no edit here. The cross-cutting keys below (name-split,
+  // consent package, attribution) are not form fields and stay explicit.
+  const optional = {};
+  for (const key of OPTIONAL_FORWARD_KEYS) optional[key] = str(form.get(key));
 
+  Object.assign(optional, {
     // Name split for CRM personalization tokens; `name` above is kept intact.
     first_name: str(form.get('first_name')),
     last_name: str(form.get('last_name')),
@@ -130,7 +131,7 @@ export async function onRequestPost({ request, env }) {
 
     // Advisory only — the time trap flags, it never blocks.
     spam_signal: str(form.get('spam_signal')),
-  };
+  });
   for (const [k, v] of Object.entries(optional)) if (v) payload[k] = v;
 
   // The human-readable lead-details block GHL would otherwise not have (an

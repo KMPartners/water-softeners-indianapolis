@@ -17,12 +17,15 @@
  * fields to display (lead_summary → an Add-Note action; lead_summary_html → the
  * internal notification email).
  *
- * This module is DEPENDENCY-FREE and PURE: it imports nothing and reads no
- * config, so functions/api/lead.js, the replay script, and the unit test all
- * import the SAME function. The timezone is passed IN (the caller resolves it
- * from site.config), never read here — that is what keeps this testable and
- * keeps the one config value from being hardcoded (as it was in the donor).
+ * This module is PURE and config-free: it imports only the dependency-free
+ * field manifest (_lead-fields.js) and reads no config, so functions/api/lead.js,
+ * the replay script, and the unit test all import the SAME function. The timezone
+ * is passed IN (the caller resolves it from site.config), never read here — that
+ * is what keeps this testable and keeps the one config value from being hardcoded
+ * (as it was in the donor).
  */
+
+import { DETAIL_FIELDS as MANIFEST_DETAIL, LEAD_FIELD_KEYS } from './_lead-fields.js';
 
 /**
  * CRM custom-field descriptors for the two lead-summary fields, with the GHL
@@ -113,36 +116,29 @@ const INTENT_LABELS = {
 
 /**
  * Detail fields rendered between the contact rows and the metadata rows, in
- * this order, with their labels. Only those present (non-empty) render; an
- * unknown forwarded field falls through to a humanized label so a new form
- * field is never silently invisible. Keep in step with the preset lead-form
- * field sets (presets/<vertical>/lead-forms.js) — the §4a field manifest will
- * later make this derivation single-source.
+ * manifest order, with their labels. DERIVED from the field manifest
+ * (_lead-fields.js) — the single source — so a new form field never needs a
+ * second registration here. Only those present (non-empty) render; an unknown
+ * forwarded field still falls through to a humanized label below.
  */
-const DETAIL_FIELDS = [
-  ['income', 'Monthly income'],
-  ['down', 'Money down'],
-  ['vehicle', 'Vehicle'],
-  ['service', 'Service needed'],
-  ['timeframe', 'Preferred timing'],
-  ['message', 'Message'],
-];
+const DETAIL_FIELDS = MANIFEST_DETAIL;
 
 /**
- * Keys that are forwarded to the CRM but deliberately do NOT belong in the
- * human-readable block — internal metadata, the consent evidence internals
- * (surfaced as a single "SMS consent" row instead), and the summary fields
- * themselves. This is an explicit, named opt-out: without it, a forwarded key
- * with no row would look like a bug. (Mirrors the plan's SUMMARY_EXCLUDE.)
+ * Keys that are forwarded to the CRM but deliberately do NOT belong as their own
+ * humanized row — the known form fields (rendered as fixed contact rows or the
+ * detail rows above), the consent evidence internals (surfaced as a single "SMS
+ * consent" row), and internal metadata. This is an explicit opt-out: without it,
+ * a forwarded key with no row would fall through to the humanize loop and look
+ * like a bug. The known form fields come straight from the manifest.
  */
 export const SUMMARY_EXCLUDE = new Set([
-  'name', 'first_name', 'last_name', 'phone', 'email', 'zip', 'postal_code',
+  ...LEAD_FIELD_KEYS,
+  'first_name', 'last_name', 'postal_code',
   'consent', 'consent_timestamp', 'consent_text', 'consent_url', 'consent_user_agent',
   'sms_consent', 'sms_consent_timestamp', 'sms_consent_text', 'sms_consent_url', 'sms_consent_user_agent',
   'utm_source', 'utm_medium', 'utm_campaign', 'utm_term', 'utm_content',
   'source_page', 'submitted_at', 'submittedAt', 'spam_signal', 'intent', 'tag', 'source',
   'lead_summary', 'lead_summary_html',
-  ...DETAIL_FIELDS.map(([k]) => k),
 ]);
 
 /** Ordered [label, value] rows. Order mirrors the form top-to-bottom. */

@@ -123,18 +123,25 @@ the per-site launch checklist next to "set the `GHL_WEBHOOK_URL` secret":
 
 ---
 
-## Adding a lead-form field is more than one edit
+## Adding a lead-form field is one edit — the manifest
 
-> **Standing rule (extraction plan Phase 1b).** A new form field is potentially
-> three edits, and the ones that fail are quiet: the field in
-> [`LeadForm.astro`](../src/components/LeadForm.astro) / the preset field set,
-> the allow-list in `lead.js`, and a row in `summaryRows()`. Missing the
-> allow-list fails *loudly* (the value never reaches the CRM). Missing
-> `summaryRows()` fails *silently* — the value reaches the CRM but never appears
-> in the block the crew reads. Plus the CRM side: a genuinely new field needs a
-> custom field and a re-prime/re-map on the trigger. The §4a field manifest (a
-> later phase) collapses the first two into one edit and lets `core30-lint`
-> assert they agree; until then, remember all three.
+Adding a field to a form used to be three edits, and the ones that failed were
+quiet: the field in the preset form, the allow-list in `lead.js`, and a row in
+`summaryRows()`. Missing the allow-list failed *loudly* (the value never reached
+the CRM); missing `summaryRows()` failed *silently* — the value reached the CRM
+but never appeared in the block the crew reads.
+
+That is now **one edit**: declare the field once in the field manifest
+([`functions/api/_lead-fields.js`](../functions/api/_lead-fields.js)). The intake
+allow-list (`lead.js`) and the summary rows (`_lead-summary.js`) are **derived**
+from it, so they cannot fall out of step, and `core30-lint` fails the build if a
+preset form field is missing from the manifest. (This is why Anderson's
+"three-edit rule" is *designed away* here rather than carried forward as a rule
+to remember.)
+
+> The CRM side is still its own step: a genuinely new field also needs a custom
+> field and a re-prime/re-map on the inbound-webhook trigger — see the launch
+> checklist above.
 
 ---
 

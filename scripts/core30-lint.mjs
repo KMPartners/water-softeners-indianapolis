@@ -298,16 +298,49 @@ function checkConsentAndLegal() {
   }
 }
 
+/* ── Field manifest (extraction plan §4a / §5) ─────────────────────────────
+   Every preset lead-form field must be declared in the field manifest
+   (functions/api/_lead-fields.js), because the intake allow-list and the
+   summary rows are DERIVED from it. A form field missing from the manifest is
+   neither forwarded to the CRM nor shown in the block the crew reads — the
+   silent third-edit failure the manifest exists to prevent. The allow-list and
+   summary derivation are guaranteed by construction (both import the manifest),
+   so this single check is the whole enforcement. */
+function checkFieldManifest() {
+  const manifestPath = join(ROOT, 'functions', 'api', '_lead-fields.js');
+  if (!existsSync(manifestPath)) return;
+  const keys = new Set(
+    [...readFileSync(manifestPath, 'utf8').matchAll(/key:\s*'([a-z_]+)'/gi)].map((m) => m[1])
+  );
+  if (!keys.size) return;
+
+  const presetsDir = join(ROOT, 'presets');
+  if (!existsSync(presetsDir)) return;
+  for (const vertical of readdirSync(presetsDir)) {
+    const p = join(presetsDir, vertical, 'lead-forms.js');
+    if (!existsSync(p)) continue;
+    const src = readFileSync(p, 'utf8');
+    const names = new Set([...src.matchAll(/\bname:\s*'([a-z_]+)'/gi)].map((m) => m[1]));
+    for (const n of names) {
+      if (!keys.has(n)) {
+        err('LM', `presets/${vertical}/lead-forms.js`,
+          `form field "${n}" is not in the lead-field manifest (functions/api/_lead-fields.js) — it would be neither forwarded nor summarized. Add it there (one edit).`);
+      }
+    }
+  }
+}
+
 /* ── run ────────────────────────────────────────────────────────────────── */
 scanSecrets();
 checkPages();
 checkSitemap();
 checkLeadPipeline();
+checkFieldManifest();
 checkConsentAndLegal();
 
 const tag = {
   C6: 'secrets', 1: 'trinity', '5a': 'faq', '5b': 'ext-link', 6: 'ext-link', 7: 'schema', 9: 'canonical',
-  LP: 'lead-pipeline',
+  LP: 'lead-pipeline', LM: 'field-manifest',
   'A2P-0': 'legal-gate', 'A2P-1': 'no-share', 'A2P-2': 'sms-precheck', 'A2P-3': 'sms-link',
   'A2P-6': 'legal-index', 'A2P-7': 'legal-rating',
 };
