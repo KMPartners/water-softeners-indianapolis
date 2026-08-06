@@ -24,6 +24,19 @@
  * keeps the one config value from being hardcoded (as it was in the donor).
  */
 
+/**
+ * CRM custom-field descriptors for the two lead-summary fields, with the GHL
+ * `dataType` each MUST be provisioned as — both LARGE_TEXT, because the block is
+ * long and plain TEXT truncates it (a truncated summary is the crew missing the
+ * bottom of the form). Encoded here, next to the code that produces the fields,
+ * so scripts/ghl-provision-fields.js reads the type instead of a human
+ * remembering it. `from` is the payload key the CRM maps onto each field.
+ */
+export const SUMMARY_CRM_FIELDS = [
+  { name: 'Lead Summary', dataType: 'LARGE_TEXT', from: 'lead_summary' },
+  { name: 'Lead Summary HTML', dataType: 'LARGE_TEXT', from: 'lead_summary_html' },
+];
+
 /** Escape so nothing a submitter types can break out into the HTML variant. */
 export function esc(s) {
   return String(s == null ? '' : s)

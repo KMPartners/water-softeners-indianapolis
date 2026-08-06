@@ -18,6 +18,8 @@
     "airtable:seed": "node --env-file-if-exists=.env scripts/provision-airtable.mjs --seed",
     "airtable:check": "node --env-file-if-exists=.env scripts/provision-airtable.mjs --check",
     "ghl:test": "node --env-file-if-exists=.env scripts/ghl-test.mjs",
+    "ghl:provision": "node --env-file-if-exists=.env scripts/ghl-provision-fields.js",
+    "ghl:provision:dry": "node --env-file-if-exists=.env scripts/ghl-provision-fields.js --dry-run",
     "deploy:staging": "npm run config:gen && astro build && node scripts/stamp-staging-noindex.mjs && npm run lint && npx wrangler pages deploy dist --project-name=$CF_PAGES_PROJECT --branch=staging --commit-dirty=true",
     "deploy:prod": "npm run build && npx wrangler pages deploy dist --project-name=$CF_PAGES_PROJECT --branch=main --commit-dirty=true"
   },

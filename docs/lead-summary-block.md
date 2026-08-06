@@ -90,10 +90,15 @@ The Pages Function sends these fields from day one, but **nothing displays until
 the CRM is told what to do with them, and the failure is silent.** Put these on
 the per-site launch checklist next to "set the `GHL_WEBHOOK_URL` secret":
 
-1. **Create the two custom fields** — **Lead Summary** and **Lead Summary HTML**,
-   both **`LARGE_TEXT`** (plain `TEXT` truncates; a truncated record is not a
-   record). *A provisioning script that reads the field list from code is the
-   follow-up phase; until then, create them by hand.*
+1. **Create the custom fields** — the SMS consent package plus **Lead Summary**
+   and **Lead Summary HTML**, all `LARGE_TEXT` where it matters (plain `TEXT`
+   truncates; a truncated record is not a record). The provisioner reads the
+   field list (names + `dataType`) from code so no one has to remember it:
+
+   ```bash
+   npm run ghl:provision:dry     # preview
+   npm run ghl:provision         # create the missing fields (idempotent)
+   ```
 2. **Re-prime the inbound-webhook mapping** with a real sample, then map
    `lead_summary` → Lead Summary and `lead_summary_html` → Lead Summary HTML on
    the trigger. The mapping UI only offers keys it has actually observed — skip

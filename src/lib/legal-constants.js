@@ -17,3 +17,22 @@ export const NO_SHARE_SENTENCE =
 
 export const PRIVACY_ROUTE = '/privacy-policy/';
 export const TERMS_ROUTE = '/terms-of-service/';
+
+/**
+ * CRM custom-field descriptors for the SMS consent package, with the GHL
+ * `dataType` each MUST be provisioned as. `SMS Consent Text` is LARGE_TEXT, not
+ * TEXT — plain TEXT truncates, and a truncated consent record is not a consent
+ * record (task §2.3, playbook gotchas). Encoding the type here means a
+ * provisioning script reads it instead of a human remembering it.
+ *
+ * Lives in this dependency-free module (not legal.js) so the provisioning
+ * script can import it under plain node without pulling in site.js → the JSON
+ * config import. `from` is the payload key the CRM maps onto each field.
+ */
+export const CONSENT_CRM_FIELDS = [
+  { name: 'SMS Consent', dataType: 'TEXT', from: 'sms_consent' },
+  { name: 'SMS Consent Timestamp', dataType: 'DATE', from: 'sms_consent_timestamp' },
+  { name: 'SMS Consent Text', dataType: 'LARGE_TEXT', from: 'sms_consent_text' },
+  { name: 'SMS Consent URL', dataType: 'TEXT', from: 'sms_consent_url' },
+  { name: 'SMS Consent User Agent', dataType: 'TEXT', from: 'sms_consent_user_agent' },
+];

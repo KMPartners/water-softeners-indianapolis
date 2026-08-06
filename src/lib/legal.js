@@ -89,19 +89,12 @@ export const CONSENT_FIELDS = [
 ];
 
 /**
- * CRM custom-field descriptors for the SMS consent package, with the GHL
- * `dataType` each MUST be provisioned as. `SMS Consent Text` is LARGE_TEXT, not
- * TEXT — plain TEXT truncates, and a truncated consent record is not a consent
- * record (task §2.3, playbook gotchas). Encoding the type here means a
- * provisioning script reads it instead of a human remembering it.
+ * CRM custom-field descriptors for the SMS consent package (see the definition
+ * in legal-constants.js). Re-exported here so existing importers keep their
+ * `from './legal.js'` path; the source of truth is the dependency-free module so
+ * the provisioning script can read it under plain node.
  */
-export const CONSENT_CRM_FIELDS = [
-  { name: 'SMS Consent', dataType: 'TEXT', from: 'sms_consent' },
-  { name: 'SMS Consent Timestamp', dataType: 'DATE', from: 'sms_consent_timestamp' },
-  { name: 'SMS Consent Text', dataType: 'LARGE_TEXT', from: 'sms_consent_text' },
-  { name: 'SMS Consent URL', dataType: 'TEXT', from: 'sms_consent_url' },
-  { name: 'SMS Consent User Agent', dataType: 'TEXT', from: 'sms_consent_user_agent' },
-];
+export { CONSENT_CRM_FIELDS } from './legal-constants.js';
 
 /** Legal docs are drafts until counsel signs off. Both docs show a banner and
     core30-lint warns while this is unresolved (task §6). */
