@@ -1,6 +1,6 @@
 #!/usr/bin/env node
 /**
- * Provision the Beach Family Automotive `Inventory` base on Airtable.
+ * Provision the client's Airtable `Inventory` base (name from site.config).
  *
  *   npm run airtable:check       inspect token + report drift, changes nothing
  *   npm run airtable:provision   create/repair the base + Inventory table
@@ -29,6 +29,7 @@
  */
 
 import { readFile } from 'node:fs/promises';
+import { readFileSync } from 'node:fs';
 import { fileURLToPath } from 'node:url';
 import { dirname, resolve } from 'node:path';
 
@@ -50,6 +51,21 @@ const TOKEN = process.env.AIRTABLE_TOKEN;
 const WORKSPACE_ID = process.env.AIRTABLE_WORKSPACE_ID;
 const TABLE = process.env.AIRTABLE_TABLE || TABLE_NAME;
 let BASE_ID = process.env.AIRTABLE_BASE_ID;
+
+// The base name is a per-client fact, so it comes from config (charter §5),
+// never hardcoded — this script is Engine. Falls back to the business name in
+// site.config.json, or a neutral default; override with AIRTABLE_BASE_NAME.
+const BASE_NAME =
+  process.env.AIRTABLE_BASE_NAME ||
+  (() => {
+    try {
+      const cfg = JSON.parse(readFileSync(resolve(HERE, '..', 'site.config.json'), 'utf8'));
+      return (cfg.business && cfg.business.name) || '';
+    } catch {
+      return '';
+    }
+  })() ||
+  'Inventory';
 
 // ---------------------------------------------------------------- utilities
 
@@ -163,12 +179,12 @@ async function findBase() {
   }
 
   const { bases = [] } = await api('/meta/bases');
-  const match = bases.find((b) => b.name === 'Beach Family Automotive');
+  const match = bases.find((b) => b.name === BASE_NAME);
   if (match) {
     ok(`Found existing base "${match.name}" — ${c.bold(match.id)}`);
     return match.id;
   }
-  skip(`No "Beach Family Automotive" base among ${bases.length} visible base(s)`);
+  skip(`No "${BASE_NAME}" base among ${bases.length} visible base(s)`);
   return null;
 }
 
@@ -191,7 +207,7 @@ async function createBase() {
   const created = await api('/meta/bases', {
     method: 'POST',
     body: {
-      name: 'Beach Family Automotive',
+      name: BASE_NAME,
       workspaceId: WORKSPACE_ID,
       tables: [
         {
@@ -335,7 +351,7 @@ async function seed(baseId, table) {
 // -------------------------------------------------------------------- main
 
 async function main() {
-  console.log(`\n${c.bold('Beach Family Automotive — Airtable provisioning')}`);
+  console.log(`\n${c.bold(`${BASE_NAME} — Airtable provisioning`)}`);
   console.log(c.dim(`mode: ${MODE}${SEED ? ' + seed' : ''}\n`));
 
   console.log(c.bold('1. Token'));
