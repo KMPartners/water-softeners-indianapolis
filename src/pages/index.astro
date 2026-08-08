@@ -13,6 +13,7 @@ import BaseLayout from '../layouts/BaseLayout.astro';
 import WhyMeridian from '../components/WhyMeridian.astro';
 import ContactSection from '../components/ContactSection.astro';
 import { NAP, LICENSED_CLAIM_ALLOWED } from '../lib/site.js';
+import { CATEGORIES } from '../content/meridian.js';
 import { homepageSchema } from '../../presets/generator/schema.js';
 import { faqSchema } from '../lib/schema.js';
 
@@ -41,6 +42,31 @@ const FAQ = [
   { q: "Do you service generators you didn't install?", a: 'Yes. We take over orphaned Generac units, inspect generators that came with a home you just bought, and diagnose yellow-light fault codes, all warranty-compliant as a factory-authorized dealer.' },
   { q: 'How long does installation take?', a: 'Once the permit is pulled and gas work is scheduled, most home standby installs are completed and commissioned within one to two days.' },
   { q: 'Are you an authorized Generac dealer?', a: 'Yes. Meridian is a factory-authorized Generac dealer, so our installs and repairs are warranty-compliant. Only an authorized service dealer can perform warranty work without putting your coverage at risk.' },
+  { q: 'Will your service affect my Generac warranty?', a: 'No, it protects it. As a factory-authorized Generac dealer our installs and repairs are warranty-compliant, so your coverage stays intact. Work by an uncertified technician is what can put a Generac warranty at risk.' },
+  { q: "What's included in the fixed-bid price?", a: 'Your quote covers the on-site NEC 220 load calculation, the permit and inspection, a level pad at code clearance, the transfer switch wired into your panel, the gas line sized to the unit, commissioning with a run-under-load test, Mobile Link setup, and warranty registration. Anything unusual about your site we quote up front, in writing.' },
+];
+
+// "What's included" checklist for the fixed-bid transparency section.
+const INCLUDED = [
+  'On-site NEC 220 load calculation, so the unit is sized to your home',
+  'The permit pulled with your local authority, and the inspection',
+  'A level pad set at code clearance',
+  'The automatic transfer switch wired into your panel',
+  "The gas line sized to the generator's demand",
+  'Commissioning and a run-under-load test',
+  'Mobile Link remote monitoring setup',
+  'Warranty registration with Generac',
+];
+
+// Per-city named utility (Core30 rule 4 local specificity). Real utility map from
+// the entity research; Pendleton is a Duke pocket. ‹VERIFY:utility-pockets Pendleton Duke/I&M›
+const CITY_UTILITIES = [
+  { city: 'Fishers', util: 'Duke Energy · AES Indiana' },
+  { city: 'Noblesville', util: 'Duke Energy · AES Indiana' },
+  { city: 'Carmel', util: 'Duke Energy · AES Indiana' },
+  { city: 'Westfield', util: 'Duke Energy · AES Indiana' },
+  { city: 'Pendleton', util: 'Duke Energy' },
+  { city: 'Anderson', util: 'Anderson Municipal Light & Power' },
 ];
 ---
 
@@ -49,7 +75,7 @@ const FAQ = [
   description={DESCRIPTION}
   canonical="/"
   pageLabel="Standby generators · Fishers, IN"
-  schemas={[homepageSchema(), faqSchema(FAQ)]}
+  schemas={[homepageSchema(CATEGORIES), faqSchema(FAQ)]}
 >
   {/* ===== HERO ===== */}
   <section class="hero">
@@ -155,13 +181,45 @@ const FAQ = [
     </div>
   </section>
 
+  {/* ===== WHAT'S INCLUDED (fixed-bid transparency · the wedge vs "call for pricing") ===== */}
+  <section class="band">
+    <div class="band-head sm"><h2>What your fixed-bid quote includes</h2><div class="rule" aria-hidden="true"></div></div>
+    <p class="band-lede">One transparent price, sized to your home after an on-site load calculation. No "call for pricing," no surprises mid-job. A whole-house install covers:</p>
+    <div class="included-card">
+      <ul class="included">
+        {INCLUDED.map((item) => <li><span class="tick" aria-hidden="true">✓</span>{item}</li>)}
+      </ul>
+    </div>
+  </section>
+
+  {/* ===== AUTHORIZED & WARRANTY-COMPLIANT (the binary IASD trust lever) ===== */}
+  <section class="authorized">
+    <div class="authorized-grid">
+      <div>
+        <div class="eyebrow amber">The trust claim that counts</div>
+        <h2 class="authorized-h2">Factory-authorized, so your warranty stays intact.</h2>
+        <p class="authorized-p">We are a factory-authorized Generac dealer, and that matters for one concrete reason: only an authorized service dealer can perform warranty repairs on a Generac. Work by an uncertified technician can put your coverage at risk. So whether we install your unit or take over one someone else did, our service keeps you warranty-compliant.</p>
+      </div>
+      <ul class="authorized-list">
+        <li><span class="tick" aria-hidden="true">✓</span>Authorized for sales, installation, and warranty-compliant service</li>
+        <li><span class="tick" aria-hidden="true">✓</span>Take-over service for orphaned Generac units, coverage intact</li>
+        <li><span class="tick" aria-hidden="true">✓</span>We answer the phone, and we service what we install</li>
+      </ul>
+    </div>
+  </section>
+
   {/* ===== SERVICE AREA (Rule 4 · named utilities) ===== */}
   <section id="areas" class="areas">
     <div class="areas-inner">
       <div class="band-head sm"><h2>Where we work</h2><div class="rule" aria-hidden="true"></div></div>
       <p class="areas-p">We're based in <strong>Fishers</strong> and cover the surrounding Hamilton and Madison County area, <strong>Noblesville</strong>, <strong>Carmel</strong>, <strong>Westfield</strong>, and out to <strong>Pendleton</strong> and <strong>Anderson</strong>. When storms take the power out, it's usually a <strong>Duke Energy</strong> or <strong>AES Indiana</strong> outage; in Anderson, it's <strong>Anderson Municipal Light &amp; Power</strong>. <!-- VERIFY:utility-pockets RESEARCH §3 --></p>
-      <div class="area-pills">
-        <span class="apill">Fishers</span><span class="apill">Noblesville</span><span class="apill">Carmel</span><span class="apill">Westfield</span><span class="apill">Pendleton</span><span class="apill">Anderson</span>
+      <div class="city-grid">
+        {CITY_UTILITIES.map((c) => (
+          <div class="city-card">
+            <div class="city-name">{c.city}</div>
+            <div class="city-util">{c.util}</div>
+          </div>
+        ))}
       </div>
     </div>
   </section>
@@ -281,8 +339,27 @@ const FAQ = [
   .areas-inner { max-width: var(--container); margin: 0 auto; padding: clamp(40px,6vw,64px) var(--container-pad); }
   .areas-p { font-size: 15.5px; color: var(--text-body); line-height: 1.6; max-width: 66ch; margin: 0 0 22px; }
   .areas-p strong { color: var(--ink); }
-  .area-pills { display: flex; flex-wrap: wrap; gap: 10px; }
-  .apill { font-family: var(--font-mono); font-size: 13px; color: var(--ink); background: var(--surface-card); border: 1px solid var(--border-strong); padding: 10px 16px; border-radius: var(--radius-pill); }
+  /* city × named-utility grid (Rule 4 local specificity) */
+  .city-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(min(220px,100%),1fr)); gap: 1px; background: var(--rule); border: 1px solid var(--rule); border-radius: var(--radius); overflow: hidden; }
+  .city-card { background: var(--surface-card); padding: 18px 20px; }
+  .city-name { font-family: var(--font-display); font-weight: 800; font-size: 17px; letter-spacing: -.01em; color: var(--ink); }
+  .city-util { font-family: var(--font-mono); font-size: 11.5px; letter-spacing: .04em; color: var(--text-muted); margin-top: 6px; }
+
+  /* what's-included card (fixed-bid transparency) */
+  .included-card { border: 1px solid var(--rule); border-radius: var(--radius); background: var(--surface-card); padding: clamp(22px,3vw,32px); }
+  .included { list-style: none; margin: 0; padding: 0; display: grid; grid-template-columns: repeat(auto-fit, minmax(min(300px,100%),1fr)); gap: 12px 32px; }
+  .included li { display: flex; gap: 12px; align-items: flex-start; font-size: 14.5px; line-height: 1.5; color: var(--text-body); }
+  .included .tick { color: var(--accent-deep); font-weight: 800; flex-shrink: 0; }
+
+  /* authorized / warranty-compliant band (dark) */
+  .authorized { background: var(--slab); color: var(--on-slab); }
+  .authorized-grid { max-width: var(--container); margin: 0 auto; padding: clamp(40px,6vw,72px) var(--container-pad); display: grid; grid-template-columns: 1.25fr 1fr; gap: clamp(28px,4vw,56px); align-items: center; }
+  @media (max-width: 860px) { .authorized-grid { grid-template-columns: 1fr; } }
+  .authorized-h2 { font-family: var(--font-display); font-weight: 800; font-size: var(--fs-h2); letter-spacing: -.015em; line-height: 1.05; margin: 0 0 16px; max-width: 20ch; }
+  .authorized-p { font-size: var(--fs-lede); color: var(--on-slab-muted); line-height: 1.6; margin: 0; max-width: 56ch; }
+  .authorized-list { list-style: none; margin: 0; padding: 0; display: flex; flex-direction: column; gap: 14px; }
+  .authorized-list li { display: flex; gap: 12px; align-items: flex-start; font-size: 14.5px; line-height: 1.45; color: var(--on-slab-body); }
+  .authorized-list .tick { color: var(--accent); font-weight: 800; flex-shrink: 0; }
 
   /* faq */
   .faq-grid { display: grid; grid-template-columns: repeat(auto-fit,minmax(min(300px,100%),1fr)); gap: 14px 32px; }

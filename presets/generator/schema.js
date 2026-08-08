@@ -14,7 +14,7 @@
  *     keeps it off — re-add when real reviews exist.
  */
 
-import { localBusiness, serviceSchema } from '../../src/lib/schema.js';
+import { localBusiness, serviceSchema, abs } from '../../src/lib/schema.js';
 
 /**
  * The Electrician business node. `withContext` wraps it for a top-level block
@@ -35,9 +35,25 @@ export function businessNode({ withContext = false, withIdentity = false } = {})
   return withContext ? { '@context': 'https://schema.org', ...node } : node;
 }
 
-/** Homepage = the Electrician LocalBusiness node, top-level, with identity. */
-export function homepageSchema() {
-  return businessNode({ withContext: true, withIdentity: true });
+/**
+ * Homepage = the Electrician LocalBusiness node, top-level, with identity.
+ * Pass the category rows to attach a `hasOfferCatalog` — an entity-strong signal
+ * of the services this business offers (each category as an Offer → Service),
+ * with real internal URLs. Omitted when no categories are supplied.
+ */
+export function homepageSchema(categories = []) {
+  const node = businessNode({ withContext: true, withIdentity: true });
+  if (categories.length) {
+    node.hasOfferCatalog = {
+      '@type': 'OfferCatalog',
+      name: 'Generator installation, service, and electrical',
+      itemListElement: categories.map((c) => ({
+        '@type': 'Offer',
+        itemOffered: { '@type': 'Service', name: c.trinity, url: abs(`/${c.slug}/`) },
+      })),
+    };
+  }
+  return node;
 }
 
 /** The fixed-bid Offer attached to category/service nodes. */
