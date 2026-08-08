@@ -316,6 +316,17 @@ own preset — and hits the same wall.
   of **shared trust/local/CTA sections** a vertical composes, so depth + rule-4
   local specificity land on every page type without copy-paste.
 
+### A4 · deploy scripts use bash-style `$CF_PAGES_PROJECT` (breaks on Windows cmd)
+- **Symptom.** `deploy:staging`/`deploy:prod` call `wrangler pages deploy dist
+  --project-name=$CF_PAGES_PROJECT …`. On Windows `cmd` (npm's default script
+  shell there) `$CF_PAGES_PROJECT` is passed as a literal, not expanded, so the
+  deploy targets a project literally named `$CF_PAGES_PROJECT`.
+- **Proposed fix.** Make it cross-platform: read the project name via a tiny Node
+  wrapper (`process.env.CF_PAGES_PROJECT`) that shells out to wrangler, or use
+  `cross-env`/`dotenv` (already a devDep is `cross-env`). Also add `.wrangler/` to
+  the starter `.gitignore` (added here).
+- **Effort/impact:** small / medium — silent footgun on the most common dev OS.
+
 ### Note · the homepage is legitimately bespoke, not row-driven
 - Category/service are row-driven (getStaticPaths); the homepage is a hand-authored
   page pulling config + preset schema. That's correct — but the starter's docs
