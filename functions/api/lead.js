@@ -36,7 +36,9 @@ import { SITE } from './_config.generated.js';
 // Sourced from config via the generated module so it can't drift from
 // site.config.leadSource. Tag stays a literal for now (one intent).
 const LEAD_SOURCE = SITE.leadSource || 'example-website-lead';
-const LEAD_TAG = 'web-prequal';
+// Single-intent tag for this vertical's one quote form. (Starter improvement:
+// this + the intent label should be preset/config-driven — see STARTER-IMPROVEMENTS.)
+const LEAD_TAG = 'web-quote';
 
 const str = (v) => (v == null ? '' : String(v).trim());
 

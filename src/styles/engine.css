@@ -1,0 +1,82 @@
+/* ============================================================================
+   Meridian · Engine shared primitives (Phase 1 reconcile)
+   ----------------------------------------------------------------------------
+   The small set of GLOBAL classes the KEPT Core30 engine components rely on
+   (Breadcrumbs, FinalCta, LeadForm's submit button, Icon) plus the page-level
+   element defaults the Astro <body> needs.
+
+   Meridian's design-reference archetypes apply those element defaults inline on
+   a per-page root <div style="--bg:…;background:var(--bg);…">. The engine's
+   BaseLayout has no such wrapper, so the page defaults live here instead —
+   expressed ENTIRELY in Meridian tokens.
+
+   This REPLACES the auto-donor's page-styles.css (its component library was
+   auto-specific: inventory cards, filter bars, financing situation cards) and
+   responsive-fixes.css (only two rules were engine-general; they are folded in
+   below). Loaded LAST in the styles.css @import closure. Tokens only — no
+   literal hex except the on-slab white, which is intentional chrome.
+   ============================================================================ */
+
+/* ---- page element defaults ------------------------------------------------
+   Meridian base.css already sets *{box-sizing}, body{margin:0}, a{}, .ks-field.
+   These add what a full-page <body> still needs. */
+html { scroll-behavior: smooth; overflow-x: clip; } /* clip (not hidden) keeps position:sticky working */
+body {
+  font-family: var(--font-body);
+  background: var(--bg);
+  color: var(--ink);
+  line-height: var(--lh-body);
+  -webkit-font-smoothing: antialiased;
+  text-rendering: optimizeLegibility;
+}
+img, svg, video { display: block; max-width: 100%; }
+/* No global heading COLOR: headings inherit their section's color, so a heading
+   on a dark section reads white (var(--on-slab)) and one on a light section reads
+   ink — components set an explicit color only when they need to override that.
+   (Setting color here forced every heading dark, incl. the on-slab hero H1s.) */
+h1, h2, h3, h4 { font-family: var(--font-display); margin: 0; }
+
+/* ---- layout container (Meridian width contract: 1140px + clamped side pad) */
+.container { max-width: var(--container); margin: 0 auto; padding: 0 var(--container-pad); }
+
+/* ---- helpers ---- */
+.mono { font-family: var(--font-mono); }
+.num  { font-variant-numeric: tabular-nums lining-nums; }
+.ico  { stroke: currentColor; fill: none; stroke-width: 1.75; stroke-linecap: round; stroke-linejoin: round; flex-shrink: 0; }
+
+/* ---- buttons (shared) — flat, 2px radius, amber CTA / slab secondary ---- */
+.btn-primary, .btn-dark {
+  display: inline-flex; align-items: center; justify-content: center; gap: 8px;
+  font-family: var(--font-display); font-weight: 700; font-size: 15px;
+  padding: 14px 22px; border-radius: var(--radius); text-decoration: none;
+  border: none; cursor: pointer; min-height: 44px;
+}
+.btn-primary { background: var(--accent); color: var(--accent-ink); box-shadow: inset 0 -3px 0 var(--accent-deep); }
+.btn-primary:hover { background: var(--accent-deep); color: var(--accent-ink); }
+.btn-dark { background: var(--slab); color: var(--on-slab); }
+.btn-dark:hover { background: var(--slab2); color: var(--on-slab); }
+
+/* ---- Breadcrumbs (Core30 rule 3 — children link UP) ---- */
+.breadcrumbs { padding: 14px 0 0; font-family: var(--font-mono); font-size: 11.5px; letter-spacing: 0.04em; color: var(--text-muted); }
+.breadcrumbs a { color: var(--text-muted); text-decoration: none; }
+.breadcrumbs a:hover { color: var(--accent-deep); }
+.breadcrumbs .sep { margin: 0 8px; color: var(--border-strong); }
+.breadcrumbs .current { color: var(--ink); }
+
+/* ---- Final CTA band (accent) ---- */
+.final-cta { background: var(--accent); color: var(--accent-ink); padding: clamp(40px, 6vw, 72px) 0; text-align: center; }
+.final-cta h2 { font-family: var(--font-display); font-weight: 900; letter-spacing: -0.02em; font-size: clamp(28px, 4.5vw, 46px); margin: 0 0 12px; color: var(--accent-ink); }
+.final-cta p { font-size: 17px; margin: 0 auto 24px; max-width: 540px; color: var(--accent-ink); }
+
+/* ---- iOS auto-zoom safety net: 16px controls under 640px (responsive law).
+   A net only for controls NOT inside a scoped-style component; the authoritative
+   16px fix lives next to the controls in LeadForm.astro. */
+@media (max-width: 640px) {
+  input, select, textarea { font-size: 16px; }
+}
+
+/* ---- keyboard-hide for the mobile bottom bar. chrome.js sets body.keyboard-open
+   while the on-screen keyboard is up (visualViewport); without this the bar sits
+   on top of the keyboard over the contact form. Pairs with mobile-chrome.css,
+   which owns the bar's shown/hidden transforms. */
+body.keyboard-open .mobile-bottom-bar { transform: translateY(110%); }

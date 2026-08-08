@@ -107,6 +107,7 @@ export function prettyPage(raw) {
 
 /** Heading label per lead intent (or derived from the `web-<intent>` tag). */
 const INTENT_LABELS = {
+  quote: 'Quote request',
   prequal: 'Financing pre-qualification',
   'vehicle-inquiry': 'Vehicle inquiry',
   service: 'Service request',

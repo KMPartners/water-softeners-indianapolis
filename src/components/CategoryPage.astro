@@ -1,0 +1,212 @@
+---
+/**
+ * Category page component, the category template body, rendered by the
+ * root-level dispatch route src/pages/[slug].astro (Core30 URLs are flat: a
+ * category lives at /<slug>/, never behind a /category/ segment; hierarchy is
+ * carried by breadcrumbs + linking). Ported from the category.html archetype.
+ * Chrome + contact + why-Meridian are shared components.
+ *
+ * Trinity: <title> == <h1> lead == the category slug's Service+City phrase.
+ */
+import BaseLayout from '../layouts/BaseLayout.astro';
+import Breadcrumbs from './Breadcrumbs.astro';
+import WhyMeridian from './WhyMeridian.astro';
+import ContactSection from './ContactSection.astro';
+import AuthorizedBand from './AuthorizedBand.astro';
+import ServiceAreaGrid from './ServiceAreaGrid.astro';
+import { NAP } from '../lib/site.js';
+import { generatorService } from '../../presets/generator/schema.js';
+import { faqSchema, breadcrumbSchema } from '../lib/schema.js';
+
+const { cat } = Astro.props;
+const url = `/${cat.slug}/`;
+const title = `${cat.trinity} ${cat.city}`; // Trinity: Service + City
+const crumbs = [{ label: 'Home', href: '/' }, { label: cat.trinity }];
+---
+
+<BaseLayout
+  title={title}
+  description={cat.description}
+  canonical={url}
+  pageLabel={cat.trinity}
+  schemas={[
+    generatorService({ name: cat.trinity, serviceType: cat.serviceType, description: cat.description, url }),
+    faqSchema(cat.faq),
+    breadcrumbSchema(crumbs),
+  ]}
+>
+  <Breadcrumbs crumbs={crumbs} />
+
+  {/* ===== HERO ===== */}
+  <section class="cat-hero">
+    <div class="cat-hero-inner">
+      <p class="byline--eyebrow byline--on-dark hero-byline">
+        <span class="byline-tick" aria-hidden="true"></span>
+        <span class="byline-clause">Dealer-grade installs</span>
+        <span class="byline-sep" aria-hidden="true">·</span>
+        <span class="byline-clause byline-value">Owner-direct pricing</span>
+      </p>
+      <div class="kicker">{cat.eyebrow}</div>
+      <h1 class="cat-h1">{cat.trinity} <span class="accent">{cat.city}</span></h1>
+      <p class="cat-lede">{cat.lede}</p>
+      <div class="cat-cta">
+        <a href="#contact" class="btn-primary">Get a fixed-bid quote →</a>
+        <a href={NAP.phoneTel} class="hero-call"><span class="dot-amber" aria-hidden="true"></span>{NAP.phoneDisplay}</a>
+      </div>
+    </div>
+  </section>
+
+  {/* ===== SIZING GUIDE ===== */}
+  {cat.sizing && (
+    <section class="band">
+      <div class="band-head"><h2>How to choose your size</h2><div class="rule" aria-hidden="true"></div></div>
+      <p class="band-lede">{cat.sizing.intro}</p>
+      <div class="sizing">
+        <div class="sizing-headrow">
+          <div class="sh">Size</div><div class="sh muted">Best for</div><div class="sh muted">What it typically runs</div>
+        </div>
+        {cat.sizing.rows.map((r) => (
+          <a href={r.href} class:list={['sizing-row', { featured: r.featured }]}>
+            <div class="sz"><span class="sz-n">{r.size}</span>{r.tag && <span class="sz-tag">{r.tag}</span>}</div>
+            <div class="sz-best">{r.best}</div>
+            <div class="sz-runs">{r.runs}</div>
+          </a>
+        ))}
+      </div>
+      <p class="sizing-note">Tap any row for that size's installation page. Final sizing is confirmed by load calculation.</p>
+    </section>
+  )}
+
+  {/* ===== CHILD GRID (Rule 3: parent links DOWN to every child) ===== */}
+  <section class="band">
+    {cat.childGroups.map((g) => (
+      <>
+        <div class="group-head">
+          <span class="group-n">{g.n}</span>
+          <h2>{g.title}</h2>
+          <div class="rule" aria-hidden="true"></div>
+        </div>
+        <div class:list={['child-grid', { compact: !g.cards.some((c) => c.p) }]}>
+          {g.cards.map((c) => (
+            <a href={c.href} class="child-card">
+              {c.p ? (
+                <>
+                  <div class="cc-top">{c.tag && <span class="cc-tag">{c.tag}</span>}<span class="cc-arrow" aria-hidden="true">→</span></div>
+                  <div class="cc-h">{c.h}</div>
+                  <div class="cc-p">{c.p}</div>
+                </>
+              ) : (
+                <><span class="cc-h sm">{c.h}</span><span class="cc-arrow" aria-hidden="true">→</span></>
+              )}
+            </a>
+          ))}
+        </div>
+      </>
+    ))}
+  </section>
+
+  {/* ===== GOAL CONTENT + external authority (Rule 6) ===== */}
+  <section class="band">
+    <div class="goal-grid">
+      <div class="goal-card">
+        <h2>Sizing is the whole job</h2>
+        <p>Every install starts with an NEC 220 load calculation, so you buy the unit your home actually needs, not the one that's easiest to upsell. In Fishers and Noblesville, outages are typically <strong>Duke Energy</strong> or <strong>AES Indiana</strong> storm events; in Anderson, <strong>Anderson Municipal Light &amp; Power</strong>.</p>
+      </div>
+      <div class="goal-card">
+        <h2>Installed to code</h2>
+        <p>Whole-house standby is wired as an optional standby system under the National Electrical Code, with transfer equipment and overcurrent protection sized to spec.</p>
+        <a href="https://www.nfpa.org/" target="_blank" rel="noopener" class="ext-link">NFPA 70 (NEC) Article 702 <span aria-hidden="true">↗</span></a>
+      </div>
+    </div>
+  </section>
+
+  {/* ===== CATEGORY FAQ (matches FAQPage schema) ===== */}
+  <section class="band">
+    <div class="band-head sm"><h2>Sizing &amp; install questions</h2><div class="rule" aria-hidden="true"></div></div>
+    <div class="faq-grid">
+      {cat.faq.map((f) => (
+        <div class="faq-item-block"><div class="faq-q">{f.q}</div><p class="faq-a">{f.a}</p></div>
+      ))}
+    </div>
+  </section>
+
+  <AuthorizedBand />
+  <ServiceAreaGrid />
+  <WhyMeridian />
+  <ContactSection />
+</BaseLayout>
+
+<style>
+  .accent { color: var(--accent); }
+  .hero-byline { margin: 0 0 14px; }
+
+  .cat-hero { background: var(--slab); color: var(--on-slab); padding: clamp(40px,6vw,80px) var(--container-pad) clamp(36px,5vw,64px); }
+  .cat-hero-inner { max-width: var(--container); margin: 0 auto; }
+  .kicker { font-family: var(--font-mono); font-size: 11px; letter-spacing: .24em; text-transform: uppercase; color: var(--accent); margin-bottom: 18px; }
+  .cat-h1 { font-family: var(--font-display); font-weight: 900; font-size: clamp(32px,5vw,64px); line-height: 1; letter-spacing: -.02em; margin: 0 0 20px; max-width: 18ch; }
+  .cat-lede { font-size: var(--fs-lede); color: var(--on-slab-muted); max-width: 62ch; margin: 0 0 28px; line-height: 1.55; }
+  .cat-lede strong, .cat-hero-inner strong { color: var(--on-slab); }
+  .cat-cta { display: flex; gap: 12px; flex-wrap: wrap; }
+  .hero-call { font-family: var(--font-mono); font-size: 13px; font-weight: 500; color: var(--on-slab); border: 1px solid var(--slab-rule); padding: 13px 18px; border-radius: var(--radius); display: inline-flex; align-items: center; gap: 9px; }
+  .dot-amber { width: 7px; height: 7px; border-radius: 50%; background: var(--accent); }
+
+  .band { max-width: var(--container); margin: 0 auto; padding: clamp(40px,6vw,64px) var(--container-pad) clamp(8px,2vw,16px); }
+  .band-head { display: flex; align-items: baseline; gap: 14px; margin-bottom: 14px; }
+  .band-head.sm { margin-bottom: 24px; }
+  .band-head h2, .group-head h2 { font-family: var(--font-display); font-weight: 800; font-size: var(--fs-h2); letter-spacing: -.015em; margin: 0; color: var(--text-strong); }
+  .band-head.sm h2 { font-size: var(--fs-h3); letter-spacing: -.01em; }
+  .band-head .rule, .group-head .rule { flex: 1; height: 1px; background: var(--rule); }
+  .band-lede { font-size: var(--fs-lede); color: var(--text-body); line-height: 1.6; margin: 0 0 26px; max-width: 64ch; }
+  .band-lede strong { color: var(--ink); }
+
+  /* sizing table */
+  .sizing { border: 1px solid var(--rule); border-radius: var(--radius); overflow: hidden; }
+  .sizing-headrow, .sizing-row { display: grid; grid-template-columns: 120px 1fr 1.4fr; }
+  .sizing-headrow { background: var(--slab); color: var(--on-slab); }
+  .sh { padding: 14px 20px; font-family: var(--font-mono); font-size: 11px; letter-spacing: .12em; text-transform: uppercase; color: var(--accent); }
+  .sh.muted { color: var(--on-slab-dim); }
+  .sizing-row { background: var(--surface-card); border-top: 1px solid var(--rule); align-items: center; }
+  .sizing-row.featured { background: var(--bg2); border-top: 2px solid var(--accent); }
+  .sz { padding: 18px 20px; }
+  .sz-n { font-family: var(--font-display); font-weight: 800; font-size: 19px; color: var(--ink); }
+  .sz-tag { display: block; font-family: var(--font-mono); font-size: 10px; letter-spacing: .08em; color: var(--accent-deep); margin-top: 4px; }
+  .sz-best { padding: 18px 20px; font-size: 14.5px; color: var(--ink); font-weight: 600; }
+  .sz-runs { padding: 18px 20px; font-size: 14px; color: var(--text-body); line-height: 1.5; }
+  @media (max-width: 640px) {
+    .sizing-headrow { display: none; }
+    .sizing-row { grid-template-columns: 1fr; gap: 2px; padding: 6px 0; }
+    .sz, .sz-best, .sz-runs { padding: 6px 20px; }
+  }
+  .sizing-note { font-family: var(--font-mono); font-size: 11px; color: var(--text-muted); margin: 12px 0 0; }
+
+  /* child grid */
+  .group-head { display: flex; align-items: baseline; gap: 14px; margin: 44px 0 22px; }
+  .group-n { font-family: var(--font-mono); font-size: 12px; color: var(--accent-deep); font-weight: 600; }
+  .group-head h2 { font-size: var(--fs-h3); letter-spacing: -.01em; }
+  .child-grid { display: grid; grid-template-columns: repeat(auto-fit,minmax(240px,1fr)); gap: 1px; background: var(--rule); border: 1px solid var(--rule); border-radius: var(--radius); overflow: hidden; }
+  .child-grid.compact { grid-template-columns: repeat(auto-fit,minmax(220px,1fr)); }
+  .child-card { background: var(--surface-card); padding: 24px 22px; display: block; }
+  .child-grid.compact .child-card { display: flex; justify-content: space-between; align-items: center; gap: 10px; padding: 22px; }
+  .cc-top { display: flex; justify-content: space-between; align-items: center; gap: 10px; margin-bottom: 10px; }
+  .cc-tag { font-family: var(--font-mono); font-size: 11px; color: var(--accent-deep); letter-spacing: .06em; }
+  .cc-arrow { color: var(--accent); font-weight: 800; }
+  .cc-h { font-family: var(--font-display); font-weight: 700; font-size: 18px; margin-bottom: 6px; color: var(--ink); }
+  .cc-h.sm { font-size: 16px; margin: 0; }
+  .cc-p { font-size: 13.5px; color: var(--text-body); line-height: 1.5; }
+
+  /* goal cards */
+  .goal-grid { display: grid; grid-template-columns: repeat(auto-fit,minmax(min(280px,100%),1fr)); gap: 24px; }
+  .goal-card { background: var(--bg2); border: 1px solid var(--rule); border-radius: var(--radius); padding: 28px; }
+  .goal-card h2 { font-family: var(--font-display); font-weight: 800; font-size: var(--fs-h3); letter-spacing: -.01em; margin: 0 0 12px; color: var(--text-strong); }
+  .goal-card p { font-size: 15px; color: var(--text-body); line-height: 1.6; margin: 0 0 18px; }
+  .goal-card p:last-child { margin-bottom: 0; }
+  .goal-card strong { color: var(--ink); }
+  .ext-link { display: inline-flex; align-items: center; gap: 10px; font-family: var(--font-display); font-weight: 700; font-size: 14px; color: var(--ink); border: 1px solid var(--ink); padding: 12px 18px; border-radius: var(--radius); }
+  .ext-link span { color: var(--accent-deep); }
+
+  /* faq */
+  .faq-grid { display: grid; grid-template-columns: repeat(auto-fit,minmax(min(300px,100%),1fr)); gap: 14px 32px; }
+  .faq-item-block { border-bottom: 1px solid var(--rule); padding: 0 0 14px; }
+  .faq-q { font-family: var(--font-display); font-weight: 700; font-size: 16px; color: var(--ink); }
+  .faq-a { font-size: 14.5px; color: var(--text-body); line-height: 1.65; margin: 12px 0 0; }
+</style>

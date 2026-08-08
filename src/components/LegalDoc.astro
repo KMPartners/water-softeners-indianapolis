@@ -41,7 +41,7 @@ const { doc } = Astro.props;
           Placeholder legal prose must never be mistaken for reviewed text. */}
       {!LEGAL_REVIEWED && (
         <p class="legal-draft" role="note">
-          <strong>Draft — pending legal review.</strong> This document is
+          <strong>Draft: pending legal review.</strong> This document is
           placeholder language and has not yet been reviewed by counsel. It must
           not be relied upon until review is complete.
         </p>
@@ -78,7 +78,7 @@ const { doc } = Astro.props;
     max-width: 68ch;
     padding-bottom: clamp(20px, 3vw, 30px);
     margin-bottom: clamp(20px, 3vw, 30px);
-    border-bottom: 3px solid var(--amber-500);
+    border-bottom: 3px solid var(--accent);
   }
   .legal-head h1 {
     font-family: var(--font-display);
@@ -86,7 +86,7 @@ const { doc } = Astro.props;
     letter-spacing: -0.03em;
     line-height: 1;
     font-size: clamp(30px, 4.5vw, 46px);
-    color: var(--navy-700);
+    color: var(--text-strong);
     margin: 0 0 12px;
   }
   .legal-effective {
@@ -94,24 +94,24 @@ const { doc } = Astro.props;
     font-size: 11px;
     letter-spacing: 0.12em;
     text-transform: uppercase;
-    color: var(--ink-3);
+    color: var(--text-muted);
     margin: 0 0 18px;
   }
   .legal-intro {
     font-size: clamp(15.5px, 1.6vw, 17.5px);
     line-height: 1.6;
-    color: var(--ink-2);
+    color: var(--text-body);
     margin: 0;
   }
   .legal-draft {
     margin: 18px 0 0;
     padding: 12px 14px;
-    border: 1px solid var(--alert);
-    border-radius: var(--radius-1);
-    background: color-mix(in srgb, var(--alert) 8%, transparent);
+    border: 1px solid var(--danger);
+    border-radius: var(--radius);
+    background: color-mix(in srgb, var(--danger) 8%, transparent);
     font-size: 13.5px;
     line-height: 1.55;
-    color: var(--ink-2);
+    color: var(--text-body);
   }
   .legal-draft strong {
     color: var(--ink);
@@ -126,7 +126,7 @@ const { doc } = Astro.props;
     font-weight: 800;
     font-size: clamp(18px, 2.2vw, 22px);
     letter-spacing: -0.02em;
-    color: var(--navy-700);
+    color: var(--text-strong);
     margin: 0 0 12px;
     display: flex;
     gap: 12px;
@@ -137,21 +137,21 @@ const { doc } = Astro.props;
     font-size: 12px;
     font-weight: 500;
     letter-spacing: 0.06em;
-    color: var(--amber-600);
+    color: var(--accent-deep);
     flex-shrink: 0;
   }
 
   .legal-section p {
     font-size: 15.5px;
     line-height: 1.65;
-    color: var(--ink-2);
+    color: var(--text-body);
     margin: 0 0 12px;
   }
   .legal-section p:last-child {
     margin-bottom: 0;
   }
   .legal-section :global(a) {
-    color: var(--navy-600);
+    color: var(--accent);
     text-decoration: underline;
     text-underline-offset: 2px;
   }
@@ -172,7 +172,7 @@ const { doc } = Astro.props;
     padding-left: 20px;
     font-size: 15.5px;
     line-height: 1.6;
-    color: var(--ink-2);
+    color: var(--text-body);
   }
   .legal-section li::before {
     content: '';
@@ -181,7 +181,7 @@ const { doc } = Astro.props;
     top: 0.62em;
     width: 7px;
     height: 2px;
-    background: var(--amber-500);
+    background: var(--accent);
   }
 
   .legal-disclaimer {
@@ -193,6 +193,6 @@ const { doc } = Astro.props;
     font-size: 11px;
     line-height: 1.7;
     letter-spacing: 0.02em;
-    color: var(--ink-3);
+    color: var(--text-muted);
   }
 </style>

@@ -1,85 +1,80 @@
-/* ============================================================
-   COLORS — brand values are CLIENT CONFIG (charter §5). Swap this file per client.
-   Steel & Brass — the palette the owner chose (site review 2026-07-28).
-   A lighter steel-blue slab + true brass/gold accent, on warm paper.
-   Base scales first, then semantic aliases.
-
-   This is the permanent brand palette. The owner chose Steel & Brass in the
-   site review and it is now locked in — the preview theme picker and the
-   alternative themes it switched between have been removed, so these :root
-   values are the only palette the site renders.
-   ============================================================ */
+/* ============================================================================
+   Meridian · Color tokens (LOCKED)
+   The only colors any page may use. Components reference var(--…) only,
+   never a literal hex. Amber nods to the Generac yellow LED without copying
+   Generac's brand color: Meridian stands alone.
+   ============================================================================ */
 :root {
-  /* ---- Brand steel-blue (primary) ---- */
-  --navy-900: #0e1c26;   /* deepest slab / footer */
-  --navy-800: #13242f;
-  --navy-700: #1a3243;   /* PRIMARY steel-blue slab */
-  --navy-600: #27485e;   /* lifted panel */
-  --navy-500: #365d78;   /* hover / borders on dark */
-  --navy-400: #6088a6;   /* muted text on dark */
+  /* --- base surfaces (light) --- */
+  --bg:        #F6F7F9;   /* page background */
+  --bg2:       #ECEFF3;   /* alternate section background */
 
-  /* ---- Brass / gold (single accent) ---- */
-  --amber-600: #a8791a;  /* pressed / underline shadow */
-  --amber-500: #dcab3a;  /* ACCENT (brass) */
-  --amber-400: #ecc766;  /* hover */
-  --amber-200: #f5e2a8;
-  --amber-100: #fbf1d4;  /* soft accent wash / pills */
+  /* --- ink (text) --- */
+  --ink:       #161D29;   /* headings + body */
+  --ink2:      #4A5663;   /* lede + secondary */
+  --ink3:      #828D9B;   /* mono labels + muted */
 
-  /* ---- Warm neutrals (paper + ink) ---- */
-  --paper:    #f3f2ee;   /* page surface */
-  --paper-2:  #e9e8e2;   /* raised / alt band */
-  --paper-3:  #dcdbd3;   /* deeper band */
-  --white:    #ffffff;   /* cards */
-  --rule:     #dad9d2;   /* hairline */
-  --rule-2:   #c6c5bc;   /* stronger hairline */
-  --ink:      #14202b;   /* primary text */
-  --ink-2:    #42505c;   /* body text */
-  --ink-3:    #70808c;   /* muted / labels */
+  /* --- rules / borders --- */
+  --rule:      #DCE1E8;   /* hairline divider */
+  --rule2:     #C4CCD6;   /* stronger border (inputs, pills) */
 
-  /* ---- Functional status (used sparingly, never decoration) ---- */
-  --go:       #2f9e5f;   /* Available / approved-signal */
-  --go-soft:  #d8f0e2;
-  --pending:  #b9741a;   /* Pending */
-  --sold:     #71808d;   /* Sold */
-  --alert:    #c0392b;   /* form errors only */
-  --star:     var(--amber-500);   /* rating stars = amber */
+  /* --- dark slab surfaces --- */
+  --slab:      #111824;   /* hero + footer + CTA */
+  --slab2:     #1B2433;   /* raised dark card */
+  --slab-rule: #2C3849;   /* divider on dark */
 
-  /* ============ SEMANTIC ALIASES ============ */
-  /* surfaces */
-  --surface:        var(--paper);
-  --surface-2:      var(--paper-2);
-  --surface-3:      var(--paper-3);
-  --surface-card:   var(--white);
-  --surface-slab:   var(--navy-700);   /* dark image/feature panels */
-  --surface-slab-2: var(--navy-600);
-  --surface-deep:   var(--navy-900);   /* footer */
+  /* --- accent (amber, the workhorse) --- */
+  --accent:      #F2A40C; /* links · bullets · CTA */
+  --accent-deep: #B87808; /* underline · hover fill · shadow */
+  --accent-ink:  #1A1206; /* text on amber */
 
-  /* text */
-  --text:           var(--ink);
-  --text-body:      var(--ink-2);
-  --text-muted:     var(--ink-3);
-  --text-on-slab:   #d7e0ea;
-  --text-on-slab-mut: var(--navy-400);
-  --text-on-accent: var(--navy-900);   /* navy text on amber = high contrast, un-neon */
+  /* --- signal + status --- */
+  --signal:       #F2541B; /* urgency / alt accent */
+  --status-green: #3FB47C; /* open / confirmed */
 
-  /* brand + accent roles */
-  --brand:          var(--navy-700);
-  --brand-slab:     var(--navy-900);
-  --accent:         var(--amber-500);
-  --accent-hover:   var(--amber-400);
-  --accent-press:   var(--amber-600);
-  --accent-ink:     var(--navy-900);
-  --accent-soft:    var(--amber-100);
+  /* --- semantic aliases (prefer these in new work) --- */
+  --text-strong:  var(--ink);
+  --text-body:    var(--ink2);
+  --text-muted:   var(--ink3);
+  --surface:      var(--bg);
+  --surface-alt:  var(--bg2);
+  --surface-card: #ffffff;
+  --surface-dark: var(--slab);
+  --surface-dark-raised: var(--slab2);
+  --border:        var(--rule);
+  --border-strong: var(--rule2);
+  --border-dark:   var(--slab-rule);
+  --brand:      var(--accent);
+  --brand-deep: var(--accent-deep);
+  --brand-ink:  var(--accent-ink);
+  --danger:     var(--signal);
+  --success:    var(--status-green);
 
-  /* lines + focus */
-  --border:         var(--rule);
-  --border-strong:  var(--rule-2);
-  --border-on-slab: var(--navy-500);
-  --focus:          #2a4f74;
-  --focus-ring:     0 0 0 3px color-mix(in srgb, var(--amber-500) 55%, transparent);
+  /* --- text ON dark slab surfaces -----------------------------------------
+     Meridian's archetypes hard-coded these on-dark greys inline; tokenized in
+     Phase 6 so the chrome + dark sections stay tokens-only and reskin with the
+     palette. Ordered lightest → lowest-contrast. */
+  --on-slab:          #ffffff; /* headings / strong text on --slab */
+  --on-slab-body:     #DCE2EA; /* body · checklist text on dark */
+  --on-slab-muted:    #B9C2CE; /* lede · secondary on dark */
+  --on-slab-dim:      #9BA6B4; /* mono labels · sublines on dark */
+  --on-slab-dimmer:   #8A95A4; /* fine print on dark */
+  --on-slab-faint:    #6E7A89; /* section labels · footer headings on dark */
+  --on-slab-faintest: #566273; /* lowest-contrast (trademark line) */
 
-  /* elevation (sharp, honest, low blur, no colored glows) */
-  --shadow-sm: 0 1px 2px oklch(0.2 0.03 250 / 0.08);
-  --shadow-md: 0 8px 24px -12px oklch(0.2 0.03 250 / 0.22);
-  --shadow-lg: 0 20px 48px -20px oklch(0.2 0.03 250 / 0.32);
+  /* --- elevation (Phase 1 reconcile) --------------------------------------
+     Meridian's design is flat and border-led, so these are deliberately
+     subtle — just enough lift for a raised card (the LeadForm quote card and
+     its success state). Tinted with the slab ink (#111824) so the shadow reads
+     as the same cool family as the palette, never a neutral grey drop. Prefer a
+     border; reach for a shadow only when a surface genuinely needs to lift. */
+  --shadow-sm: 0 1px 2px rgba(17, 24, 36, 0.06);
+  --shadow-md: 0 6px 20px rgba(17, 24, 36, 0.10);
+  --shadow-lg: 0 18px 48px rgba(17, 24, 36, 0.14);
+
+  /* --- focus ring (Phase 1 reconcile) -------------------------------------
+     One tokenized focus treatment so every focusable control matches the
+     inline `.ks-field:focus` look in base.css. Consumers pair it with
+     `border-color: var(--accent)`. */
+  --focus-ring: 0 0 0 3px color-mix(in srgb, var(--accent) 30%, transparent);
 }

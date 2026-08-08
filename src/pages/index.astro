@@ -1,0 +1,320 @@
+---
+/**
+ * Homepage, GBP primary category "Generator shop". Ported from
+ * _handoff/design-reference/archetypes/homepage.html: inline styles → scoped,
+ * every value → var(--*), NAP/links from config + content nav, schema from the
+ * generator preset. Chrome (header/mini-menu/drawer/footer) is in BaseLayout.
+ *
+ * Trinity: <title> keyphrase == <h1> lead == "/" (homepage slug is root).
+ * NEVER-FABRICATE: "Licensed & insured" renders only when the compliance gate is
+ * confirmed; the hero omits it until the license # lands.
+ */
+import BaseLayout from '../layouts/BaseLayout.astro';
+import WhyMeridian from '../components/WhyMeridian.astro';
+import ContactSection from '../components/ContactSection.astro';
+import AuthorizedBand from '../components/AuthorizedBand.astro';
+import ServiceAreaGrid from '../components/ServiceAreaGrid.astro';
+import { NAP, LICENSED_CLAIM_ALLOWED } from '../lib/site.js';
+import { CATEGORIES } from '../content/meridian.js';
+import { homepageSchema } from '../../presets/generator/schema.js';
+import { faqSchema } from '../lib/schema.js';
+
+const TITLE = 'Whole-House Generator Installation in Fishers, IN'; // ‹SEO› provisional Trinity
+const DESCRIPTION =
+  'Authorized Generac dealer installing whole-house standby generators in Fishers, Noblesville, and the surrounding Hamilton & Madison County area, transparent fixed-bid pricing and warranty-compliant service.';
+
+// Provisional category/service hrefs (finalized in Phase 4 with the content tree).
+const L = {
+  standby: '/standby-generator-installation/',
+  transfer: '/transfer-switch-installation/',
+  service: '/generator-service-repair/',
+  commercial: '/commercial-standby-generators/',
+  s22: '/22kw-whole-house-generator-installation/',
+  natgas: '/natural-gas-generator-installation/',
+  ats: '/automatic-transfer-switch-installation/',
+  sump: '/sump-pump-backup-generator/',
+  ev: '/ev-charger-backup-generator/',
+  bought: '/bought-a-house-with-a-generator-inspection/',
+  takeover: '/generac-take-over-service/',
+};
+
+const FAQ = [
+  { q: 'What size whole-house generator do I need?', a: "It depends on the electrical load you want to keep running, not square footage. Most Fishers and Noblesville homes run the whole house on a 22 kW unit; larger homes with electric heat or EV charging may need 24-26 kW. We confirm it with an on-site NEC 220 load calculation." },
+  { q: 'How much does it cost to install?', a: 'Cost depends on the unit, your gas and electrical setup, and the placement run, so we give a transparent fixed-bid quote after an on-site load calc, not a vague "starting at." You will know the price before we begin.' },
+  { q: "Do you service generators you didn't install?", a: 'Yes. We take over orphaned Generac units, inspect generators that came with a home you just bought, and diagnose yellow-light fault codes, all warranty-compliant as a factory-authorized dealer.' },
+  { q: 'How long does installation take?', a: 'Once the permit is pulled and gas work is scheduled, most home standby installs are completed and commissioned within one to two days.' },
+  { q: 'Are you an authorized Generac dealer?', a: 'Yes. Meridian is a factory-authorized Generac dealer, so our installs and repairs are warranty-compliant. Only an authorized service dealer can perform warranty work without putting your coverage at risk.' },
+  { q: 'Will your service affect my Generac warranty?', a: 'No, it protects it. As a factory-authorized Generac dealer our installs and repairs are warranty-compliant, so your coverage stays intact. Work by an uncertified technician is what can put a Generac warranty at risk.' },
+  { q: "What's included in the fixed-bid price?", a: 'Your quote covers the on-site NEC 220 load calculation, the permit and inspection, a level pad at code clearance, the transfer switch wired into your panel, the gas line sized to the unit, commissioning with a run-under-load test, Mobile Link setup, and warranty registration. Anything unusual about your site we quote up front, in writing.' },
+];
+
+// "What's included" checklist for the fixed-bid transparency section.
+const INCLUDED = [
+  'On-site NEC 220 load calculation, so the unit is sized to your home',
+  'The permit pulled with your local authority, and the inspection',
+  'A level pad set at code clearance',
+  'The automatic transfer switch wired into your panel',
+  "The gas line sized to the generator's demand",
+  'Commissioning and a run-under-load test',
+  'Mobile Link remote monitoring setup',
+  'Warranty registration with Generac',
+];
+---
+
+<BaseLayout
+  title={TITLE}
+  description={DESCRIPTION}
+  canonical="/"
+  pageLabel="Standby generators · Fishers, IN"
+  schemas={[homepageSchema(CATEGORIES), faqSchema(FAQ)]}
+>
+  {/* ===== HERO ===== */}
+  <section class="hero">
+    <div class="hero-grid">
+      <div>
+        <p class="byline--eyebrow byline--on-dark hero-byline">
+          <span class="byline-tick" aria-hidden="true"></span>
+          <span class="byline-clause">Dealer-grade installs</span>
+          <span class="byline-sep" aria-hidden="true">·</span>
+          <span class="byline-clause byline-value">Owner-direct pricing</span>
+        </p>
+        <div class="hero-status"><span class="dot" aria-hidden="true"></span>Now serving Fishers &amp; Noblesville</div>
+        <h1 class="hero-h1">Whole-House Generator Installation in <span class="accent">Fishers, IN</span></h1>
+        <p class="hero-lede"><strong>Meridian installs and services whole-house Generac standby generators across Fishers, Noblesville, and Hamilton &amp; Madison County, with transparent, fixed-bid pricing sized to your home.</strong> We're factory-authorized and warranty-compliant, and we answer the phone when you call.</p>
+        <div class="hero-cta">
+          <a href="#contact" class="btn-primary">Get a fixed-bid quote →</a>
+          <a href={NAP.phoneTel} class="hero-call"><span class="dot-amber" aria-hidden="true"></span>{NAP.phoneDisplay}</a>
+        </div>
+        <div class="hero-trust">
+          <span>Authorized Generac Dealer</span>
+          {LICENSED_CLAIM_ALLOWED && (<><span class="bar" aria-hidden="true">|</span><span>Licensed &amp; insured</span></>)}
+          <span class="bar" aria-hidden="true">|</span><span>Fixed-bid pricing</span>
+        </div>
+      </div>
+      <aside class="hero-card">
+        <div class="hero-card-label">Why homeowners call us</div>
+        <div class="hero-card-list">
+          <div class="hcl-item"><span class="check" aria-hidden="true">✓</span>Authorized Generac dealer · warranty-compliant service</div>
+          <div class="hcl-item"><span class="check" aria-hidden="true">✓</span>Transparent, fixed-bid quotes in writing</div>
+          <div class="hcl-item"><span class="check" aria-hidden="true">✓</span>We service everything we install</div>
+          <div class="hcl-item"><span class="check" aria-hidden="true">✓</span>Sized by load calculation, not by upsell</div>
+        </div>
+        <div class="hero-card-foot">Free on-site assessment · No obligation</div>
+      </aside>
+    </div>
+  </section>
+
+  {/* ===== TRUST STRIP ===== */}
+  <section class="trust">
+    <div class="trust-grid">
+      <div class="trust-item"><span class="n">01</span><span><strong>Factory-authorized &amp; warranty-compliant.</strong> The trust claim that counts.</span></div>
+      <div class="trust-item"><span class="n">02</span><span><strong>Transparent, fixed-bid pricing</strong>, sized to your home, never beyond it.</span></div>
+      <div class="trust-item"><span class="n">03</span><span><strong>We service what we install</strong>, no hand-off to a call center.</span></div>
+    </div>
+  </section>
+
+  {/* ===== OUTAGE CONTEXT ===== */}
+  <section class="outage">
+    <div class="outage-grid">
+      <div>
+        <div class="eyebrow amber">The outages aren't slowing down</div>
+        <h2 class="outage-h2">When the grid drops, a standby unit never asks you to notice.</h2>
+        <p class="outage-p">When severe storms hit Indiana in early April 2025, Duke Energy reported more than 100,000 outages across nearly all of its service districts, with Hamilton County among the hardest hit. A permanently installed generator senses the loss and restores your whole home in seconds. No cords, no fuel runs, no thawing freezer. <!-- VERIFY:outage-stats entity-research (Duke Energy release Apr 2025) --></p>
+      </div>
+      <div class="outage-stats">
+        <div class="ostat"><div class="ostat-n">Seconds</div><div class="ostat-l">from outage to your home back on power, automatically.</div></div>
+        <div class="ostat"><div class="ostat-n">7 of 10</div><div class="ostat-l">home-standby buyers choose a Generac Guardian. <!-- VERIFY:generac-stat entity-research --></div></div>
+        <div class="ostat"><div class="ostat-n accent">Days, not hours</div><div class="ostat-l">how long Central Indiana storm outages can run.</div></div>
+      </div>
+    </div>
+  </section>
+
+  {/* ===== THREE CATEGORIES (Rule 3: homepage links DOWN) ===== */}
+  <section class="band">
+    <div class="band-head"><h2>What we do</h2><div class="rule" aria-hidden="true"></div></div>
+    <div class="cat-grid">
+      <a href={L.standby} class="cat-card"><div class="cat-n">01</div><div class="cat-h">Standby Generator Services</div><div class="cat-p">Whole-house Generac installs by size, fuel, and need: 22 kW, 24-26 kW, natural gas, and use-case backup.</div><div class="cat-more">Explore installs →</div></a>
+      <a href={L.transfer} class="cat-card"><div class="cat-n">02</div><div class="cat-h">Transfer Switch &amp; Electrical</div><div class="cat-p">Automatic transfer switches, smart load-shedding, panel and service upgrades, and load calculations.</div><div class="cat-more">Explore electrical →</div></a>
+      <a href={L.service} class="cat-card"><div class="cat-n">03</div><div class="cat-h">Maintenance &amp; Repair</div><div class="cat-p">Generac take-over service, "bought a house with a generator" inspections, yellow-light diagnostics, and plans.</div><div class="cat-more">Explore service →</div></a>
+    </div>
+    <div class="band-tail"><a href={L.commercial}>+ Commercial &amp; light-commercial standby →</a></div>
+  </section>
+
+  {/* ===== SITUATIONAL HELPER ===== */}
+  <section class="band">
+    <div class="band-head"><h2>Which generator do you need?</h2><div class="rule" aria-hidden="true"></div></div>
+    <p class="band-lede">Start where you are. We'll point you to the right page and a fixed-bid quote.</p>
+    <div class="sit-grid">
+      <a href={L.s22} class="sit-card"><div class="sit-eyebrow">I keep losing power</div><div class="sit-h">Put in a whole-house generator</div><div class="sit-p">The 22 kW Guardian runs the whole home automatically. The size most Fishers houses land on.</div><div class="sit-more">See 22 kW installation →</div></a>
+      <a href={L.bought} class="sit-card"><div class="sit-eyebrow">I bought a house with one</div><div class="sit-h">Find out if it actually works</div><div class="sit-p">We inspect it, run it under load, set up monitoring, and put you on a plan.</div><div class="sit-more">New-owner inspection →</div></a>
+      <a href={L.takeover} class="sit-card"><div class="sit-eyebrow">My installer disappeared</div><div class="sit-h">Get your Generac adopted</div><div class="sit-p">We take over orphaned units with warranty-compliant service, including yellow-light diagnostics.</div><div class="sit-more">Take-over service →</div></a>
+      <a href={L.standby} class="sit-card"><div class="sit-eyebrow">I'm protecting one thing</div><div class="sit-h">Back up what matters most</div><div class="sit-p">Sump pump, medical equipment, the freezer, an EV charger, sized to the load you care about.</div><div class="sit-more">Browse by need →</div></a>
+    </div>
+    <div class="popular">
+      <span class="popular-label">Popular:</span>
+      <a href={L.s22} class="pill">22 kW Whole-House</a>
+      <a href={L.natgas} class="pill">Natural-Gas Install</a>
+      <a href={L.ats} class="pill">Transfer Switch</a>
+      <a href={L.sump} class="pill">Sump-Pump Backup</a>
+      <a href={L.ev} class="pill">EV-Charger Backup</a>
+    </div>
+  </section>
+
+  {/* ===== HOW IT WORKS ===== */}
+  <section class="band">
+    <div class="band-head sm"><h2>How a Meridian install works</h2><div class="rule" aria-hidden="true"></div></div>
+    <p class="band-lede">Four steps, in the right order. Most homes are running within a day or two of the permit and gas being scheduled.</p>
+    <div class="steps">
+      <div class="step"><div class="step-n">STEP 01</div><div class="step-h">Load calc &amp; fixed bid</div><div class="step-p">An NEC 220 calc sizes the unit to your home, then you get a transparent quote. No "call for pricing."</div></div>
+      <div class="step"><div class="step-n">STEP 02</div><div class="step-h">Permit &amp; pad</div><div class="step-p">We pull the permit with your local authority and set a level pad at code clearance.</div></div>
+      <div class="step"><div class="step-n">STEP 03</div><div class="step-h">Electrical &amp; gas tie-in</div><div class="step-p">Transfer switch into the panel, gas line sized to demand so the unit is never starved.</div></div>
+      <div class="step"><div class="step-n">STEP 04</div><div class="step-h">Commission &amp; monitor</div><div class="step-p">Load test, Mobile Link setup, warranty registration, then we service it for the long haul.</div></div>
+    </div>
+  </section>
+
+  {/* ===== WHAT'S INCLUDED (fixed-bid transparency · the wedge vs "call for pricing") ===== */}
+  <section class="band">
+    <div class="band-head sm"><h2>What your fixed-bid quote includes</h2><div class="rule" aria-hidden="true"></div></div>
+    <p class="band-lede">One transparent price, sized to your home after an on-site load calculation. No "call for pricing," no surprises mid-job. A whole-house install covers:</p>
+    <div class="included-card">
+      <ul class="included">
+        {INCLUDED.map((item) => <li><span class="tick" aria-hidden="true">✓</span>{item}</li>)}
+      </ul>
+    </div>
+  </section>
+
+  {/* ===== AUTHORIZED & WARRANTY-COMPLIANT (shared component · IASD trust lever) ===== */}
+  <AuthorizedBand />
+
+  {/* ===== SERVICE AREA (shared component · Rule 4 named utilities) ===== */}
+  <ServiceAreaGrid />
+
+  {/* ===== FAQ (matches FAQPage schema) ===== */}
+  <section class="band">
+    <div class="band-head sm"><h2>Common questions</h2><div class="rule" aria-hidden="true"></div></div>
+    <div class="faq-grid">
+      {FAQ.map((f) => (
+        <div class="faq-item-block">
+          <div class="faq-q">{f.q}</div>
+          <p class="faq-a">{f.a}</p>
+        </div>
+      ))}
+    </div>
+  </section>
+
+  {/* ===== EXTERNAL AUTHORITY (Rule 6) ===== */}
+  <section class="band ext-band">
+    <div class="ext">
+      <p>Every install is wired as an optional standby system under the National Electrical Code, to spec and to permit.</p>
+      <a href="https://www.nfpa.org/" target="_blank" rel="noopener" class="ext-link">NFPA 70 (NEC) Article 702 <span aria-hidden="true">↗</span></a>
+    </div>
+  </section>
+
+  <WhyMeridian />
+  <ContactSection />
+</BaseLayout>
+
+<style>
+  .accent { color: var(--accent); }
+  .eyebrow { font-family: var(--font-mono); font-size: 11px; letter-spacing: .24em; text-transform: uppercase; margin-bottom: 18px; }
+  .eyebrow.amber { color: var(--accent); }
+
+  /* hero */
+  .hero { background: var(--slab); color: var(--on-slab); padding: clamp(48px,7vw,96px) var(--container-pad) clamp(44px,6vw,80px); }
+  .hero-grid { max-width: var(--container); margin: 0 auto; display: grid; grid-template-columns: 1.55fr .9fr; gap: clamp(32px,5vw,64px); align-items: center; }
+  @media (max-width: 860px) { .hero-grid { grid-template-columns: 1fr; } }
+  .hero-byline { margin: 0 0 14px; }
+  .hero-status { display: inline-flex; align-items: center; gap: 9px; font-family: var(--font-mono); font-size: 11px; letter-spacing: .18em; text-transform: uppercase; color: var(--accent); margin-bottom: 22px; }
+  .hero-status .dot { width: 8px; height: 8px; border-radius: 50%; background: var(--status-green); }
+  .hero-h1 { font-family: var(--font-display); font-weight: 900; font-size: var(--fs-hero); line-height: .98; letter-spacing: -.02em; margin: 0 0 22px; max-width: 17ch; }
+  .hero-lede { font-size: var(--fs-lede); color: var(--on-slab-muted); max-width: 60ch; margin: 0 0 28px; line-height: 1.55; }
+  .hero-lede strong { color: var(--on-slab); }
+  .hero-cta { display: flex; gap: 12px; flex-wrap: wrap; margin-bottom: 26px; }
+  .hero-cta .btn-primary { font-size: 15px; padding: 15px 28px; }
+  .hero-call { font-family: var(--font-mono); font-size: 14px; font-weight: 500; color: var(--on-slab); border: 1px solid var(--slab-rule); padding: 14px 24px; border-radius: var(--radius); display: inline-flex; align-items: center; gap: 9px; }
+  .dot-amber { width: 7px; height: 7px; border-radius: 50%; background: var(--accent); }
+  .hero-trust { display: flex; flex-wrap: wrap; gap: 8px 18px; font-family: var(--font-mono); font-size: 11px; letter-spacing: .04em; color: var(--on-slab-dimmer); }
+  .hero-trust .bar { color: var(--slab-rule); }
+  .hero-card { background: var(--slab2); border: 1px solid var(--slab-rule); border-radius: var(--radius); padding: 26px 24px; }
+  .hero-card-label { font-family: var(--font-mono); font-size: 10px; letter-spacing: .2em; text-transform: uppercase; color: var(--accent); margin-bottom: 18px; }
+  .hero-card-list { display: flex; flex-direction: column; gap: 14px; }
+  .hcl-item { display: flex; gap: 12px; align-items: flex-start; font-size: 14px; color: var(--on-slab-body); line-height: 1.4; }
+  .hcl-item .check { color: var(--accent); font-weight: 800; font-size: 15px; line-height: 1.3; }
+  .hero-card-foot { border-top: 1px solid var(--slab-rule); margin-top: 20px; padding-top: 16px; font-family: var(--font-mono); font-size: 11px; letter-spacing: .04em; color: var(--on-slab-dimmer); }
+
+  /* trust strip */
+  .trust { background: var(--bg2); border-bottom: 1px solid var(--rule); }
+  .trust-grid { max-width: var(--container); margin: 0 auto; padding: 22px var(--container-pad); display: grid; grid-template-columns: repeat(auto-fit,minmax(200px,1fr)); gap: 18px; }
+  .trust-item { display: flex; align-items: baseline; gap: 10px; font-size: 14px; color: var(--text-body); }
+  .trust-item .n { font-family: var(--font-mono); font-size: 12px; color: var(--accent-deep); font-weight: 600; }
+  .trust-item strong { color: var(--ink); }
+
+  /* outage */
+  .outage { background: var(--slab); color: var(--on-slab); }
+  .outage-grid { max-width: var(--container); margin: 0 auto; padding: clamp(40px,6vw,72px) var(--container-pad); display: grid; grid-template-columns: 1.3fr 1fr; gap: clamp(28px,4vw,56px); align-items: center; }
+  @media (max-width: 860px) { .outage-grid { grid-template-columns: 1fr; } }
+  .outage-h2 { font-family: var(--font-display); font-weight: 800; font-size: var(--fs-h2); letter-spacing: -.015em; line-height: 1.05; margin: 0 0 16px; max-width: 18ch; }
+  .outage-p { font-size: var(--fs-lede); color: var(--on-slab-muted); line-height: 1.6; margin: 0; max-width: 54ch; }
+  .outage-stats { display: flex; flex-direction: column; gap: 1px; background: var(--slab-rule); border: 1px solid var(--slab-rule); border-radius: var(--radius); overflow: hidden; }
+  .ostat { background: var(--slab2); padding: 20px 22px; }
+  .ostat-n { font-family: var(--font-display); font-weight: 800; font-size: clamp(22px,2.4vw,28px); color: var(--on-slab); }
+  .ostat-n.accent { color: var(--accent); }
+  .ostat-l { font-size: 13px; color: var(--on-slab-dim); margin-top: 4px; }
+
+  /* generic band */
+  .band { max-width: var(--container); margin: 0 auto; padding: clamp(44px,6vw,72px) var(--container-pad) clamp(8px,2vw,16px); }
+  .band-head { display: flex; align-items: baseline; gap: 14px; margin-bottom: 28px; }
+  .band-head.sm { margin-bottom: 10px; }
+  .band-head h2 { font-family: var(--font-display); font-weight: 800; font-size: var(--fs-h2); letter-spacing: -.015em; margin: 0; color: var(--text-strong); }
+  .band-head.sm h2 { font-size: var(--fs-h3); letter-spacing: -.01em; }
+  .band-head .rule { flex: 1; height: 1px; background: var(--rule); }
+  .band-lede { font-size: var(--fs-lede); color: var(--text-body); line-height: 1.6; margin: 0 0 28px; max-width: 64ch; }
+  .band-tail { margin-top: 14px; text-align: right; }
+  .band-tail a { font-family: var(--font-mono); font-size: 13px; color: var(--accent-deep); }
+
+  /* category cards */
+  .cat-grid { display: grid; grid-template-columns: repeat(auto-fit,minmax(260px,1fr)); gap: 1px; background: var(--rule); border: 1px solid var(--rule); border-radius: var(--radius); overflow: hidden; }
+  .cat-card { background: var(--surface-card); padding: 32px 28px; display: flex; flex-direction: column; min-height: 230px; }
+  .cat-n { font-family: var(--font-mono); font-size: 13px; color: var(--accent); font-weight: 600; margin-bottom: 14px; }
+  .cat-h { font-family: var(--font-display); font-weight: 800; font-size: 22px; letter-spacing: -.01em; margin-bottom: 10px; color: var(--ink); }
+  .cat-p { font-size: 14.5px; color: var(--text-body); line-height: 1.55; flex: 1; }
+  .cat-more { font-family: var(--font-display); font-weight: 700; font-size: 14px; color: var(--accent-deep); margin-top: 16px; }
+
+  /* situational */
+  .sit-grid { display: grid; grid-template-columns: repeat(auto-fit,minmax(250px,1fr)); gap: 1px; background: var(--rule); border: 1px solid var(--rule); border-radius: var(--radius); overflow: hidden; }
+  .sit-card { background: var(--surface-card); padding: 28px 26px; display: flex; flex-direction: column; min-height: 188px; }
+  .sit-eyebrow { font-family: var(--font-mono); font-size: 11px; letter-spacing: .16em; text-transform: uppercase; color: var(--accent-deep); margin-bottom: 14px; }
+  .sit-h { font-family: var(--font-display); font-weight: 700; font-size: 18px; line-height: 1.2; margin-bottom: 8px; color: var(--ink); }
+  .sit-p { font-size: 14px; color: var(--text-body); line-height: 1.55; flex: 1; }
+  .sit-more { font-family: var(--font-display); font-weight: 700; font-size: 13px; color: var(--accent-deep); margin-top: 16px; }
+  .popular { margin-top: 18px; display: flex; flex-wrap: wrap; gap: 10px; align-items: center; }
+  .popular-label { font-family: var(--font-mono); font-size: 11px; letter-spacing: .14em; text-transform: uppercase; color: var(--text-muted); margin-right: 4px; }
+  .pill { font-family: var(--font-body); font-weight: 600; font-size: 13.5px; border: 1px solid var(--border-strong); padding: 9px 15px; border-radius: var(--radius-pill); color: var(--ink); }
+  .pill:hover { border-color: var(--accent); color: var(--ink); }
+
+  /* steps */
+  .steps { display: grid; grid-template-columns: repeat(auto-fit,minmax(220px,1fr)); gap: 1px; background: var(--rule); border: 1px solid var(--rule); border-radius: var(--radius); overflow: hidden; }
+  .step { background: var(--surface-card); padding: 26px 24px; }
+  .step-n { font-family: var(--font-mono); font-size: 12px; color: var(--accent); font-weight: 600; margin-bottom: 12px; }
+  .step-h { font-family: var(--font-display); font-weight: 700; font-size: 16px; margin-bottom: 8px; color: var(--ink); }
+  .step-p { font-size: 13.5px; color: var(--text-body); line-height: 1.55; }
+
+  /* what's-included card (fixed-bid transparency) */
+  .included-card { border: 1px solid var(--rule); border-radius: var(--radius); background: var(--surface-card); padding: clamp(22px,3vw,32px); }
+  .included { list-style: none; margin: 0; padding: 0; display: grid; grid-template-columns: repeat(auto-fit, minmax(min(300px,100%),1fr)); gap: 12px 32px; }
+  .included li { display: flex; gap: 12px; align-items: flex-start; font-size: 14.5px; line-height: 1.5; color: var(--text-body); }
+  .included .tick { color: var(--accent-deep); font-weight: 800; flex-shrink: 0; }
+
+  /* faq */
+  .faq-grid { display: grid; grid-template-columns: repeat(auto-fit,minmax(min(300px,100%),1fr)); gap: 14px 32px; }
+  .faq-item-block { border-bottom: 1px solid var(--rule); padding: 0 0 14px; }
+  .faq-q { font-family: var(--font-display); font-weight: 700; font-size: 16px; color: var(--ink); }
+  .faq-a { font-size: 14.5px; color: var(--text-body); line-height: 1.65; margin: 12px 0 0; }
+
+  /* external */
+  .ext-band { padding-top: clamp(36px,5vw,56px); }
+  .ext { display: flex; align-items: center; gap: 18px; flex-wrap: wrap; border: 1px solid var(--rule); border-radius: var(--radius); padding: 22px 26px; background: var(--surface-card); }
+  .ext p { font-size: 15px; color: var(--text-body); line-height: 1.6; margin: 0; flex: 1; min-width: 240px; }
+  .ext-link { display: inline-flex; align-items: center; gap: 10px; font-family: var(--font-display); font-weight: 700; font-size: 14px; color: var(--ink); border: 1px solid var(--ink); padding: 12px 18px; border-radius: var(--radius); }
+  .ext-link span { color: var(--accent-deep); }
+</style>

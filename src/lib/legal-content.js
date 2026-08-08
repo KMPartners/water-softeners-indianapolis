@@ -1,16 +1,16 @@
 /**
- * Legal-document content — the ENGINE Privacy Policy and a neutral fallback
+ * Legal-document content, the ENGINE Privacy Policy and a neutral fallback
  * Terms of Service.
  *
  * ⚠️ PLACEHOLDER PROSE, PENDING LEGAL REVIEW. This is drafted from the house
  * playbook (kmp-playbooks:tcpa-sms-compliance) as a structurally-complete,
- * industry-neutral starting point — NOT counsel-reviewed text and NOT specific
+ * industry-neutral starting point, NOT counsel-reviewed text and NOT specific
  * to any one client. A new site fills site.config → legal, swaps in its
  * vertical's Terms sections (presets/<vertical>/legal.js), and sends both docs
  * to counsel. `legal.legalReviewedBy` stays null until they sign off; both pages
  * render a draft banner and core30-lint warns until then (task §6).
  *
- * Data, not markup — both docs share one renderer (components/LegalDoc.astro) so
+ * Data, not markup, both docs share one renderer (components/LegalDoc.astro) so
  * they cannot drift apart structurally, the same way the repair pages share one
  * spine. Conventions (mirroring the content-tree rows):
  *   · `paras` entries are plain strings, EXCEPT where inline markup is needed —
@@ -20,7 +20,7 @@
  *
  * WHY the Privacy Policy is Engine but the Terms are preset: the SMS/data
  * practices a Privacy Policy discloses are the same for every Core30 site, and
- * the A2P-mandated language must not be omittable — so it is locked in the
+ * the A2P-mandated language must not be omittable, so it is locked in the
  * Engine. What a business promises about its WORK (as-is sales, quote-before-
  * work, utility marking, appointment terms) genuinely varies per vertical, so
  * the Terms section list is preset data (task §1.1/§1.2).
@@ -40,7 +40,7 @@ const venueClause = LEGAL.venueCounty
   : `the state or federal courts serving our county`;
 
 /**
- * PRIVACY POLICY — 12 sections per the playbook. Section 4 (SMS consent) is the
+ * PRIVACY POLICY, 12 sections per the playbook. Section 4 (SMS consent) is the
  * one A2P brand review actually reads; it carries NO_SHARE_SENTENCE verbatim.
  * Neutral placeholder copy: describes a generic local-service business so it is
  * true and structurally complete for any vertical before counsel tailors it.
@@ -48,7 +48,7 @@ const venueClause = LEGAL.venueCounty
 export const PRIVACY_POLICY = {
   slug: PRIVACY_ROUTE,
   trinity: 'Privacy Policy',
-  description: `How ${NAP.name} collects, uses, and protects your information — including text-message consent, opt-out, and what we never share.`,
+  description: `How ${NAP.name} collects, uses, and protects your information, including text-message consent, opt-out, and what we never share.`,
   intro: `This policy explains what ${NAP.name} collects when you use this website or contact us, how we use it, and the choices you have.`,
   sections: [
     {
@@ -62,7 +62,7 @@ export const PRIVACY_POLICY = {
       h: 'What information we collect',
       paras: ['We collect two kinds of information.'],
       list: [
-        '<strong>Information you give us directly.</strong> When you submit a form or contact us: your name, phone number, and — depending on the form — your ZIP code, the service you are asking about, your preferred timing, and any message you write.',
+        '<strong>Information you give us directly.</strong> When you submit a form or contact us: your name, phone number, and, depending on the form, your ZIP code, the service you are asking about, your preferred timing, and any message you write.',
         '<strong>Information collected automatically.</strong> Pages you visit, the page you submitted a form from, referring links and campaign parameters, your browser and device type, and general analytics data. We record the date, time, page address, and browser/device string at the moment you give consent, as a record of that consent.',
       ],
     },
@@ -77,7 +77,7 @@ export const PRIVACY_POLICY = {
     },
     {
       // A2P brand review reads THIS section. Every disclosure below is required,
-      // and NO_SHARE_SENTENCE must appear verbatim — core30-lint enforces it.
+      // and NO_SHARE_SENTENCE must appear verbatim, core30-lint enforces it.
       h: 'Text messages and SMS consent',
       paras: [
         {
@@ -85,13 +85,13 @@ export const PRIVACY_POLICY = {
         },
       ],
       list: [
-        '<strong>Opting in is explicit.</strong> The consent box is never pre-checked — you check it yourself.',
+        '<strong>Opting in is explicit.</strong> The consent box is never pre-checked, you check it yourself.',
         '<strong>Opting out.</strong> Reply <strong>STOP</strong> to any message at any time and we will stop texting you.',
         `<strong>Help.</strong> Reply <strong>HELP</strong> to any message for assistance, or call us at ${NAP.phoneDisplay}.`,
-        '<strong>Frequency.</strong> Message frequency varies with your request — typically a few messages while we are working on your inquiry, not a recurring campaign.',
+        '<strong>Frequency.</strong> Message frequency varies with your request, typically a few messages while we are working on your inquiry, not a recurring campaign.',
         '<strong>Cost.</strong> Message and data rates may apply, depending on your mobile plan.',
         '<strong>Delivery.</strong> Messages are delivered through our messaging provider and your mobile carrier. Carriers are not liable for delayed or undelivered messages.',
-        '<strong>Your consent record.</strong> When you opt in we store the exact wording you agreed to, along with the date, time, page address, and browser/device — so both of us have an accurate record of what was agreed.',
+        '<strong>Your consent record.</strong> When you opt in we store the exact wording you agreed to, along with the date, time, page address, and browser/device, so both of us have an accurate record of what was agreed.',
       ],
     },
     {
@@ -110,7 +110,7 @@ export const PRIVACY_POLICY = {
     {
       h: 'Cookies and tracking',
       paras: [
-        'This site uses analytics to understand how visitors use it — which pages get read, which forms get completed. We use this in aggregate to improve the site, not to build a profile of you individually.',
+        'This site uses analytics to understand how visitors use it, which pages get read, which forms get completed. We use this in aggregate to improve the site, not to build a profile of you individually.',
         'You can block or delete cookies in your browser settings. The site works without them, though some measurements will be incomplete.',
       ],
     },
@@ -163,7 +163,7 @@ export const PRIVACY_POLICY = {
 };
 
 /**
- * GENERIC Terms of Service — the industry-neutral fallback. A vertical preset
+ * GENERIC Terms of Service, the industry-neutral fallback. A vertical preset
  * ships its own section list (presets/<vertical>/legal.js → buildTerms()); this
  * is what a site without a preset gets, so the Engine builds green from a fresh
  * clone. Governing-law and venue read from config.
@@ -244,7 +244,7 @@ export function buildTerms(middleSections = GENERIC_TERMS_SECTIONS) {
         h: 'Agreement to these terms',
         paras: [
           {
-            html: `By using this site or submitting a form, you agree to these terms and to our <a href="${PRIVACY_ROUTE}">Privacy Policy</a>. If you do not agree, please do not use the site — call us instead and we will help you directly.`,
+            html: `By using this site or submitting a form, you agree to these terms and to our <a href="${PRIVACY_ROUTE}">Privacy Policy</a>. If you do not agree, please do not use the site, call us instead and we will help you directly.`,
           },
         ],
       },
@@ -253,7 +253,7 @@ export function buildTerms(middleSections = GENERIC_TERMS_SECTIONS) {
         h: 'Communications',
         paras: [
           {
-            html: `If you opt in to text messages, our messaging practices — including how to stop them — are described in our <a href="${PRIVACY_ROUTE}">Privacy Policy</a>. You can opt out of texts at any time by replying STOP.`,
+            html: `If you opt in to text messages, our messaging practices, including how to stop them, are described in our <a href="${PRIVACY_ROUTE}">Privacy Policy</a>. You can opt out of texts at any time by replying STOP.`,
           },
         ],
       },

@@ -3,19 +3,17 @@
  * Terms of Service. Trinity: "Terms of Service". ENGINE route.
  *
  * The ToS section list is the part that genuinely varies per vertical (task
- * §1.2), so the document comes from the ACTIVE preset — here the auto preset.
- * To build another vertical, swap this one import for that preset's legal module
- * (or import { GENERIC_TERMS_SECTIONS, buildTerms } from the Engine and pass your
- * own sections). Everything else — the spine, schema, breadcrumb, layout — is
- * Engine and does not change.
+ * §1.2), so the document comes from the ACTIVE preset — here the generator
+ * preset (installs, service scope, warranties, permits/utility realities). The
+ * spine, schema, breadcrumb, and layout are all Engine and do not change.
  *
- * INDEXABLE and in the sitemap (task §2.6). Content: presets/auto/legal.js; the
- * spine is components/LegalDoc.astro.
+ * INDEXABLE and in the sitemap (task §2.6). Content: presets/generator/legal.js;
+ * the spine is components/LegalDoc.astro.
  */
 import BaseLayout from '../layouts/BaseLayout.astro';
 import Breadcrumbs from '../components/Breadcrumbs.astro';
 import LegalDoc from '../components/LegalDoc.astro';
-import { TERMS_OF_SERVICE as doc } from '../../presets/auto/legal.js';
+import { TERMS_OF_SERVICE as doc } from '../../presets/generator/legal.js';
 import { legalPageSchema, breadcrumbSchema } from '../lib/schema.js';
 
 const crumbs = [{ label: 'Home', href: '/' }, { label: doc.trinity }];
@@ -25,7 +23,7 @@ const crumbs = [{ label: 'Home', href: '/' }, { label: doc.trinity }];
   title={doc.trinity}
   description={doc.description}
   canonical={doc.slug}
-  mobileCta={{ status: 'Terms of Service' }}
+  pageLabel="Terms of Service"
   schemas={[
     legalPageSchema({ name: doc.trinity, description: doc.description, url: doc.slug }),
     breadcrumbSchema(crumbs),
