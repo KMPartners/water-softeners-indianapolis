@@ -9,6 +9,53 @@
 > **brand tokens** (`src/styles/tokens/colors.css`, `fonts.css`), and its
 > **content tree** — nothing else. See [docs/NEW-PROJECT-WORKFLOW.md](docs/NEW-PROJECT-WORKFLOW.md).
 
+---
+
+## THIS BUILD — Meridian Generator & Electric (documentation overlay)
+
+> This repo is no longer the bare starter: it is the **Meridian Generator &
+> Electric** site (an authorized Generac dealer, Fishers, IN), built by porting
+> Meridian's locked design layer (`_handoff/initial-build/`) onto the Core30
+> engine. The engine rules below are unchanged and remain the source of truth
+> (`core30-lint` is authoritative); this section is *documentation* of the
+> client-specific facts and decisions. Full detail lives in `_handoff/` and the
+> `_kickoff/` docs — especially **[_kickoff/POST-BETA-FINDINGS.md](_kickoff/POST-BETA-FINDINGS.md)**
+> (open launch-gates) and **[_kickoff/STARTER-IMPROVEMENTS.md](_kickoff/STARTER-IMPROVEMENTS.md)**
+> (fixes to fold back into `core30-starter`).
+
+**Brand + NAP (byte-identical everywhere, sourced from `site.config.json`):**
+`Meridian Generator & Electric · 12514 Reynolds Dr Ste. B, Fishers, IN 46038 · (463) 283-5939`.
+
+**Locked design (never hand-edit; reskin via tokens):** the 4 verbatim asset
+sheets (`src/styles/{logo,byline,mobile-chrome,scroll-menu}.css`), the G2
+wordmark with the amber `.mrd` "I" (the real letter stays for a11y), the locked
+byline *"Dealer-grade installs. Owner-direct pricing."* (never in `<title>`/H1/URL),
+Header 1D (utility strip → nav plate → 3px accent seam), the desktop scroll
+mini-menu (≥1025px), and the mobile drawer + bottom bar (one 480px scroll
+listener in `src/scripts/chrome.js`).
+
+**Taxonomy (provisional `‹SEO›` slugs):** homepage (GBP "Generator shop") + 4
+category pages (`standby-generator-installation` hub + service-repair + transfer
++ commercial) + 41 service pages, in `src/content/meridian.js`. `provider.@type`
+= `Electrician`, byte-identical site-wide (`presets/generator/schema.js`).
+
+**Compliance posture as configured (never fabricate):**
+- `aggregateRating` **omitted** — zero-review IASD launch (`ratingConfirmed:false`).
+- `licensedClaimAllowed:false` → "Licensed & insured" is withheld until the
+  electrical license # lands. The "authorized Generac dealer / warranty-compliant"
+  claim is a confirmed brand fact and does render.
+- `smsConsentRequired:false` (SMS opt-in is **optional**, never pre-checked) →
+  the GHL workflow **must** filter on `sms_consent === 'yes'` before any SMS.
+- Legal pages are placeholder pending counsel (`legalReviewedBy:null` → draft
+  banner). Generator ToS: `presets/generator/legal.js`; Privacy Policy is Engine.
+- Unverified stats/specs ship as safe ranges or stay `VERIFY`-flagged.
+
+**Open launch-gates** (must clear before go-live; see POST-BETA-FINDINGS):
+live domain · electrical license # · GHL webhook secret (form is in demo mode
+until wired) · counsel sign-off on legal · confirm the outage/Generac stats.
+
+---
+
 ## The three-layer model (the one rule under all the others)
 
 A site = **Engine** + **Industry preset** + **Client config**.
