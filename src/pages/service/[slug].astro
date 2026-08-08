@@ -1,0 +1,256 @@
+---
+/**
+ * Service template — one route family for all service rows (build-spec §3).
+ * Ported from _handoff/design-reference/archetypes/service.html: the 6-block
+ * content spine (Engineering / Spec / Process / Local / FAQ / External). Blocks
+ * are optional per row and auto-numbered, so a leaner service omits what it lacks.
+ * Driven by getStaticPaths over SERVICES in src/content/meridian.js (Phase 4 fills
+ * the full set). Chrome + contact + why-Meridian are shared components.
+ *
+ * Trinity: <title> == <h1> lead == the service slug's Service+City phrase.
+ * provider schema block is byte-identical across every service page (rule 5).
+ */
+import BaseLayout from '../../layouts/BaseLayout.astro';
+import Breadcrumbs from '../../components/Breadcrumbs.astro';
+import WhyMeridian from '../../components/WhyMeridian.astro';
+import ContactSection from '../../components/ContactSection.astro';
+import { NAP } from '../../lib/site.js';
+import { SERVICES } from '../../content/meridian.js';
+import { generatorService } from '../../../presets/generator/schema.js';
+import { faqSchema, breadcrumbSchema } from '../../lib/schema.js';
+
+export function getStaticPaths() {
+  return SERVICES.map((svc) => ({ params: { slug: svc.slug }, props: { svc } }));
+}
+
+const { svc } = Astro.props;
+const url = `/service/${svc.slug}/`;
+const title = `${svc.trinity} ${svc.city}`; // Trinity: Service + City
+const crumbs = [
+  { label: 'Home', href: '/' },
+  ...(svc.parent ? [{ label: svc.parent.label, href: svc.parent.href }] : []),
+  { label: svc.trinity },
+];
+
+const S = svc.spine || {};
+const blocks = [
+  S.engineering && { type: 'engineering', label: 'Engineering & why', d: S.engineering },
+  S.spec && { type: 'spec', label: 'Spec sheet', d: S.spec },
+  S.process && { type: 'process', label: 'Process', d: S.process },
+  S.local && { type: 'local', label: 'Local notes', d: S.local },
+  S.faq && { type: 'faq', label: 'FAQ', d: S.faq },
+  S.external && { type: 'external', label: 'External', d: S.external },
+].filter(Boolean);
+const n2 = (i) => String(i + 1).padStart(2, '0');
+---
+
+<BaseLayout
+  title={title}
+  description={svc.description}
+  canonical={url}
+  pageLabel={svc.trinity}
+  schemas={[
+    generatorService({ name: svc.trinity, serviceType: svc.serviceType, description: svc.description, url }),
+    ...(S.faq ? [faqSchema(S.faq)] : []),
+    breadcrumbSchema(crumbs),
+  ]}
+>
+  <Breadcrumbs crumbs={crumbs} />
+
+  {/* ===== HERO ===== */}
+  <section class="svc-hero">
+    <div class="svc-hero-grid">
+      <div>
+        <p class="byline--eyebrow hero-byline">
+          <span class="byline-tick" aria-hidden="true"></span>
+          <span class="byline-clause">Dealer-grade installs</span>
+          <span class="byline-sep" aria-hidden="true">·</span>
+          <span class="byline-clause byline-value">Owner-direct pricing</span>
+        </p>
+        <div class="kicker">{svc.kicker}</div>
+        <h1 class="svc-h1">{svc.trinity} <span class="accent">{svc.city}</span></h1>
+        <p class="svc-lede"><strong>{svc.lede}</strong></p>
+        <div class="svc-cta">
+          <a href={NAP.phoneTel} class="svc-call"><span class="dot-signal" aria-hidden="true"></span>{NAP.phoneDisplay}</a>
+          <a href="#contact" class="btn-primary">Get a fixed-bid quote →</a>
+        </div>
+      </div>
+      {svc.spec && (
+        <aside class="spec-aside">
+          <div class="spec-aside-label">Service Specifications</div>
+          {svc.spec.map((s, i) => (
+            <div class:list={['spec-aside-row', { last: i === svc.spec.length - 1 }]}>
+              <span class="k">{s.k}</span><span class="v">{s.v}</span>
+            </div>
+          ))}
+        </aside>
+      )}
+    </div>
+  </section>
+
+  {/* ===== INTRO LEDE ===== */}
+  {svc.intro && (
+    <section class="intro">
+      <div class="intro-inner">
+        {svc.intro.map((p, i) => <p class:list={['intro-p', { lead: i === 0 }]}>{p}</p>)}
+      </div>
+    </section>
+  )}
+
+  {/* ===== 6-BLOCK SPINE ===== */}
+  <section class="spine-wrap">
+    <div class="spine">
+      {blocks.map((b, i) => (
+        <div class:list={['spine-block', i % 2 === 1 ? 'alt' : '']}>
+          <div class="spine-label">
+            <div class="spine-n">{n2(i)}</div>
+            <div class="spine-t" set:html={b.label.replace(' & ', '<br>& ')}></div>
+          </div>
+          <div class="spine-body">
+            {b.type === 'engineering' && (
+              <>
+                <h2>{b.d.h}</h2>
+                {b.d.paras.map((p) => <p>{p}</p>)}
+              </>
+            )}
+            {b.type === 'spec' && (
+              <div class="spec-table">
+                {b.d.rows.map((r, ri) => (
+                  <div class:list={['spec-row', { last: ri === b.d.rows.length - 1 }]}>
+                    <span class="sk">{r.k}</span>
+                    <span class="sv">{r.strong ? <strong>{r.v}</strong> : r.v}</span>
+                  </div>
+                ))}
+              </div>
+            )}
+            {b.type === 'process' && (
+              <>
+                <h2>{b.d.h || 'How the install works'}</h2>
+                {b.d.intro && <p class="proc-intro">{b.d.intro}</p>}
+                <div class="steps">
+                  {b.d.steps.map((st) => (
+                    <div class="step"><div class="step-n">{st.n}</div><div class="step-h">{st.h}</div><div class="step-p">{st.p}</div></div>
+                  ))}
+                </div>
+              </>
+            )}
+            {b.type === 'local' && (
+              <>
+                <h2>{b.d.h}</h2>
+                {b.d.paras.map((p) => <p>{p}</p>)}
+              </>
+            )}
+            {b.type === 'faq' && (
+              <div class="svc-faq">
+                {b.d.map((f) => (
+                  <div class="faq-item-block"><div class="faq-q">{f.q}</div><p class="faq-a">{f.a}</p></div>
+                ))}
+              </div>
+            )}
+            {b.type === 'external' && (
+              <>
+                <p class="ext-p">{b.d.p}</p>
+                <a href={b.d.href} target="_blank" rel="noopener" class="ext-link">{b.d.label} <span aria-hidden="true">↗</span></a>
+              </>
+            )}
+          </div>
+        </div>
+      ))}
+    </div>
+
+    {/* Mirror linking — related siblings (Rule 3) */}
+    {svc.related && (
+      <div class="related">
+        <div class="related-label">Related standby sizes &amp; options</div>
+        <div class="related-links">
+          {svc.related.map((r) => (
+            <a href={r.href} class:list={['rel', { primary: r.primary }]}>{r.label}</a>
+          ))}
+        </div>
+      </div>
+    )}
+  </section>
+
+  <WhyMeridian />
+  <ContactSection />
+</BaseLayout>
+
+<style>
+  .accent { color: var(--accent); }
+  .hero-byline { margin: 0 0 14px; }
+
+  /* hero (light) */
+  .svc-hero { max-width: var(--container); margin: 0 auto; padding: clamp(32px,5vw,64px) var(--container-pad) clamp(8px,2vw,16px); }
+  .svc-hero-grid { display: grid; grid-template-columns: 1.55fr 1fr; gap: clamp(28px,4vw,48px); align-items: start; }
+  @media (max-width: 860px) { .svc-hero-grid { grid-template-columns: 1fr; } }
+  .kicker { font-family: var(--font-mono); font-size: 11px; letter-spacing: .24em; text-transform: uppercase; color: var(--accent-deep); margin-bottom: 18px; }
+  .svc-h1 { font-family: var(--font-display); font-weight: 900; font-size: clamp(30px,4.6vw,56px); line-height: 1; letter-spacing: -.02em; margin: 0 0 20px; color: var(--text-strong); }
+  .svc-lede { font-family: var(--font-body); font-size: var(--fs-lede); color: var(--text-body); margin: 0 0 26px; max-width: 54ch; line-height: 1.55; }
+  .svc-lede strong { color: var(--ink); font-weight: 600; }
+  .svc-cta { display: flex; gap: 12px; flex-wrap: wrap; }
+  .svc-call { font-family: var(--font-mono); font-size: 13px; font-weight: 500; color: var(--ink); border: 1px solid var(--border-strong); padding: 13px 18px; border-radius: var(--radius); display: inline-flex; align-items: center; gap: 9px; }
+  .dot-signal { width: 7px; height: 7px; border-radius: 50%; background: var(--signal); }
+
+  .spec-aside { background: var(--slab); border-radius: var(--radius); padding: 26px 24px; color: var(--on-slab); }
+  .spec-aside-label { font-family: var(--font-mono); font-size: 10px; letter-spacing: .2em; text-transform: uppercase; color: var(--accent); margin-bottom: 16px; }
+  .spec-aside-row { display: flex; justify-content: space-between; gap: 14px; padding: 11px 0; border-bottom: 1px solid var(--slab-rule); font-size: 13px; }
+  .spec-aside-row.last { border-bottom: none; }
+  .spec-aside-row .k { color: var(--on-slab-dim); }
+  .spec-aside-row .v { font-family: var(--font-mono); text-align: right; }
+
+  /* intro */
+  .intro { max-width: var(--container); margin: 0 auto; padding: clamp(8px,2vw,20px) var(--container-pad) clamp(16px,2vw,24px); }
+  .intro-inner { max-width: 74ch; }
+  .intro-p { font-size: 15.5px; color: var(--text-body); line-height: 1.65; margin: 0 0 12px; }
+  .intro-p.lead { font-size: clamp(17px,1.7vw,21px); color: var(--ink); font-weight: 500; line-height: 1.55; margin-bottom: 16px; }
+
+  /* spine */
+  .spine-wrap { max-width: var(--container); margin: 0 auto; padding: clamp(16px,2vw,24px) var(--container-pad) clamp(32px,5vw,56px); }
+  .spine { border: 1px solid var(--rule); border-radius: var(--radius); overflow: hidden; }
+  .spine-block { display: grid; grid-template-columns: 200px 1fr; background: var(--bg); border-bottom: 1px solid var(--rule); }
+  .spine-block.alt { background: var(--bg2); }
+  .spine-block:last-child { border-bottom: none; }
+  @media (max-width: 720px) { .spine-block { grid-template-columns: 1fr; } }
+  .spine-label { padding: 36px 28px; border-right: 1px solid var(--rule); }
+  @media (max-width: 720px) { .spine-label { border-right: none; padding-bottom: 0; } }
+  .spine-n { font-family: var(--font-mono); font-size: 13px; color: var(--accent); font-weight: 600; }
+  .spine-t { font-family: var(--font-display); font-weight: 700; font-size: 15px; margin-top: 10px; line-height: 1.2; color: var(--ink); }
+  .spine-body { padding: 36px 32px; }
+  .spine-body h2 { font-family: var(--font-display); font-weight: 800; font-size: var(--fs-h3); letter-spacing: -.01em; margin: 0 0 14px; color: var(--text-strong); }
+  .spine-body p { font-size: 15.5px; color: var(--text-body); line-height: 1.65; margin: 0 0 12px; }
+  .spine-body p:last-child { margin-bottom: 0; }
+  .spine-body strong { color: var(--ink); }
+
+  /* spec table (block 02) */
+  .spec-table { background: var(--surface-card); border: 1px solid var(--rule); border-radius: var(--radius); overflow: hidden; }
+  .spec-row { display: flex; justify-content: space-between; gap: 16px; padding: 13px 20px; border-bottom: 1px solid var(--rule); }
+  .spec-row.last { border-bottom: none; }
+  .spec-row .sk { font-family: var(--font-mono); font-size: 12px; color: var(--text-muted); letter-spacing: .04em; }
+  .spec-row .sv { font-size: 14px; text-align: right; }
+  .spec-row .sv strong { color: var(--accent-deep); }
+
+  /* process steps */
+  .proc-intro { max-width: 60ch; }
+  .steps { display: grid; grid-template-columns: repeat(auto-fit,minmax(160px,1fr)); gap: 16px; margin-top: 22px; }
+  .step-n { font-family: var(--font-mono); font-size: 12px; color: var(--accent); font-weight: 600; margin-bottom: 10px; }
+  .step-h { font-family: var(--font-display); font-weight: 700; font-size: 15px; margin-bottom: 7px; color: var(--ink); }
+  .step-p { font-size: 13.5px; color: var(--text-body); line-height: 1.5; }
+
+  /* faq */
+  .svc-faq .faq-item-block { border-bottom: 1px solid var(--rule); padding: 0 0 14px; margin-bottom: 14px; }
+  .svc-faq .faq-item-block:last-child { border-bottom: none; margin-bottom: 0; padding-bottom: 0; }
+  .faq-q { font-family: var(--font-display); font-weight: 700; font-size: 16px; color: var(--ink); }
+  .faq-a { font-size: 14.5px; color: var(--text-body); line-height: 1.65; margin: 12px 0 0; }
+
+  /* external */
+  .ext-p { max-width: 60ch; }
+  .ext-link { display: inline-flex; align-items: center; gap: 10px; font-family: var(--font-display); font-weight: 700; font-size: 14px; color: var(--ink); border: 1px solid var(--ink); padding: 13px 20px; border-radius: var(--radius); margin-top: 6px; }
+  .ext-link span { color: var(--accent-deep); }
+
+  /* related */
+  .related { margin-top: 28px; }
+  .related-label { font-family: var(--font-mono); font-size: 11px; letter-spacing: .18em; text-transform: uppercase; color: var(--text-muted); margin-bottom: 14px; }
+  .related-links { display: flex; flex-wrap: wrap; gap: 10px; }
+  .rel { font-family: var(--font-body); font-weight: 600; font-size: 14px; border: 1px solid var(--border-strong); padding: 11px 16px; border-radius: var(--radius); color: var(--ink); }
+  .rel.primary { background: var(--accent); color: var(--accent-ink); border-color: var(--accent); }
+</style>
