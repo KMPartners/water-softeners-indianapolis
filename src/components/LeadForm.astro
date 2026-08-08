@@ -41,7 +41,9 @@ interface FieldDef {
 }
 interface Props {
   intent: string;
-  heading: string;
+  /** Optional in-card heading. Omit when a surrounding section already carries
+      the headline (e.g. ContactSection's left column). */
+  heading?: string;
   sub?: string;
   fields: FieldDef[];
   /** General contact consent — required, phone/email only. Keep "text" OUT of
@@ -90,7 +92,7 @@ const firstId = `${anchorId}-${fields[0]?.name}`;
 ---
 
 <form class="leadform" method="post" action={endpoint} novalidate data-leadform data-intent={intent} id={anchorId}>
-  <h3 class="leadform-heading">{heading}</h3>
+  {heading && <h3 class="leadform-heading">{heading}</h3>}
   {sub && <p class="leadform-sub">{t(sub)}</p>}
 
   {/* Honeypot — hidden from humans; bots fill it and the endpoint drops them.
@@ -333,7 +335,7 @@ const firstId = `${anchorId}-${fields[0]?.name}`;
   .leadform {
     background: var(--surface-card);
     border: 1px solid var(--border);
-    border-radius: var(--radius-2);
+    border-radius: var(--radius);
     padding: clamp(20px, 3vw, 28px);
     box-shadow: var(--shadow-lg);
   }
@@ -342,13 +344,13 @@ const firstId = `${anchorId}-${fields[0]?.name}`;
     font-weight: 800;
     font-size: 22px;
     letter-spacing: -0.02em;
-    color: var(--navy-700);
+    color: var(--text-strong);
     margin: 0 0 8px;
   }
   .leadform-sub {
     font-size: 14.5px;
     line-height: 1.55;
-    color: var(--ink-2);
+    color: var(--text-body);
     margin: 0 0 20px;
   }
   .leadform-grid {
@@ -366,7 +368,7 @@ const firstId = `${anchorId}-${fields[0]?.name}`;
     font-size: 10.5px;
     letter-spacing: 0.1em;
     text-transform: uppercase;
-    color: var(--ink-3);
+    color: var(--text-muted);
   }
   .field input,
   .field select,
@@ -374,9 +376,9 @@ const firstId = `${anchorId}-${fields[0]?.name}`;
     font-family: var(--font-body);
     font-size: 15px;
     color: var(--ink);
-    background: var(--paper);
+    background: var(--surface-card);
     border: 1px solid var(--border-strong);
-    border-radius: var(--radius-1);
+    border-radius: var(--radius);
     padding: 11px 12px;
     width: 100%;
   }
@@ -394,15 +396,15 @@ const firstId = `${anchorId}-${fields[0]?.name}`;
   .consent input:focus-visible {
     outline: none;
     box-shadow: var(--focus-ring);
-    border-color: var(--amber-500);
+    border-color: var(--accent);
   }
   .field input[aria-invalid='true'],
-  .field select[aria-invalid='true'] { border-color: var(--alert); }
+  .field select[aria-invalid='true'] { border-color: var(--danger); }
   .field-error {
     font-family: var(--font-mono);
     font-size: 10.5px;
     letter-spacing: 0.04em;
-    color: var(--alert);
+    color: var(--danger);
     min-height: 1em;
   }
   .field-error:empty { display: none; }
@@ -413,27 +415,27 @@ const firstId = `${anchorId}-${fields[0]?.name}`;
     margin: 18px 0 0;
     font-size: 13.5px;
     line-height: 1.5;
-    color: var(--ink-2);
+    color: var(--text-body);
   }
   .consent input {
     margin-top: 3px;
     flex-shrink: 0;
     width: 17px;
     height: 17px;
-    accent-color: var(--amber-600);
+    accent-color: var(--accent-deep);
   }
   /* The SMS opt-in must read as a deliberate consent moment, not fine print —
      A2P brand review looks for a clear, distinct opt-in. Tokens, not literals. */
   .consent-sms {
     padding: 12px 14px;
-    border: 1px solid color-mix(in srgb, var(--amber-500) 34%, transparent);
-    border-radius: var(--radius-1);
-    background: color-mix(in srgb, var(--amber-500) 7%, transparent);
+    border: 1px solid color-mix(in srgb, var(--accent) 34%, transparent);
+    border-radius: var(--radius);
+    background: color-mix(in srgb, var(--accent) 7%, transparent);
     font-size: 12.5px;
   }
   .consent-sms .consent-text :global(strong) { color: var(--ink); font-weight: 700; }
   .consent-sms .consent-text :global(a) {
-    color: var(--navy-600);
+    color: var(--accent);
     text-decoration: underline;
     text-underline-offset: 2px;
   }
@@ -446,7 +448,7 @@ const firstId = `${anchorId}-${fields[0]?.name}`;
     font-size: 9px;
     letter-spacing: 0.1em;
     text-transform: uppercase;
-    color: var(--ink-3);
+    color: var(--text-muted);
     border: 1px solid var(--border-strong);
     border-radius: 3px;
     padding: 1px 5px;
@@ -467,23 +469,23 @@ const firstId = `${anchorId}-${fields[0]?.name}`;
     gap: 9px;
     align-items: flex-start;
     font-size: 14px;
-    color: var(--ink-2);
+    color: var(--text-body);
   }
-  .leadform-assurances :global(.ico) { color: var(--go); flex-shrink: 0; margin-top: 2px; }
+  .leadform-assurances :global(.ico) { color: var(--success); flex-shrink: 0; margin-top: 2px; }
   .leadform-legal {
     font-family: var(--font-mono);
     font-size: 10px;
     letter-spacing: 0.03em;
     line-height: 1.65;
-    color: var(--ink-3);
+    color: var(--text-muted);
     margin: 16px 0 0;
     padding-top: 14px;
     border-top: 1px solid var(--border);
   }
   .leadform-success {
     background: var(--surface-card);
-    border: 1px solid var(--go);
-    border-radius: var(--radius-2);
+    border: 1px solid var(--success);
+    border-radius: var(--radius);
     padding: clamp(24px, 4vw, 34px);
     text-align: center;
     box-shadow: var(--shadow-lg);
@@ -496,21 +498,21 @@ const firstId = `${anchorId}-${fields[0]?.name}`;
     height: 52px;
     margin: 0 auto 14px;
     border-radius: 50%;
-    background: var(--go-soft);
-    color: var(--go);
+    background: color-mix(in srgb, var(--success) 15%, transparent);
+    color: var(--success);
   }
   .leadform-success h3 {
     font-family: var(--font-display);
     font-weight: 800;
     font-size: 22px;
     letter-spacing: -0.02em;
-    color: var(--navy-700);
+    color: var(--text-strong);
     margin: 0 0 8px;
   }
   .leadform-success p {
     font-size: 15px;
     line-height: 1.6;
-    color: var(--ink-2);
+    color: var(--text-body);
     margin: 0;
   }
 </style>
