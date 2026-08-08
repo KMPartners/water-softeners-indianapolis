@@ -1,0 +1,49 @@
+---
+/**
+ * 404 page. Astro emits this to dist/404.html, and Cloudflare Pages serves it
+ * with a real 404 status for any unmatched route, replacing the soft-404 (a 200
+ * homepage for every unknown URL) that CF Pages falls back to when no 404.html
+ * exists. noindex so a 404 never lands in the index (belt for production, where
+ * the staging-wide X-Robots-Tag header is absent).
+ */
+import BaseLayout from '../layouts/BaseLayout.astro';
+import { NAP } from '../lib/site.js';
+import { HEADER_NAV } from '../content/nav.js';
+---
+
+<BaseLayout
+  title="Page not found"
+  description="That page moved or never existed. Find generator installation, service, and transfer-switch help, or reach Meridian Generator & Electric directly."
+  canonical="/404"
+  noindex={true}
+  pageLabel="Page not found"
+>
+  <section class="notfound">
+    <div class="nf-inner">
+      <div class="nf-code" aria-hidden="true">404</div>
+      <h1>Page not found</h1>
+      <p class="nf-lede">That page moved or never existed. Here is where most people head next.</p>
+      <div class="nf-cta">
+        <a href="/" class="btn-primary">Back to home</a>
+        <a href={NAP.phoneTel} class="nf-call"><span class="nf-dot" aria-hidden="true"></span>{NAP.phoneDisplay}</a>
+      </div>
+      <div class="nf-links">
+        {HEADER_NAV.map((l) => <a href={l.href}>{l.label}</a>)}
+      </div>
+    </div>
+  </section>
+</BaseLayout>
+
+<style>
+  .notfound { max-width: var(--container); margin: 0 auto; padding: clamp(56px,10vw,120px) var(--container-pad); }
+  .nf-inner { max-width: 60ch; }
+  .nf-code { font-family: var(--font-display); font-weight: 900; font-size: clamp(64px,14vw,140px); line-height: 1; letter-spacing: -.03em; color: var(--accent); }
+  .notfound h1 { font-family: var(--font-display); font-weight: 900; font-size: clamp(28px,4vw,44px); letter-spacing: -.02em; color: var(--text-strong); margin: 8px 0 14px; }
+  .nf-lede { font-size: var(--fs-lede); color: var(--text-body); line-height: 1.6; margin: 0 0 28px; }
+  .nf-cta { display: flex; gap: 12px; flex-wrap: wrap; align-items: center; margin-bottom: 32px; }
+  .nf-call { font-family: var(--font-mono); font-size: 14px; font-weight: 500; color: var(--ink); border: 1px solid var(--border-strong); padding: 13px 18px; border-radius: var(--radius); display: inline-flex; align-items: center; gap: 9px; }
+  .nf-dot { width: 7px; height: 7px; border-radius: 50%; background: var(--signal); }
+  .nf-links { display: flex; flex-wrap: wrap; gap: 10px; border-top: 1px solid var(--rule); padding-top: 22px; }
+  .nf-links a { font-family: var(--font-body); font-weight: 600; font-size: 14px; color: var(--accent-deep); border: 1px solid var(--border-strong); padding: 10px 16px; border-radius: var(--radius); }
+  .nf-links a:hover { border-color: var(--accent); }
+</style>
