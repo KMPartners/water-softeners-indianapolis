@@ -1,11 +1,11 @@
 ---
 /**
- * Mobile chrome — Variant B (vanilla side drawer), LOCKED. Renders three things,
+ * Mobile chrome, Variant B (vanilla side drawer), LOCKED. Renders three things,
  * all styled by the verbatim mobile-chrome.css (this is markup + data only):
- *   1. `.mobile-bottom-bar` — scroll-reveal action bar (call + quote), shown ≤1024,
+ *   1. `.mobile-bottom-bar`, scroll-reveal action bar (call + quote), shown ≤1024,
  *      revealed past 480px by chrome.js, hidden while the drawer is open (CSS).
- *   2. `.mobile-nav-overlay` — the scrim.
- *   3. `.mobile-nav` — the NON-SCROLLING drawer: fixed lockup → scroll middle →
+ *   2. `.mobile-nav-overlay`, the scrim.
+ *   3. `.mobile-nav`, the NON-SCROLLING drawer: fixed lockup → scroll middle →
  *      pinned action bar (§E1 five-section content).
  *
  * Behavior (open/close/Esc/overlay/scroll-lock/focus) is wired once in
@@ -45,7 +45,7 @@ const licenseLine = [
 {/* 3 · drawer */}
 <nav id="mobile-nav" class="mobile-nav" aria-label="Mobile navigation" aria-hidden="true">
   <div class="mobile-nav-header">
-    <a href="/" class="drawer-brand" aria-label={`${NAP.name} — home`}>
+    <a href="/" class="drawer-brand" aria-label={`${NAP.name}, home`}>
       <span class="logo-mark logo-mark--invert logo-mark--34" aria-hidden="true"></span>
       <span class="drawer-lines">
         <span class="drawer-word">MER<span class="mrd">I</span>DIAN</span>
@@ -105,7 +105,7 @@ const licenseLine = [
 </nav>
 
 <style>
-  /* the drawer lockup wordmark — mirrors the header, sized for the drawer.
+  /* the drawer lockup wordmark, mirrors the header, sized for the drawer.
      .mrd / .logo-mark--invert come from the verbatim logo.css. */
   .drawer-brand { display: flex; align-items: center; gap: 11px; }
   .drawer-lines { line-height: 1; }

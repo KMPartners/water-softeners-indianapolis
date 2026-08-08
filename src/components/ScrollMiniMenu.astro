@@ -1,16 +1,16 @@
 ---
 /**
- * Scroll mini-menu — Meridian 2B "Action bar" (LOCKED). Desktop-only (≥1025px,
+ * Scroll mini-menu, Meridian 2B "Action bar" (LOCKED). Desktop-only (≥1025px,
  * enforced by scroll-menu.css); reveals after 480px of scroll via chrome.js
  * toggling `.scroll-mini.show` (the SAME one listener that drives the mobile
  * bottom bar). Wordmark + current page label + ONE amber CTA (the fixed-bid
- * quote). No call button by design — calling lives in the header utility strip
+ * quote). No call button by design, calling lives in the header utility strip
  * and the footer. All styling is in the verbatim scroll-menu.css; this is markup.
  */
 import { NAP } from '../lib/site.js';
 
 interface Props {
-  /** The page you're on — the last breadcrumb crumb (build-spec §2). */
+  /** The page you're on, the last breadcrumb crumb (build-spec §2). */
   pageLabel?: string;
 }
 const { pageLabel = '' } = Astro.props;
@@ -21,7 +21,7 @@ const { pageLabel = '' } = Astro.props;
     <div class="scroll-mini-pad">
       <div class="scroll-mini-row">
         <div class="scroll-mini-id">
-          <a href="/" class="scroll-mini-word" aria-label={`${NAP.name} — home`}>MER<span class="mrd">I</span>DIAN</a>
+          <a href="/" class="scroll-mini-word" aria-label={`${NAP.name}, home`}>MER<span class="mrd">I</span>DIAN</a>
           {pageLabel && <span class="scroll-mini-div" aria-hidden="true"></span>}
           {pageLabel && <span class="scroll-mini-page">{pageLabel}</span>}
         </div>

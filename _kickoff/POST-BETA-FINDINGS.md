@@ -72,7 +72,7 @@
 | 21 | **Tier B/C content depth** | 🎨 | All 41 services have real, non-thin copy (lede + engineering + FAQ + external + mirror-links), but Tier A is richer. The 15 `design-reference/pages/*.html` hold fuller authored copy for their pages. | Post-launch content pass: port the 15 authored pages' richer copy; deepen Tier B/C. The site indexes fine meanwhile. |
 | 22 | **Per-service exact specs** | ❓ | Only safe ranges/standards shown (e.g. "~10–30 s", "Low-dB(A)", "UL 2200"). No invented exact figures. | Fill verified per-model specs from the truth doc when available. |
 | 23 | **All internal links resolve; sitemap = 48** | ✅ | Verified 0 broken category/service links (mirror-linking intact) and 48 sitemap locs matching 48 built pages. | No action. |
-| 23b | **Em dashes in body copy vs the voice rule** | 🎨 | `design-notes-voice.md` bans em dashes (use commas/colons/periods/·; en dashes only in numeric ranges). The ported ledes/spine/FAQ copy still contains em dashes; the Phase-7 homepage additions avoid them. | A careful contextual sweep (not blind find/replace — an em dash can be a pause or a range) across content. Offer standing. |
+| 23b | **Em dashes in body copy vs the voice rule** | ✅ | Swept all user-facing copy (` — ` → `, `; the LegalDoc draft banner → `:`). **Shipped HTML now has 0 em dashes**; en-dash numeric ranges (24–26 kW, 10–30 s, Mon–Fri) kept. Engine default strings (LeadForm success/error, LegalDoc banner, Privacy Policy) were swept for this site too. | Done. Code comments (stripped at build) still use em dashes — cosmetic only. |
 
 ## Phase 5 — lead form + consent + legal
 

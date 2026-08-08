@@ -1,6 +1,6 @@
 ---
 /**
- * Homepage — GBP primary category "Generator shop". Ported from
+ * Homepage, GBP primary category "Generator shop". Ported from
  * _handoff/design-reference/archetypes/homepage.html: inline styles → scoped,
  * every value → var(--*), NAP/links from config + content nav, schema from the
  * generator preset. Chrome (header/mini-menu/drawer/footer) is in BaseLayout.
@@ -12,6 +12,8 @@
 import BaseLayout from '../layouts/BaseLayout.astro';
 import WhyMeridian from '../components/WhyMeridian.astro';
 import ContactSection from '../components/ContactSection.astro';
+import AuthorizedBand from '../components/AuthorizedBand.astro';
+import ServiceAreaGrid from '../components/ServiceAreaGrid.astro';
 import { NAP, LICENSED_CLAIM_ALLOWED } from '../lib/site.js';
 import { CATEGORIES } from '../content/meridian.js';
 import { homepageSchema } from '../../presets/generator/schema.js';
@@ -19,7 +21,7 @@ import { faqSchema } from '../lib/schema.js';
 
 const TITLE = 'Whole-House Generator Installation in Fishers, IN'; // ‹SEO› provisional Trinity
 const DESCRIPTION =
-  'Authorized Generac dealer installing whole-house standby generators in Fishers, Noblesville, and the surrounding Hamilton & Madison County area — transparent fixed-bid pricing and warranty-compliant service.';
+  'Authorized Generac dealer installing whole-house standby generators in Fishers, Noblesville, and the surrounding Hamilton & Madison County area, transparent fixed-bid pricing and warranty-compliant service.';
 
 // Provisional category/service hrefs (finalized in Phase 4 with the content tree).
 const L = {
@@ -56,17 +58,6 @@ const INCLUDED = [
   'Commissioning and a run-under-load test',
   'Mobile Link remote monitoring setup',
   'Warranty registration with Generac',
-];
-
-// Per-city named utility (Core30 rule 4 local specificity). Real utility map from
-// the entity research; Pendleton is a Duke pocket. ‹VERIFY:utility-pockets Pendleton Duke/I&M›
-const CITY_UTILITIES = [
-  { city: 'Fishers', util: 'Duke Energy · AES Indiana' },
-  { city: 'Noblesville', util: 'Duke Energy · AES Indiana' },
-  { city: 'Carmel', util: 'Duke Energy · AES Indiana' },
-  { city: 'Westfield', util: 'Duke Energy · AES Indiana' },
-  { city: 'Pendleton', util: 'Duke Energy' },
-  { city: 'Anderson', util: 'Anderson Municipal Light & Power' },
 ];
 ---
 
@@ -192,37 +183,11 @@ const CITY_UTILITIES = [
     </div>
   </section>
 
-  {/* ===== AUTHORIZED & WARRANTY-COMPLIANT (the binary IASD trust lever) ===== */}
-  <section class="authorized">
-    <div class="authorized-grid">
-      <div>
-        <div class="eyebrow amber">The trust claim that counts</div>
-        <h2 class="authorized-h2">Factory-authorized, so your warranty stays intact.</h2>
-        <p class="authorized-p">We are a factory-authorized Generac dealer, and that matters for one concrete reason: only an authorized service dealer can perform warranty repairs on a Generac. Work by an uncertified technician can put your coverage at risk. So whether we install your unit or take over one someone else did, our service keeps you warranty-compliant.</p>
-      </div>
-      <ul class="authorized-list">
-        <li><span class="tick" aria-hidden="true">✓</span>Authorized for sales, installation, and warranty-compliant service</li>
-        <li><span class="tick" aria-hidden="true">✓</span>Take-over service for orphaned Generac units, coverage intact</li>
-        <li><span class="tick" aria-hidden="true">✓</span>We answer the phone, and we service what we install</li>
-      </ul>
-    </div>
-  </section>
+  {/* ===== AUTHORIZED & WARRANTY-COMPLIANT (shared component · IASD trust lever) ===== */}
+  <AuthorizedBand />
 
-  {/* ===== SERVICE AREA (Rule 4 · named utilities) ===== */}
-  <section id="areas" class="areas">
-    <div class="areas-inner">
-      <div class="band-head sm"><h2>Where we work</h2><div class="rule" aria-hidden="true"></div></div>
-      <p class="areas-p">We're based in <strong>Fishers</strong> and cover the surrounding Hamilton and Madison County area, <strong>Noblesville</strong>, <strong>Carmel</strong>, <strong>Westfield</strong>, and out to <strong>Pendleton</strong> and <strong>Anderson</strong>. When storms take the power out, it's usually a <strong>Duke Energy</strong> or <strong>AES Indiana</strong> outage; in Anderson, it's <strong>Anderson Municipal Light &amp; Power</strong>. <!-- VERIFY:utility-pockets RESEARCH §3 --></p>
-      <div class="city-grid">
-        {CITY_UTILITIES.map((c) => (
-          <div class="city-card">
-            <div class="city-name">{c.city}</div>
-            <div class="city-util">{c.util}</div>
-          </div>
-        ))}
-      </div>
-    </div>
-  </section>
+  {/* ===== SERVICE AREA (shared component · Rule 4 named utilities) ===== */}
+  <ServiceAreaGrid />
 
   {/* ===== FAQ (matches FAQPage schema) ===== */}
   <section class="band">
@@ -334,32 +299,11 @@ const CITY_UTILITIES = [
   .step-h { font-family: var(--font-display); font-weight: 700; font-size: 16px; margin-bottom: 8px; color: var(--ink); }
   .step-p { font-size: 13.5px; color: var(--text-body); line-height: 1.55; }
 
-  /* service area */
-  .areas { background: var(--bg2); border-top: 1px solid var(--rule); border-bottom: 1px solid var(--rule); }
-  .areas-inner { max-width: var(--container); margin: 0 auto; padding: clamp(40px,6vw,64px) var(--container-pad); }
-  .areas-p { font-size: 15.5px; color: var(--text-body); line-height: 1.6; max-width: 66ch; margin: 0 0 22px; }
-  .areas-p strong { color: var(--ink); }
-  /* city × named-utility grid (Rule 4 local specificity) */
-  .city-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(min(220px,100%),1fr)); gap: 1px; background: var(--rule); border: 1px solid var(--rule); border-radius: var(--radius); overflow: hidden; }
-  .city-card { background: var(--surface-card); padding: 18px 20px; }
-  .city-name { font-family: var(--font-display); font-weight: 800; font-size: 17px; letter-spacing: -.01em; color: var(--ink); }
-  .city-util { font-family: var(--font-mono); font-size: 11.5px; letter-spacing: .04em; color: var(--text-muted); margin-top: 6px; }
-
   /* what's-included card (fixed-bid transparency) */
   .included-card { border: 1px solid var(--rule); border-radius: var(--radius); background: var(--surface-card); padding: clamp(22px,3vw,32px); }
   .included { list-style: none; margin: 0; padding: 0; display: grid; grid-template-columns: repeat(auto-fit, minmax(min(300px,100%),1fr)); gap: 12px 32px; }
   .included li { display: flex; gap: 12px; align-items: flex-start; font-size: 14.5px; line-height: 1.5; color: var(--text-body); }
   .included .tick { color: var(--accent-deep); font-weight: 800; flex-shrink: 0; }
-
-  /* authorized / warranty-compliant band (dark) */
-  .authorized { background: var(--slab); color: var(--on-slab); }
-  .authorized-grid { max-width: var(--container); margin: 0 auto; padding: clamp(40px,6vw,72px) var(--container-pad); display: grid; grid-template-columns: 1.25fr 1fr; gap: clamp(28px,4vw,56px); align-items: center; }
-  @media (max-width: 860px) { .authorized-grid { grid-template-columns: 1fr; } }
-  .authorized-h2 { font-family: var(--font-display); font-weight: 800; font-size: var(--fs-h2); letter-spacing: -.015em; line-height: 1.05; margin: 0 0 16px; max-width: 20ch; }
-  .authorized-p { font-size: var(--fs-lede); color: var(--on-slab-muted); line-height: 1.6; margin: 0; max-width: 56ch; }
-  .authorized-list { list-style: none; margin: 0; padding: 0; display: flex; flex-direction: column; gap: 14px; }
-  .authorized-list li { display: flex; gap: 12px; align-items: flex-start; font-size: 14.5px; line-height: 1.45; color: var(--on-slab-body); }
-  .authorized-list .tick { color: var(--accent); font-weight: 800; flex-shrink: 0; }
 
   /* faq */
   .faq-grid { display: grid; grid-template-columns: repeat(auto-fit,minmax(min(300px,100%),1fr)); gap: 14px 32px; }

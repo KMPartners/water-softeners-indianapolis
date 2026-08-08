@@ -1,22 +1,22 @@
 ---
 /**
- * LeadForm — the single lead-capture form (ENGINE).
+ * LeadForm, the single lead-capture form (ENGINE).
  *
  * Replaces PreQualForm / InquiryForm / ServiceForm, which were three near-
  * identical components with a copy-pasted submit handler. That duplication was
- * not cosmetic: it caused a real bug — the honeypot field name was fixed in one
+ * not cosmetic: it caused a real bug, the honeypot field name was fixed in one
  * copy and left stale in the other two, silently disabling their spam guard.
  * One component, one handler, driven by a field-set config (see e.g.
  * presets/auto/lead-forms.js), means a fix lands once.
  *
  * Behavior preserved from the originals, exactly:
- *   - honeypot `hp_check` (never `company` — password managers auto-fill that
+ *   - honeypot `hp_check` (never `company`, password managers auto-fill that
  *     even hidden, silently dropping real leads; byte-identical to the check in
  *     functions/api/lead.js)
  *   - per-field client validation (required, 10-digit phone, 5-digit ZIP), with
  *     native submit still working if JS is off (the lead is never lost)
  *   - POST to the Pages Function; on failure, re-enable and surface the phone
- *     fallback — NEVER fake success and silently drop a lead
+ *     fallback, NEVER fake success and silently drop a lead
  *   - dataLayer `lead_submit` with the intent, for GTM/GA4
  *   - iOS synchronous-focus keyboard pop when a CTA points at the form's anchor
  *
@@ -46,7 +46,7 @@ interface Props {
   heading?: string;
   sub?: string;
   fields: FieldDef[];
-  /** General contact consent — required, phone/email only. Keep "text" OUT of
+  /** General contact consent, required, phone/email only. Keep "text" OUT of
       this wording when an SMS block is present, or the two re-blend (task §2). */
   consent: string;
   /** SMS opt-in block. Preset supplies only the subject phrase ("my service
@@ -95,9 +95,9 @@ const firstId = `${anchorId}-${fields[0]?.name}`;
   {heading && <h3 class="leadform-heading">{heading}</h3>}
   {sub && <p class="leadform-sub">{t(sub)}</p>}
 
-  {/* Honeypot — hidden from humans; bots fill it and the endpoint drops them.
+  {/* Honeypot, hidden from humans; bots fill it and the endpoint drops them.
       NAME IS LOAD-BEARING and byte-identical to functions/api/lead.js.
-      Must NOT be company/website/address/organization/fax — password managers
+      Must NOT be company/website/address/organization/fax, password managers
       auto-fill those even when hidden, silently dropping real leads. */}
   <input type="text" name="hp_check" tabindex="-1" autocomplete="off" aria-hidden="true"
     style="position:absolute;left:-9999px;width:1px;height:1px;opacity:0;pointer-events:none;" />
@@ -135,13 +135,13 @@ const firstId = `${anchorId}-${fields[0]?.name}`;
     ))}
   </div>
 
-  {/* Consent group — the two records are captured SEPARATELY and never merged
+  {/* Consent group, the two records are captured SEPARATELY and never merged
       (each label owns its own `.consent-text`, which lead-capture.js reads at
       submit). Styled as one cohesive fine-print block; the SMS opt-in stays a
       clear, distinct opt-in (its own checkbox + amber keyline), just not a
       clunky filled box. */}
   <div class="consent-group">
-    {/* General contact consent — always required. */}
+    {/* General contact consent, always required. */}
     <label class="consent">
       <input type="checkbox" name="consent" required />
       <span class="consent-text">{t(consent)}</span>
@@ -150,10 +150,10 @@ const firstId = `${anchorId}-${fields[0]?.name}`;
 
     {smsLabelHtml && (
       <>
-        {/* SMS opt-in — A2P 10DLC. NEVER pre-checked (core30-lint fails on a
+        {/* SMS opt-in, A2P 10DLC. NEVER pre-checked (core30-lint fails on a
             `checked` attribute). Required-ness comes from
             site.config → legal.smsConsentRequired, never a hardcoded default.
-            Captured independently as sms_consent_* — never merged with `consent`. */}
+            Captured independently as sms_consent_*, never merged with `consent`. */}
         <label class="consent consent-sms">
           <input type="checkbox" name="sms_consent" value="yes" required={SMS_CONSENT_REQUIRED} />
           <span class="consent-text">
@@ -171,9 +171,9 @@ const firstId = `${anchorId}-${fields[0]?.name}`;
     <Icon name="arrow-right" size={18} />
   </button>
 
-  {/* Shown only if the POST fails — never fake success and silently drop a lead. */}
+  {/* Shown only if the POST fails, never fake success and silently drop a lead. */}
   <p class="leadform-formerror" role="alert" hidden data-leadform-error>
-    Sorry — something went wrong sending your info. Please call or text us at
+    Sorry, something went wrong sending your info. Please call or text us at
     <a href={NAP.phoneTel}>{NAP.phoneDisplay}</a> and we will take care of you.
   </p>
 
@@ -188,7 +188,7 @@ const firstId = `${anchorId}-${fields[0]?.name}`;
 
 <div class="leadform-success" hidden data-leadform-success>
   <span class="success-mark"><Icon name="check" size={26} /></span>
-  <h3>Thanks — we have got it.</h3>
+  <h3>Thanks, we have got it.</h3>
   <p>
     {t(successBody)} If you would rather talk now, call or text us at
     <a href={NAP.phoneTel}>{NAP.phoneDisplay}</a>.
@@ -214,7 +214,7 @@ const firstId = `${anchorId}-${fields[0]?.name}`;
     const setError = (field, message) => {
       // A .field label CONTAINS its own [data-error]; a .consent label has it as
       // the NEXT sibling. Walking up to the form and taking the first [data-error]
-      // would write every consent error into the first field's slot — already
+      // would write every consent error into the first field's slot, already
       // wrong with one consent box, and with two it puts both messages in the
       // same wrong place. Resolve the slot relative to THIS field's label.
       const label = field.closest('.field, .consent');
@@ -272,14 +272,14 @@ const firstId = `${anchorId}-${fields[0]?.name}`;
       let ok = false;
       try {
         // decorate() appends the two independent consent packages (read from the
-        // DOM), first-touch attribution, name split, and the spam signal — all
+        // DOM), first-touch attribution, name split, and the spam signal, all
         // additive, never touching the fields the endpoint already expects.
         const res = await fetch(form.action, { method: 'POST', body: decorate(form, new FormData(form), loadedAt) });
         ok = res.ok;
       } catch { ok = false; }
 
       if (!ok) {
-        // Never fake success on failure — re-enable and surface the fallback.
+        // Never fake success on failure, re-enable and surface the fallback.
         if (submit instanceof HTMLButtonElement) { submit.disabled = false; submit.innerHTML = submitHTML; }
         if (errorBox instanceof HTMLElement) {
           errorBox.hidden = false;
@@ -288,7 +288,7 @@ const firstId = `${anchorId}-${fields[0]?.name}`;
         return;
       }
 
-      // Include any hidden CONTEXT fields (property address, sku, campaign — set
+      // Include any hidden CONTEXT fields (property address, sku, campaign, set
       // by the page, never user PII) so the conversion carries what it's about,
       // vertical-agnostically. Honeypot / intent / consent are excluded.
       const context = {};
@@ -444,13 +444,13 @@ const firstId = `${anchorId}-${fields[0]?.name}`;
     text-underline-offset: 2px;
   }
   /* SMS opt-in: cohesive with the general consent, but still a clear, DISTINCT
-     opt-in for A2P review — set off by a subtle amber keyline, not a filled box. */
+     opt-in for A2P review, set off by a subtle amber keyline, not a filled box. */
   .consent-sms {
     padding-left: 12px;
     border-left: 2px solid color-mix(in srgb, var(--accent) 55%, transparent);
   }
   /* Says plainly that this box can be skipped. Without it an optional checkbox
-     looks identical to a required one and gets ticked by reflex — which defeats
+     looks identical to a required one and gets ticked by reflex, which defeats
      the point and weakens the "voluntary and explicit" claim. */
   .consent-optional {
     display: inline-block;

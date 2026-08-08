@@ -95,3 +95,18 @@ export const FOOTER_COLUMNS = [
  * bare city name only (drop the ", IN"), so the area set has ONE source.
  */
 export const SERVICE_AREAS = AREA_SERVED.map((c) => String(c).split(',')[0].trim());
+
+/**
+ * Per-city NAMED utility, for the service-area grid (Core30 rule 4 local
+ * specificity). Real utility map from the entity research: Hamilton County =
+ * Duke Energy + AES Indiana; the city of Anderson = its municipal utility.
+ * ‹VERIFY:utility-pockets Pendleton is a Duke pocket; confirm Duke vs I&M›
+ */
+export const CITY_UTILITIES = [
+  { city: 'Fishers', util: 'Duke Energy · AES Indiana' },
+  { city: 'Noblesville', util: 'Duke Energy · AES Indiana' },
+  { city: 'Carmel', util: 'Duke Energy · AES Indiana' },
+  { city: 'Westfield', util: 'Duke Energy · AES Indiana' },
+  { city: 'Pendleton', util: 'Duke Energy' },
+  { city: 'Anderson', util: 'Anderson Municipal Light & Power' },
+];

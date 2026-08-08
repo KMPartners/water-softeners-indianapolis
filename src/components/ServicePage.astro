@@ -1,6 +1,6 @@
 ---
 /**
- * Service page component — the service template body (the 6-block content spine:
+ * Service page component, the service template body (the 6-block content spine:
  * Engineering / Spec / Process / Local / FAQ / External; blocks are optional per
  * row and auto-numbered). Rendered by the root-level dispatch route
  * src/pages/[slug].astro (Core30 URLs are flat: a service lives at /<slug>/,
@@ -14,6 +14,8 @@ import BaseLayout from '../layouts/BaseLayout.astro';
 import Breadcrumbs from './Breadcrumbs.astro';
 import WhyMeridian from './WhyMeridian.astro';
 import ContactSection from './ContactSection.astro';
+import AuthorizedBand from './AuthorizedBand.astro';
+import ServiceAreaGrid from './ServiceAreaGrid.astro';
 import { NAP } from '../lib/site.js';
 import { generatorService } from '../../presets/generator/schema.js';
 import { faqSchema, breadcrumbSchema } from '../lib/schema.js';
@@ -153,7 +155,7 @@ const n2 = (i) => String(i + 1).padStart(2, '0');
       ))}
     </div>
 
-    {/* Mirror linking — related siblings (Rule 3) */}
+    {/* Mirror linking, related siblings (Rule 3) */}
     {svc.related && (
       <div class="related">
         <div class="related-label">Related standby sizes &amp; options</div>
@@ -166,6 +168,8 @@ const n2 = (i) => String(i + 1).padStart(2, '0');
     )}
   </section>
 
+  <AuthorizedBand />
+  <ServiceAreaGrid />
   <WhyMeridian />
   <ContactSection />
 </BaseLayout>

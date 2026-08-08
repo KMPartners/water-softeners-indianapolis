@@ -296,6 +296,26 @@ own preset — and hits the same wall.
   `<details>` FAQ. Worth noting in the porting playbook so the "Phase 6 FAQ reconcile"
   step isn't treated as mandatory when a design doesn't use `<details>`.
 
+### D4 · engine default COPY ships em dashes (leaks past a brand's voice rule)
+- **Symptom.** Meridian's voice bans em dashes, but engine-rendered default strings
+  carry them onto every page regardless of the leaf's copy: `LeadForm` ("Thanks —
+  we have got it.", "Sorry — something went wrong…"), the `LegalDoc` draft banner
+  ("Draft — pending legal review."), and the Privacy Policy prose. A leaf had to
+  edit ENGINE files to honor its own voice.
+- **Proposed fix.** Keep engine DEFAULT copy punctuation-neutral (commas/colons,
+  no em dashes) so it's voice-portable, or make these strings overridable via
+  config/props. Punctuation is a brand-voice decision; the engine shouldn't bake
+  a choice a brand then has to undo in engine files.
+- **Effort/impact:** small / medium.
+
+### Reusable pattern · depth sections as shared components
+- The homepage's "authorized/warranty-compliant" trust band and the per-city
+  named-utility "service area" grid are now shared components
+  (`AuthorizedBand.astro`, `ServiceAreaGrid.astro`) dropped into the homepage +
+  category + service templates. Worth generalizing in the starter: a small library
+  of **shared trust/local/CTA sections** a vertical composes, so depth + rule-4
+  local specificity land on every page type without copy-paste.
+
 ### Note · the homepage is legitimately bespoke, not row-driven
 - Category/service are row-driven (getStaticPaths); the homepage is a hand-authored
   page pulling config + preset schema. That's correct — but the starter's docs

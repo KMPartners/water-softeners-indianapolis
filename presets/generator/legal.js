@@ -1,5 +1,5 @@
 /**
- * presets/generator/legal.js — the generator/electrician Terms of Service (PRESET).
+ * presets/generator/legal.js, the generator/electrician Terms of Service (PRESET).
  *
  * Only the vertical-specific MIDDLE sections live here; the Engine's buildTerms()
  * wraps them in the fixed opening (agreement) and closing (communications,
@@ -17,14 +17,14 @@ const GENERATOR_TERMS_SECTIONS = [
   {
     h: 'What we do',
     paras: [
-      'Meridian Generator & Electric installs, services, and repairs standby generators and the related electrical work — transfer switches, panel and service upgrades, and load calculations — for homes and light-commercial properties. We also provide take-over service and maintenance for existing units, including units we did not install.',
+      'Meridian Generator & Electric installs, services, and repairs standby generators and the related electrical work, transfer switches, panel and service upgrades, and load calculations, for homes and light-commercial properties. We also provide take-over service and maintenance for existing units, including units we did not install.',
     ],
   },
   {
     h: 'Quotes, load calculations, and fixed-bid pricing',
     list: [
       '<strong>We quote before we begin.</strong> For installations we perform an on-site NEC 220 load calculation and give you a transparent, fixed-bid price. You approve that price before work starts.',
-      'If, once work is underway, we find conditions that change the scope — an undersized gas meter, an outdated panel, a placement obstacle — we stop and get your approval before continuing.',
+      'If, once work is underway, we find conditions that change the scope, an undersized gas meter, an outdated panel, a placement obstacle, we stop and get your approval before continuing.',
       'Unit sizes, transfer times, sound levels, and any figures shown on this website are general references, not offers. The price and specifications that apply to your job are the ones in your written quote.',
     ],
   },
@@ -39,7 +39,7 @@ const GENERATOR_TERMS_SECTIONS = [
     list: [
       'You agree to provide safe, unobstructed access to the work area, the electrical panel, and the gas supply.',
       'Generator placement follows manufacturer and code clearances from doors, windows, and the meter, and we make reasonable efforts to honor HOA and screening requirements you tell us about. Meeting a specific placement preference is subject to those code and clearance rules.',
-      'Tell us in advance about anything that affects safety or scope — buried utilities or irrigation, prior unpermitted work, or known panel or gas issues.',
+      'Tell us in advance about anything that affects safety or scope, buried utilities or irrigation, prior unpermitted work, or known panel or gas issues.',
     ],
   },
   {

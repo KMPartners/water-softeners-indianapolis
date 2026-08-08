@@ -1,9 +1,9 @@
 /**
- * presets/generator/lead-forms.js — the Meridian quote form's field set (PRESET).
+ * presets/generator/lead-forms.js, the Meridian quote form's field set (PRESET).
  *
  * Feeds the engine <LeadForm> (src/components/LeadForm.astro). Every field `name`
  * here MUST appear in the lead-field manifest (functions/api/_lead-fields.js) —
- * core30-lint fails the build otherwise — because the intake allow-list
+ * core30-lint fails the build otherwise, because the intake allow-list
  * (functions/api/lead.js) and the summary rows (_lead-summary.js) are DERIVED
  * from that manifest. The engine requires `name` + `phone`; the rest are optional.
  *
@@ -32,12 +32,12 @@ export const QUOTE_FORM = {
       '"Bought a house with a generator" inspection',
       'Transfer switch or electrical',
       'Commercial / light-commercial',
-      'Not sure yet — help me figure it out',
+      'Not sure yet, help me figure it out',
     ] },
     { name: 'message', label: 'Anything else? (optional)', type: 'textarea', placeholder: 'Outage history, panel size, HOA notes…', wide: true },
   ],
 
-  // General contact consent — required. Deliberately NO "text" here: SMS consent
+  // General contact consent, required. Deliberately NO "text" here: SMS consent
   // is captured separately below, and blending them defeats A2P evidence (task §2).
   consent: 'I agree that {{business.name}} may contact me by phone or email about my quote request.',
 

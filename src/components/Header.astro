@@ -1,6 +1,6 @@
 ---
 /**
- * Site header — Meridian 1D (LOCKED): utility strip (--slab) → nav plate
+ * Site header, Meridian 1D (LOCKED): utility strip (--slab) → nav plate
  * (--slab2, inset top rule) → 3px --accent meridian seam. Wordmark only (the F1
  * mark is square-contexts-only); the real letter "I" stays in the markup inside
  * `.mrd` so the accessible name reads MERIDIAN. Contains the hamburger button
@@ -38,7 +38,7 @@ const isActive = (href: string) => href !== '/' && current.startsWith(href);
         <span></span><span></span><span></span><span class="hamburger-label">Menu</span>
       </button>
 
-      <a href="/" class="brand" aria-label={`${NAP.name} — home`}>
+      <a href="/" class="brand" aria-label={`${NAP.name}, home`}>
         <span class="brand-lines">
           <span class="brand-word">MER<span class="mrd">I</span>DIAN</span>
           <span class="brand-sub">GENERATOR &amp; ELECTRIC</span>
@@ -54,7 +54,7 @@ const isActive = (href: string) => href !== '/' && current.startsWith(href);
     </div></div>
   </div>
 
-  {/* 3px meridian seam — the join that echoes the logo's meridian */}
+  {/* 3px meridian seam, the join that echoes the logo's meridian */}
   <div class="seam" aria-hidden="true"></div>
 </header>
 
