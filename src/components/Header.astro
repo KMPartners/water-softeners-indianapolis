@@ -1,221 +1,110 @@
 ---
 /**
- * Sticky site header — identical on every page (NAP = the GBP listing).
- * Markup ported from the reference; the mobile menu below 920px is new code,
- * since the static reference only hides the nav (README.md:66).
+ * Site header — Meridian 1D (LOCKED): utility strip (--slab) → nav plate
+ * (--slab2, inset top rule) → 3px --accent meridian seam. Wordmark only (the F1
+ * mark is square-contexts-only); the real letter "I" stays in the markup inside
+ * `.mrd` so the accessible name reads MERIDIAN. Contains the hamburger button
+ * (styled globally by mobile-chrome.css; shown ≤1024). Retires the starter's
+ * auto Header + its inline mobile nav (now the separate MobileDrawer component).
+ *
+ * Width contract: --container-pad on the OUTER full-bleed wrapper; the inner row
+ * is max-width:1140px with vertical-only padding, so header content aligns with
+ * the hero at every breakpoint.
  */
-import Icon from './Icon.astro';
-import { HEADER_NAV, isActive } from '../lib/nav.js';
-import { NAP, WORDMARK, LOGO_MARK } from '../lib/site.js';
+import { NAP } from '../lib/site.js';
+import { HEADER_NAV, UTILITY_STRIP } from '../content/nav.js';
 
 interface Props {
+  /** Current path, for active-nav highlighting. */
   current?: string;
 }
-const { current } = Astro.props;
+const { current = '' } = Astro.props;
+const isActive = (href: string) => href !== '/' && current.startsWith(href);
 ---
 
 <header class="site-header">
-  <div class="container bar">
-    <a class="brand-lockup" href="/">
-      <span class="logo-mark">{LOGO_MARK}</span>
-      <span>
-        <span class="wm-1">{WORDMARK.line1}</span><br />
-        <span class="wm-2">{WORDMARK.line2}</span>
-      </span>
-    </a>
-
-    <nav class="site-nav" aria-label="Primary">
-      {HEADER_NAV.map((item) => (
-        <a href={item.href} aria-current={isActive(item.href, current) ? 'page' : undefined}>
-          {item.label}
-        </a>
-      ))}
-    </nav>
-
-    <div class="header-right">
-      <a class="header-phone" href={NAP.phoneTel}>
-        <Icon name="phone" size={15} />
-        <span>{NAP.phoneDisplay}</span>
-      </a>
-      <button
-        class="header-menu-btn"
-        type="button"
-        aria-label="Open menu"
-        aria-expanded="false"
-        aria-controls="mobile-nav"
-        data-menu-open
-      >
-        <Icon name="menu" size={22} />
-      </button>
-    </div>
+  {/* utility strip */}
+  <div class="util">
+    <div class="wrap"><div class="row util-row">
+      <span class="util-claim">{UTILITY_STRIP.claim}</span>
+      <span class="util-area">{UTILITY_STRIP.area}</span>
+    </div></div>
   </div>
+
+  {/* nav plate */}
+  <div class="plate">
+    <div class="wrap"><div class="row plate-row">
+      <button class="hamburger" aria-label="Open menu" aria-expanded="false" aria-controls="mobile-nav">
+        <span></span><span></span><span></span><span class="hamburger-label">Menu</span>
+      </button>
+
+      <a href="/" class="brand" aria-label={`${NAP.name} — home`}>
+        <span class="brand-lines">
+          <span class="brand-word">MER<span class="mrd">I</span>DIAN</span>
+          <span class="brand-sub">GENERATOR &amp; ELECTRIC</span>
+        </span>
+      </a>
+
+      <nav class="desktop-nav" aria-label="Primary">
+        {HEADER_NAV.map((l) => (
+          <a href={l.href} class:list={['nav-link', { active: isActive(l.href) }]} aria-current={isActive(l.href) ? 'page' : undefined}>{l.label}</a>
+        ))}
+        <a href={NAP.phoneTel} class="nav-phone">{NAP.phoneDisplay}</a>
+      </nav>
+    </div></div>
+  </div>
+
+  {/* 3px meridian seam — the join that echoes the logo's meridian */}
+  <div class="seam" aria-hidden="true"></div>
 </header>
 
-<!-- Mobile nav (<920px). Implemented here; the static reference only mocks it. -->
-<div class="mobile-nav" id="mobile-nav" hidden>
-  <div class="mobile-nav-panel" role="dialog" aria-modal="true" aria-label="Menu">
-    <div class="mobile-nav-head">
-      <span class="wm-1">{NAP.name}</span>
-      <button class="mobile-nav-close" type="button" aria-label="Close menu" data-menu-close>
-        <Icon name="close" size={22} />
-      </button>
-    </div>
-    <nav aria-label="Mobile">
-      {HEADER_NAV.map((item) => (
-        <a href={item.href} aria-current={isActive(item.href, current) ? 'page' : undefined}>
-          {item.label}
-        </a>
-      ))}
-    </nav>
-    <a class="btn-primary mobile-nav-cta" href={NAP.phoneTel}>
-      <Icon name="phone" size={16} />
-      Call {NAP.phoneDisplay}
-    </a>
-  </div>
-</div>
-
-<script>
-  // Progressive enhancement: without JS the nav is simply absent below 920px,
-  // exactly as the static reference behaves. Nothing here is load-bearing for
-  // crawlers — every link is also in the footer (mirror linking).
-  const root = document.getElementById('mobile-nav');
-  const openBtn = document.querySelector('[data-menu-open]');
-  const closeBtn = document.querySelector('[data-menu-close]');
-
-  if (root && openBtn && closeBtn) {
-    let lastFocus = null;
-
-    const open = () => {
-      lastFocus = document.activeElement;
-      root.hidden = false;
-      openBtn.setAttribute('aria-expanded', 'true');
-      document.body.style.overflow = 'hidden';
-      // Signals the mobile bottom CTA bar to hide behind the nav overlay.
-      document.body.classList.add('nav-open');
-      closeBtn.focus();
-    };
-
-    const close = () => {
-      root.hidden = true;
-      openBtn.setAttribute('aria-expanded', 'false');
-      document.body.style.overflow = '';
-      document.body.classList.remove('nav-open');
-      if (lastFocus instanceof HTMLElement) lastFocus.focus();
-    };
-
-    openBtn.addEventListener('click', open);
-    closeBtn.addEventListener('click', close);
-
-    // Click the scrim (but not the panel) to dismiss.
-    root.addEventListener('click', (e) => {
-      if (e.target === root) close();
-    });
-
-    document.addEventListener('keydown', (e) => {
-      if (e.key === 'Escape' && !root.hidden) close();
-    });
-  }
-</script>
-
 <style>
-  .header-right {
-    display: flex;
-    align-items: center;
-    gap: 10px;
+  /* outer bands carry the side pad; the inner row is the 1140 measure */
+  .wrap { padding: 0 var(--container-pad); }
+  .row { max-width: 1140px; margin: 0 auto; }
+
+  .util { background: var(--slab); color: var(--on-slab); }
+  .util-row {
+    display: flex; align-items: center; justify-content: space-between;
+    gap: 16px; padding: 9px 0; flex-wrap: wrap;
+  }
+  .util-claim {
+    font-family: var(--font-mono); font-size: 10.5px; letter-spacing: .14em;
+    text-transform: uppercase; color: var(--accent);
+  }
+  .util-area {
+    font-family: var(--font-mono); font-size: 10.5px; letter-spacing: .1em; color: var(--on-slab-dim);
   }
 
-  .mobile-nav {
-    position: fixed;
-    inset: 0;
-    z-index: 100;
-    background: rgb(10 24 38 / 0.6);
-    display: grid;
-    justify-items: end;
-  }
-  .mobile-nav[hidden] {
-    display: none;
+  .plate { background: var(--slab2); box-shadow: inset 0 1px 0 var(--slab-rule); }
+  .plate-row {
+    display: flex; align-items: center; justify-content: space-between;
+    gap: 20px; padding: 16px 0; flex-wrap: wrap;
   }
 
-  .mobile-nav-panel {
-    background: var(--navy-700);
-    color: #fff;
-    width: min(320px, 86vw);
-    height: 100%;
-    padding: 18px clamp(16px, 5vw, 24px) 28px;
-    display: flex;
-    flex-direction: column;
-    gap: 6px;
-    overflow-y: auto;
-    border-left: 3px solid var(--amber-500);
+  .brand { display: flex; align-items: center; gap: 13px; }
+  .brand-lines { line-height: 1; }
+  .brand-word {
+    display: block; font-family: var(--font-display); font-weight: 800;
+    font-size: 21px; letter-spacing: .005em; color: var(--on-slab);
+  }
+  .brand-sub {
+    display: block; font-family: var(--font-mono); font-size: 9px;
+    letter-spacing: .22em; color: var(--on-slab-dim); margin-top: 6px;
   }
 
-  .mobile-nav-head {
-    display: flex;
-    align-items: center;
-    justify-content: space-between;
-    gap: 12px;
-    padding-bottom: 14px;
-    margin-bottom: 6px;
-    border-bottom: 1px solid var(--navy-500);
+  /* .desktop-nav display + hide-at-1024 is owned by mobile-chrome.css */
+  .nav-link {
+    font-family: var(--font-body); font-weight: 600; font-size: 14px; color: var(--on-slab-body);
   }
-  .mobile-nav-head .wm-1 {
-    font-family: var(--font-display);
-    font-weight: 800;
-    font-size: 15px;
-    letter-spacing: -0.01em;
+  .nav-link:hover { color: var(--on-slab); }
+  .nav-link.active { color: var(--accent); } /* active = --accent, never --accent-deep (contrast on dark) */
+  .nav-phone {
+    font-family: var(--font-display); font-weight: 700; font-size: 13px;
+    background: var(--accent); color: var(--accent-ink);
+    padding: 11px 18px; border-radius: var(--radius);
   }
+  .nav-phone:hover { background: var(--accent-deep); color: var(--accent-ink); }
 
-  .mobile-nav-close {
-    display: grid;
-    place-items: center;
-    width: 42px;
-    height: 42px;
-    flex-shrink: 0;
-    background: none;
-    border: 1px solid var(--navy-500);
-    border-radius: var(--radius-1);
-    color: #fff;
-    cursor: pointer;
-  }
-
-  .mobile-nav-panel nav {
-    display: flex;
-    flex-direction: column;
-  }
-  .mobile-nav-panel nav a {
-    font-family: var(--font-body);
-    font-weight: 600;
-    font-size: 16px;
-    color: #d7e0ea;
-    text-decoration: none;
-    padding: 14px 0;
-    border-bottom: 1px solid var(--navy-600);
-  }
-  .mobile-nav-panel nav a:hover,
-  .mobile-nav-panel nav a[aria-current] {
-    color: var(--amber-400);
-  }
-
-  .mobile-nav-cta {
-    margin-top: 18px;
-    justify-content: center;
-  }
-
-  /* The panel is unreachable above the breakpoint, where .site-nav is visible. */
-  @media (min-width: 921px) {
-    .mobile-nav {
-      display: none;
-    }
-  }
-
-  @media (prefers-reduced-motion: no-preference) {
-    .mobile-nav-panel {
-      animation: slide-in 0.2s cubic-bezier(0.2, 0.7, 0.2, 1);
-    }
-    @keyframes slide-in {
-      from {
-        transform: translateX(100%);
-      }
-    }
-  }
+  .seam { height: 3px; background: var(--accent); }
 </style>

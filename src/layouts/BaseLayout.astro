@@ -4,15 +4,15 @@
  * invariants (canonical, one JSON-LD block minimum, the sticky header, the
  * footer link set) cannot be forgotten on a page-by-page basis.
  */
+// The single global sheet: an @import closure of Meridian's tokens + the four
+// verbatim asset sheets + the engine primitives. Load order is fixed inside it.
 import '../styles/styles.css';
-import '../styles/page-styles.css';
-// Loaded last so it overrides the ported reference CSS (mobile fixes).
-import '../styles/responsive-fixes.css';
 
 import IconSprite from '../components/IconSprite.astro';
 import Header from '../components/Header.astro';
+import ScrollMiniMenu from '../components/ScrollMiniMenu.astro';
+import MobileDrawer from '../components/MobileDrawer.astro';
 import Footer from '../components/Footer.astro';
-import MobileCtaBar from '../components/MobileCtaBar.astro';
 import { SITE_URL, NAP, OG_IMAGE, FAVICON } from '../lib/site.js';
 
 interface Props {
@@ -31,13 +31,9 @@ interface Props {
   /** og/twitter share image. Absolute URL or site-root path. Defaults to
       brand.ogImage; a detail page can pass a real photo. */
   image?: string;
-  /** Context CTAs for the mobile bottom bar (spec §5). Omit for the default. */
-  mobileCta?: {
-    status?: string;
-    statusTone?: 'go' | 'pending';
-    primary?: { label: string; sublabel?: string; href: string; icon?: string };
-    secondary?: { label: string; sublabel?: string; href: string; icon?: string };
-  };
+  /** The page label shown in the desktop scroll mini-menu — the last breadcrumb
+      crumb (build-spec §2). Defaults to the page title. */
+  pageLabel?: string;
 }
 
 const {
@@ -47,7 +43,7 @@ const {
   schemas = [],
   footerDisclaimer,
   noindex = false,
-  mobileCta = {},
+  pageLabel,
   image = OG_IMAGE,
 } = Astro.props;
 
@@ -64,9 +60,8 @@ const gtmId = import.meta.env.PUBLIC_GTM_ID;
 <!doctype html>
 <html lang="en">
   <head>
-    {/* The brand palette (Steel & Brass) is the permanent :root in
-        tokens/colors.css — no runtime theme switching. The preview theme picker
-        was removed once the owner chose (site review, 2026-07-29). */}
+    {/* Meridian's locked palette (amber accent on light + dark slab) is the
+        permanent :root in tokens/colors.css — no runtime theme switching. */}
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
 
@@ -110,10 +105,15 @@ const gtmId = import.meta.env.PUBLIC_GTM_ID;
     )}
     <IconSprite />
     <Header current={canonical} />
+    <ScrollMiniMenu pageLabel={pageLabel ?? title} />
     <main>
       <slot />
     </main>
     <Footer disclaimer={footerDisclaimer} />
-    <MobileCtaBar {...mobileCta} />
+    <MobileDrawer />
+    {/* The only chrome JS: one scroll listener (mini-menu + bottom bar) + drawer. */}
+    <script>
+      import '../scripts/chrome.js';
+    </script>
   </body>
 </html>

@@ -27,7 +27,7 @@ const crumbs = [{ label: 'Home', href: '/' }, { label: doc.trinity }];
   title={doc.trinity}
   description={doc.description}
   canonical={doc.slug}
-  mobileCta={{ status: 'Privacy Policy' }}
+  pageLabel="Privacy Policy"
   schemas={[
     legalPageSchema({ name: doc.trinity, description: doc.description, url: doc.slug }),
     breadcrumbSchema(crumbs),
