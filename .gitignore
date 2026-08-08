@@ -21,7 +21,9 @@ _site/            # Eleventy default
 .env
 .env.*
 !.env.example
-.wrangler/        # wrangler local state/cache, created by CF Pages deploys
+# wrangler local state/cache, created by CF Pages deploys (inline # comments are
+# NOT supported in .gitignore — they become part of the pattern, so keep it bare)
+.wrangler/
 
 # ── Logs ───────────────────────────────────────
 npm-debug.log*
