@@ -1,49 +1,22 @@
-/* ============================================================
-   SPACING · RADII · LAYOUT
-   Sharp, editorial. Small radii only. Hairline-grid layouts.
-   ============================================================ */
+/* ============================================================================
+   Meridian · Spacing, radius & layout tokens (LOCKED)
+   8px base scale with a few optical in-betweens. Flat 2px radius everywhere.
+   ============================================================================ */
 :root {
-  /* ---- Spacing scale (4px base) ---- */
-  --sp-1:  4px;
-  --sp-2:  8px;
-  --sp-3:  12px;
-  --sp-4:  16px;
-  --sp-5:  20px;
-  --sp-6:  24px;
-  --sp-8:  32px;
-  --sp-10: 40px;
-  --sp-12: 48px;
-  --sp-16: 64px;
-  --sp-20: 80px;
-  --sp-24: 96px;
+  --space-4:  4px;   /* hairline nudge · icon gaps */
+  --space-8:  8px;   /* tight stack · chip gap */
+  --space-12: 12px;  /* button gap · row gap */
+  --space-16: 16px;  /* card inner gap */
+  --space-24: 24px;  /* small block padding */
+  --space-32: 32px;  /* card padding */
+  --space-48: 48px;  /* small section padding */
+  --space-64: 64px;  /* section rhythm */
+  --space-96: 96px;  /* major section break */
 
-  /* ---- Fluid section rhythm ---- */
-  --section-y:    clamp(48px, 8vw, 96px); /* @kind spacing */
-  --container:    1240px;
-  --container-narrow: 860px;
-  --container-pad: clamp(20px, 5vw, 48px);
-  --gutter:       clamp(16px, 3vw, 32px); /* @kind spacing */
+  --radius: 2px;     /* every surface; pills use 999px */
+  --radius-pill: 999px;
 
-  /* ---- Radii, sharp brand; nothing pill-soft ---- */
-  --radius-0:  0px;    /* signage blocks, image slabs */
-  --radius-1:  3px;    /* buttons, chips, inputs (default) */
-  --radius-2:  6px;    /* cards */
-  --radius-pill: 999px;/* status dots / rare */
-
-  /* ---- Borders ---- */
-  --bw:      1px;
-  --bw-2:    2px;
-  --bw-accent: 3px;    /* accent baseline under nav / brand rules */
-
-  /* ---- Fixed UI ---- */
-  --header-h:     72px;
-  --bottombar-h:  68px;
-  --z-header:     50; /* @kind other */
-  --z-menu:       60; /* @kind other */
-  --z-bottombar:  70; /* @kind other */
-
-  /* ---- Motion (subtle; no bounce) ---- */
-  --ease:      cubic-bezier(0.2, 0.7, 0.2, 1); /* @kind other */
-  --dur-fast:  0.14s; /* @kind other */
-  --dur:       0.22s; /* @kind other */
+  --container:     1140px;                    /* page container max-width */
+  --container-pad: clamp(24px, 5vw, 56px);    /* clamped side padding */
+  --measure:       66ch;                      /* default prose measure */
 }

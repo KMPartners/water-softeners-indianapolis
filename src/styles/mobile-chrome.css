@@ -1,0 +1,440 @@
+/* ============================================================================
+   mobile-chrome.css  ·  Core30 Mobile Chrome (Variant B, vanilla side drawer)
+   ----------------------------------------------------------------------------
+   ⚠ RECONSTRUCTION NOTICE
+   The canonical `assets/mobile-chrome.css` shipped with the updated kit did NOT
+   upload into this project (only 11-mobile-chrome.md + the ADD-ON .md arrived).
+   This file is a faithful rebuild from the 11-mobile-chrome.md spec, same class
+   names, same behaviors (§A hamburger, §C bottom bar, §D breakpoints, §E/E1
+   drawer). It is STRICTLY TOKENIZED (reads --accent / --slab / --rule /
+   --container-pad / --status-green + brand fonts) so it re-skins via tokens only.
+   When you drop the canonical kit file in, replace this verbatim, the token
+   contract is identical, so nothing else changes.
+   DO NOT hand-edit per-brand values here; set tokens on the page root instead.
+   ============================================================================ */
+
+/* ---------- §A · Hamburger button (44×44, animates to X via aria-expanded) -- */
+.hamburger {
+  display: none;                       /* shown at ≤1024 via media query */
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  gap: 4px;
+  width: 44px;
+  height: 44px;
+  background: transparent;
+  border: none;
+  cursor: pointer;
+  flex-shrink: 0;
+  position: relative;
+  z-index: 60;
+  padding: 0;
+}
+.hamburger > span:not(.hamburger-label) {
+  display: block;
+  width: 18px;
+  height: 2px;
+  border-radius: 2px;
+  background: var(--accent);
+  transition: transform .22s ease, opacity .18s ease;
+}
+.hamburger[aria-expanded="true"] > span:nth-child(1) { transform: translateY(6px) rotate(45deg); }
+.hamburger[aria-expanded="true"] > span:nth-child(2) { opacity: 0; }
+.hamburger[aria-expanded="true"] > span:nth-child(3) { transform: translateY(-6px) rotate(-45deg); }
+.hamburger-label { display: none; }
+
+/* ---------- §E · Drawer shell (slides in from the right) -------------------- */
+.mobile-nav-overlay {
+  position: fixed;
+  inset: 0;
+  z-index: 55;
+  background: oklch(0.10 0.03 250 / 0.55);
+  backdrop-filter: blur(2px);
+  opacity: 0;
+  visibility: hidden;
+  transition: opacity .28s ease, visibility 0s linear .28s;
+}
+.mobile-nav-overlay.open {
+  opacity: 1;
+  visibility: visible;
+  transition: opacity .28s ease;
+}
+.mobile-nav {
+  position: fixed;
+  top: 0;
+  right: 0;
+  bottom: 0;
+  z-index: 58;
+  width: min(86vw, 384px);
+  display: flex;
+  flex-direction: column;
+  background: var(--slab);
+  color: #fff;
+  box-shadow: -16px 0 48px oklch(0 0 0 / 0.35);
+  transform: translateX(102%);
+  transition: transform .32s cubic-bezier(.2,.8,.2,1);
+  /* the drawer itself never scrolls: lockup + content + pinned action bar */
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+  overscroll-behavior: contain;
+  padding-top: env(safe-area-inset-top, 0px);
+  padding-bottom: 0;
+}
+/* everything between the lockup and the pinned bar. Sized to fit at 320x568,
+   so in practice it never scrolls; the auto is a safety valve for very short
+   viewports (landscape phones) rather than an expected state. */
+.mobile-nav-scroll {
+  flex: 1 1 auto;
+  min-height: 0;
+  overflow-y: auto;
+  overscroll-behavior: contain;
+}
+.mobile-nav.open { transform: translateX(0); }
+
+.mobile-nav-header {
+  flex: none;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 16px;
+  padding: 18px var(--container-pad);
+  border-bottom: 1px solid var(--slab-rule, var(--rule));
+}
+.mobile-nav-close {
+  width: 40px;
+  height: 40px;
+  flex-shrink: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: transparent;
+  border: 1px solid var(--slab-rule, var(--rule));
+  border-radius: var(--radius, 2px);
+  color: #fff;
+  font-size: 20px;
+  line-height: 1;
+  cursor: pointer;
+}
+
+/* ---------- §E1 · (1) status eyebrow ---------------------------------------- */
+.mobile-menu-eyebrow {
+  display: flex;
+  align-items: center;
+  gap: 9px;
+  padding: 18px var(--container-pad) 6px;
+  font-family: var(--font-mono);
+  font-size: 11px;
+  letter-spacing: .14em;
+  text-transform: uppercase;
+  color: #9BA6B4;
+}
+.mobile-menu-eyebrow .dot,
+.mbb-status .dot {
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  background: var(--status-green, #3FB47C);
+  box-shadow: 0 0 0 0 var(--status-green, #3FB47C);
+  animation: mm-pulse 2.4s ease-out infinite;
+  flex-shrink: 0;
+}
+@keyframes mm-pulse {
+  0%   { box-shadow: 0 0 0 0 oklch(0.7 0.14 155 / 0.5); }
+  70%  { box-shadow: 0 0 0 7px oklch(0.7 0.14 155 / 0); }
+  100% { box-shadow: 0 0 0 0 oklch(0.7 0.14 155 / 0); }
+}
+
+/* ---------- §E1 · (2) numbered secondary-category entries ------------------- */
+.mobile-menu-primary {
+  list-style: none;
+  margin: 8px 0 0;
+  padding: 0;
+}
+.mobile-menu-primary > li { border-top: 1px solid var(--slab-rule, var(--rule)); }
+.mobile-menu-primary > li:first-child { border-top: none; }
+.mobile-menu-primary a {
+  display: grid;
+  grid-template-columns: auto 1fr;
+  grid-template-rows: auto auto;
+  column-gap: 16px;
+  align-items: baseline;
+  min-height: 44px;
+  padding: 18px var(--container-pad);
+  text-decoration: none;
+  color: #fff;
+}
+.mobile-menu-primary .mm-num {
+  grid-row: 1 / 3;
+  align-self: center;
+  font-family: var(--font-mono);
+  font-size: 13px;
+  font-weight: 600;
+  color: var(--accent);
+}
+.mobile-menu-primary .mm-label {
+  font-family: var(--font-display);
+  font-weight: 700;
+  font-size: 21px;
+  line-height: 1.1;
+  letter-spacing: -.01em;
+}
+.mobile-menu-primary .mm-meta {
+  font-family: var(--font-mono);
+  font-size: 11px;
+  letter-spacing: .04em;
+  color: #8A95A4;
+  margin-top: 4px;
+}
+
+/* ---------- §E1 · (3) Quick links + (4) section scaffolding ----------------- */
+.mobile-menu-section {
+  padding: 22px var(--container-pad) 4px;
+  border-top: 1px solid var(--slab-rule, var(--rule));
+  margin-top: 8px;
+}
+.mm-section-label {
+  font-family: var(--font-mono);
+  font-size: 10px;
+  letter-spacing: .2em;
+  text-transform: uppercase;
+  color: #6E7A89;
+  margin-bottom: 14px;
+}
+.mobile-menu-secondary {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 8px;
+}
+.mobile-menu-secondary a {
+  min-height: 48px;
+  display: flex;
+  align-items: center;
+  padding: 0 14px;
+  border: 1px solid var(--slab-rule, var(--rule));
+  border-radius: var(--radius, 2px);
+  text-decoration: none;
+  color: #DCE2EA;
+  font-family: var(--font-body);
+  font-weight: 600;
+  font-size: 14px;
+}
+
+/* ---------- §E1 · (4) service-area pills ------------------------------------ */
+.mobile-menu-areas {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  padding-bottom: 4px;
+}
+.mm-area {
+  font-family: var(--font-mono);
+  font-size: 12px;
+  letter-spacing: .02em;
+  color: #C5CDD8;
+  background: var(--slab2, oklch(0.22 0.03 250));
+  border: 1px solid var(--slab-rule, var(--rule));
+  padding: 8px 13px;
+  border-radius: 999px;
+}
+
+/* ---------- §E1 · (5) sticky call CTA + license line ------------------------ */
+.mobile-menu-cta {
+  flex: none;                          /* pinned to the bottom of the drawer */
+  display: grid;
+  grid-template-columns: 1fr 1fr;      /* call + quote, equal weight */
+  gap: 10px;
+  padding: 14px var(--container-pad) calc(14px + env(safe-area-inset-bottom, 0px));
+  background: var(--slab);
+  border-top: 1px solid var(--slab-rule, var(--rule));
+}
+.mm-call,
+.mm-quote {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 2px;
+  min-height: 56px;
+  justify-content: center;
+  text-decoration: none;
+  border-radius: var(--radius, 2px);
+  padding: 10px 12px;
+}
+/* call is the money action on a phone, so it keeps the amber */
+.mm-call {
+  background: var(--accent);
+  color: var(--accent-ink, #1A1206);
+}
+.mm-quote {
+  background: transparent;
+  color: #fff;
+  border: 1px solid var(--slab-rule, var(--rule));
+}
+.mm-quote-label { color: #9BA6B4; }
+.mm-call-label {
+  font-family: var(--font-mono);
+  font-size: 10px;
+  letter-spacing: .14em;
+  text-transform: uppercase;
+  opacity: .8;
+  white-space: nowrap;
+}
+.mm-call-number,
+.mm-quote-action {
+  font-family: var(--font-display);
+  font-weight: 800;
+  font-size: 15px;
+  letter-spacing: 0;
+  white-space: nowrap;
+}
+/* the number is the widest string in the bar; at the narrowest drawer
+   (320px viewport) the column is ~108px, so it steps down once more. */
+@media (max-width: 360px) {
+  /* 320px viewport -> 275px drawer -> ~108px per column. The number is 14 glyphs
+     plus punctuation, so it gets the size AND the padding it needs to stay on
+     one line with real margin, not a 2px squeak. */
+  .mm-call, .mm-quote { padding: 10px 4px; }
+  .mobile-menu-cta { gap: 8px; }
+  .mm-call-number, .mm-quote-action { font-size: 12.5px; }
+  .mm-call-label, .mm-quote-label { font-size: 9px; letter-spacing: .08em; }
+}
+.mm-license {
+  grid-column: 1 / -1;
+  text-align: center;
+  font-family: var(--font-mono);
+  font-size: 10.5px;
+  letter-spacing: .04em;
+  color: #8A95A4;
+  margin-top: 2px;
+}
+
+/* ---------- §C · Scroll-reveal bottom action bar ---------------------------- */
+.mobile-bottom-bar {
+  position: fixed;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  z-index: 50;
+  display: none;                       /* turned on at ≤1024 */
+  flex-direction: column;
+  gap: 6px;
+  background: oklch(0.14 0.04 250 / 0.96);
+  backdrop-filter: blur(12px) saturate(140%);
+  border-top: 1px solid var(--rule);
+  padding: 8px var(--container-pad) calc(10px + env(safe-area-inset-bottom, 0px));
+  transform: translateY(110%);
+  transition: transform .32s cubic-bezier(.2,.8,.2,1);
+}
+.mobile-bottom-bar.show { transform: translateY(0); }
+/* hide the bar whenever the drawer is open (Variant B selector) */
+body:has(.mobile-nav.open) .mobile-bottom-bar { transform: translateY(110%); }
+
+.mbb-status {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-family: var(--font-mono);
+  font-size: 11px;
+  letter-spacing: .04em;
+  color: #B9C2CE;
+}
+.mbb-actions {
+  display: grid;
+  grid-template-columns: 1.4fr 1fr;
+  gap: 8px;
+}
+.mbb-call, .mbb-quote {
+  min-height: 52px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 10px;
+  text-decoration: none;
+  border-radius: var(--radius, 2px);
+  font-family: var(--font-display);
+  font-weight: 700;
+  font-size: 15px;
+}
+.mbb-call {
+  background: var(--accent);
+  color: var(--accent-ink, #1A1206);
+}
+.mbb-call .mbb-icon { font-size: 16px; line-height: 1; }
+.mbb-call .mbb-sm {
+  display: block;
+  font-family: var(--font-mono);
+  font-size: 10px;
+  letter-spacing: .14em;
+  text-transform: uppercase;
+  opacity: .8;
+}
+.mbb-call .mbb-lg { display: block; font-size: 16px; }
+.mbb-quote {
+  background: #fff;
+  color: var(--ink, #161D29);
+}
+
+/* ---------- Desktop nav base (stylesheet owns display so the media query can hide it) ----
+   Do NOT put `display` in the inline style on .desktop-nav, inline beats this media query. */
+.desktop-nav {
+  display: flex;
+  align-items: center;
+  gap: 24px;
+  flex-wrap: wrap;
+}
+
+/* ---------- §E2 · Short-viewport compaction ---------------------------------
+   The drawer is a fixed, non-scrolling column, so on short phones (iPhone SE
+   at 568px, and any 667px device) the middle section has to give up height
+   rather than scroll. Tokens and class names are unchanged; only spacing moves.
+   --------------------------------------------------------------------------- */
+@media (max-height: 740px) {
+  .mobile-nav-header { padding: 13px var(--container-pad); }
+  .mobile-nav .byline--micro { margin-bottom: 10px !important; }
+  .mobile-menu-eyebrow { padding: 12px var(--container-pad) 4px; }
+  .mobile-menu-primary { margin-top: 4px; }
+  .mobile-menu-primary a { padding: 12px var(--container-pad); }
+  .mobile-menu-primary .mm-label { font-size: 18px; }
+  .mobile-menu-section { padding: 14px var(--container-pad) 4px; margin-top: 4px; }
+  .mm-section-label { margin-bottom: 8px; }
+  .mobile-menu-secondary { gap: 6px; }
+  .mobile-menu-secondary a { min-height: 44px; }   /* still a legal tap target */
+  .mobile-menu-cta { padding: 11px var(--container-pad) calc(11px + env(safe-area-inset-bottom, 0px)); }
+  .mm-call, .mm-quote { min-height: 52px; }
+  .mm-license { margin-top: 0; }
+}
+@media (max-height: 640px) {
+  /* iPhone SE class. The meta line under each category and the service-area
+     section are what a thumb does not need in order to navigate; the section
+     collapses WHOLE (label + padding + border), not just its pills. */
+  .mobile-menu-primary .mm-meta { display: none; }
+  .mobile-menu-section:has(.mobile-menu-areas) { display: none; }
+  .mm-license { display: none; }
+  .mobile-nav .byline--micro { display: none; }
+  .mobile-menu-eyebrow { padding-top: 10px; }
+}
+@media (max-height: 560px) {
+  /* landscape phones: quick links go to one compact row of four */
+  .mobile-menu-secondary { grid-template-columns: repeat(4, 1fr); }
+  .mobile-menu-secondary a { min-height: 44px; justify-content: center; padding: 0 6px; font-size: 12px; }
+  .mobile-menu-primary a { padding: 9px var(--container-pad); }
+  .mobile-menu-primary .mm-label { font-size: 16px; }
+}
+/* browsers without :has() still collapse the pills, just not the label */
+@supports not selector(:has(*)) {
+  @media (max-height: 640px) { .mobile-menu-areas { display: none; } }
+}
+
+/* ---------- §D · Breakpoint wiring ------------------------------------------ */
+@media (max-width: 1024px) {
+  /* wordmark reads first on the left; the hamburger moves to the right.
+     The header row is justify-content:space-between, so order alone does it,
+     and no template markup has to change. */
+  .hamburger { display: flex; order: 2; }
+  .desktop-nav { display: none; }
+  .mobile-bottom-bar { display: flex; }
+  body { padding-bottom: 110px; }
+}
+@media (max-width: 640px) {
+  body { padding-bottom: 120px; }
+}

@@ -1,0 +1,139 @@
+/* ============================================================================
+   byline.css  ·  Meridian Generator & Electric, Byline System (LOCKED)
+   ----------------------------------------------------------------------------
+   The byline is brand equity, not SEO copy. Locked wording (do NOT rewrite):
+       "Dealer-grade installs. Owner-direct pricing."
+
+   TREATMENT (locked): "held", a signature amber TICK anchors every standalone
+   placement; first clause = full conviction (ink / white on dark); value clause
+   = the amber differentiator (TWO-TONE, on by default); clauses joined by the
+   amber DOT separator to match the footer copyright + breadcrumb style.
+
+   RULES it enforces:
+     · LOGO ≠ BYLINE. Never weld into the lockup. Desktop header carries NO byline.
+     · Register 1 (eyebrow / micro): mono, letter-spaced, amber dot, NO periods.
+     · Register 2 (spoken): sentence case WITH periods, two-tone. Prose only.
+     · TRINITY: never in <title>, H1, or URL.
+     · TOKENS ONLY, no literal hex. Re-skin from the page-root token block:
+       change --accent / --accent-deep and every register/tick/separator follows.
+
+   USAGE: <link> AFTER the brand styles (same slot as mobile-chrome.css).
+   Do NOT hand-edit per-brand values here, set tokens on the page root instead.
+   ============================================================================ */
+
+/* ---------- shared structure ------------------------------------------------ */
+.byline-clause { white-space: nowrap; }
+.byline-sep    { color: var(--accent); }
+.byline-value  { color: var(--accent-deep); }   /* two-tone default: the amber differentiator */
+
+/* the SIGNATURE TICK, the "held" anchor on every standalone byline */
+.byline-tick {
+  width: 2px;
+  height: 1em;
+  background: var(--accent);
+  border-radius: var(--radius);
+  flex: none;
+}
+
+/* ---------- Register 1 · EYEBROW (hero, above H1) --------------------------- */
+/* R1 is the "held" one-line treatment at EVERY size. nowrap is a base rule, not a
+   mobile override: the binding constraint is usually CONTAINER width (a hero card,
+   a footer column, a drawer), which a viewport media query cannot see. The
+   640/384/344px bands below only step the metrics down. */
+.byline--eyebrow {
+  display: inline-flex;
+  align-items: center;
+  gap: .6em;
+  flex-wrap: nowrap;
+  min-width: 0;
+  max-width: 100%;
+  margin: 0;
+  font-family: var(--font-mono);
+  font-weight: 600;
+  font-size: 12px;
+  letter-spacing: .2em;
+  text-transform: uppercase;
+  color: var(--ink);
+  line-height: 1.4;
+}
+
+/* ---------- Register 1 · MICRO (footer, mobile drawer) ---------------------- */
+.byline--micro {
+  display: inline-flex;
+  align-items: center;
+  gap: .55em;
+  flex-wrap: nowrap;
+  min-width: 0;
+  max-width: 100%;
+  margin: 0;
+  font-family: var(--font-mono);
+  font-weight: 500;
+  font-size: 11px;
+  letter-spacing: .15em;
+  text-transform: uppercase;
+  color: var(--ink2);
+  line-height: 1.5;
+}
+
+/* ---------- Register 2 · SPOKEN (prose · About · meta/OG · cards · GBP) ------ */
+.byline--spoken {
+  margin: 0;
+  font-family: var(--font-body);
+  font-weight: 600;
+  font-size: var(--fs-lede);
+  color: var(--ink);
+  line-height: 1.5;
+}
+.byline--spoken .byline-value { color: var(--accent-deep); }
+
+/* ---------- Optional · DISPLAY (About page slab statement band) ------------- */
+.byline--display {
+  margin: 0;
+  font-family: var(--font-display);
+  font-weight: 800;
+  font-size: clamp(28px, 4vw, 54px);
+  letter-spacing: -.02em;
+  line-height: 1.05;
+  color: #fff;
+}
+.byline--display .byline-value { color: var(--accent); }
+
+/* ---------- MODIFIER · on dark surfaces (--slab): white → amber ------------- */
+.byline--on-dark { color: #E4E8EE; }
+.byline--on-dark .byline-value { color: var(--accent); }
+
+/* ---------- MODIFIER · hairline separator (ALTERNATE, not shipped) ---------
+   Swap the amber dot for a thin amber rule. Kept for future flexibility; the
+   locked kit uses the dot. Add .byline--rule and leave <span class="byline-sep">
+   EMPTY (no ·) when using this variant. */
+.byline--rule .byline-sep {
+  width: 22px;
+  height: 2px;
+  background: var(--accent);
+  color: transparent;
+  border-radius: var(--radius);
+  flex: none;
+}
+.byline--micro.byline--rule .byline-sep { width: 18px; height: 1.5px; }
+
+/* ---------- RESPONSIVE · hold the R1 registers on ONE line on phones ---------
+   The eyebrow/micro registers are mono + uppercase + tracked, i.e. the widest
+   text on the page. On phones we drop the tracking and step the size down so
+   the locked two-clause byline stays a single line, legible down to ~320px
+   (old iPhone SE / small Android). Tokens still drive every color; only the
+   metrics flex here. Base (desktop) rules above are unchanged. */
+@media (max-width: 640px) {
+  .byline--eyebrow { font-size: 11px;   letter-spacing: .06em; gap: .4em; }
+  .byline--micro   { font-size: 10.5px; letter-spacing: .06em; gap: .4em; }
+}
+@media (max-width: 384px) {
+  .byline--eyebrow { font-size: 10px;  letter-spacing: .03em; gap: .35em; }
+  .byline--micro   { font-size: 9.5px; letter-spacing: .03em; gap: .35em; }
+}
+/* genuinely small / older phones (iPhone SE 1st-gen, 5s ~ 320pt).
+   Sized to clear the tightest context: inside .wrap + a card = 64px chrome,
+   leaving ~256px at 320px viewport. These metrics measure ~245px, nowrap. */
+@media (max-width: 344px) {
+  .byline--eyebrow { font-size: 9px; letter-spacing: .01em; gap: .25em; }
+  .byline--micro   { font-size: 9px; letter-spacing: .01em; gap: .25em; }
+}

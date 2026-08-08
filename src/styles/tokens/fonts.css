@@ -1,8 +1,5 @@
-/* ============================================================
-   FONTS — brand values are CLIENT CONFIG (charter §5). Swap this file per client.
-   Archivo (display) · Public Sans (body) · JetBrains Mono (labels/specs)
-   All Google Fonts (no custom brand fonts exist yet). Self-referenced
-   here via the Google Fonts CSS API so the @font-face closure is shipped
-   to consumers. Specimen/screen HTML also <link>s these for reliability.
-   ============================================================ */
-@import url('https://fonts.googleapis.com/css2?family=Archivo:wght@400;500;600;700;800;900&family=Public+Sans:ital,wght@0,400;0,500;0,600;0,700;1,400;1,600&family=JetBrains+Mono:wght@400;500;600&display=swap');
+/* Meridian typefaces: Google-hosted (Archivo / Hanken Grotesk / IBM Plex Mono).
+   No local binaries shipped; consumers load these from Google Fonts at runtime.
+   If you need offline/self-hosted fonts, drop the .woff2 files in assets/fonts/
+   and replace this @import with @font-face rules. */
+@import url('https://fonts.googleapis.com/css2?family=Archivo:wght@500;600;700;800;900&family=Hanken+Grotesk:wght@400;500;600;700&family=IBM+Plex+Mono:wght@400;500;600&display=swap');
