@@ -19,21 +19,22 @@ export const QUOTE_FORM = {
   submitLabel: 'Request my fixed-bid quote →',
   successBody: "We'll review your details and reach out to set up your free on-site assessment and load calculation.",
 
+  // Deliberately minimal: the three contact fields + the intent dropdown are the
+  // only required inputs; the free-text note is optional. Fewer fields = higher
+  // completion, and the crew gets what it needs to call back and scope the job.
   fields: [
     { name: 'name', label: 'Full name', type: 'text', required: true, autocomplete: 'name', placeholder: 'Jordan Miller', wide: true },
     { name: 'phone', label: 'Phone', type: 'tel', required: true, autocomplete: 'tel', placeholder: '(317) 555-0142' },
     { name: 'email', label: 'Email', type: 'email', required: true, autocomplete: 'email', placeholder: 'you@email.com' },
-    { name: 'street_address', label: 'Street address', type: 'text', autocomplete: 'street-address', placeholder: '123 Maple Dr' },
-    { name: 'city', label: 'City', type: 'select', options: ['Fishers', 'Noblesville', 'Carmel', 'Westfield', 'Pendleton', 'Anderson', 'Other'] },
-    { name: 'service', label: 'What do you need?', type: 'select', options: [
+    { name: 'service', label: 'What do you need?', type: 'select', required: true, wide: true, options: [
       'New whole-house generator install',
       'Take-over service / repair (existing unit)',
       '"Bought a house with a generator" inspection',
       'Transfer switch or electrical',
       'Commercial / light-commercial',
-      'Not sure yet, help me figure it out',
+      'Not sure yet — help me figure it out',
     ] },
-    { name: 'message', label: 'Anything else?', type: 'textarea', placeholder: 'Outage history, panel size, HOA notes…', wide: true },
+    { name: 'message', label: 'Anything else? (optional)', type: 'textarea', placeholder: 'Outage history, panel size, HOA notes…', wide: true },
   ],
 
   // General contact consent — required. Deliberately NO "text" here: SMS consent

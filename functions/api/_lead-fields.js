@@ -36,8 +36,6 @@ export const LEAD_FIELDS = [
   { key: 'name', label: 'Name', forward: true, summary: true, contact: true },
   { key: 'phone', label: 'Phone', forward: true, summary: true, contact: true },
   { key: 'email', label: 'Email', forward: true, summary: true, contact: true },
-  { key: 'street_address', label: 'Street address', forward: true, summary: true },
-  { key: 'city', label: 'City', forward: true, summary: true },
   { key: 'service', label: 'Service needed', forward: true, summary: true },
   { key: 'message', label: 'Message', forward: true, summary: true },
 ];
