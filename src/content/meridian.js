@@ -21,10 +21,10 @@
 
 /* ── shared bits ───────────────────────────────────────────────────────────── */
 const PARENTS = {
-  standby: { key: 'standby', label: 'Standby Generator Installation', href: '/category/standby-generator-installation/', short: 'standby installs' },
-  service: { key: 'service', label: 'Generator Service & Take-Over', href: '/category/generator-service-repair/', short: 'service & take-over' },
-  transfer: { key: 'transfer', label: 'Transfer Switches & Electrical', href: '/category/transfer-switch-installation/', short: 'transfer & electrical' },
-  commercial: { key: 'commercial', label: 'Commercial Standby', href: '/category/commercial-standby-generators/', short: 'commercial standby' },
+  standby: { key: 'standby', label: 'Standby Generator Installation', href: '/standby-generator-installation/', short: 'standby installs' },
+  service: { key: 'service', label: 'Generator Service & Take-Over', href: '/generator-service-repair/', short: 'service & take-over' },
+  transfer: { key: 'transfer', label: 'Transfer Switches & Electrical', href: '/transfer-switch-installation/', short: 'transfer & electrical' },
+  commercial: { key: 'commercial', label: 'Commercial Standby', href: '/commercial-standby-generators/', short: 'commercial standby' },
 };
 
 // Core30 rule 6 — one external authority per page. NFPA 70 (NEC) Article 702 is
@@ -77,43 +77,43 @@ export const CATEGORIES = [
       intro:
         "Generator size is set by the load you want to keep running, not your home's square footage. Use this as a starting point, then we'll confirm the exact fit with an on-site NEC 220 load calculation before you commit to anything.",
       rows: [
-        { size: '22 kW', tag: 'MOST POPULAR', best: 'Most Fishers / Noblesville homes', runs: 'Whole house on natural gas: A/C, furnace, well/sump pump, kitchen, living circuits.', href: '/service/22kw-whole-house-generator-installation/', featured: true },
-        { size: '24–26 kW', best: 'Large & high-demand homes', runs: 'Electric heat, two HVAC systems, EV charging, 2,500+ sq ft.', href: '/service/24-26kw-generator-installation/' },
-        { size: '18 kW', best: 'Mid-size & older homes', runs: 'Whole-home with a Smart Management Module shedding peak loads.', href: '/service/18kw-standby-generator-installation/' },
-        { size: '14 kW', best: 'Smaller homes, gas heat', runs: 'Entry whole-home with load management on the essentials.', href: '/service/14kw-standby-generator-installation/' },
-        { size: '10 kW', best: 'The essentials only', runs: 'Fridge, sump pump, furnace blower, and a handful of critical circuits.', href: '/service/10kw-essential-circuit-generator-installation/' },
+        { size: '22 kW', tag: 'MOST POPULAR', best: 'Most Fishers / Noblesville homes', runs: 'Whole house on natural gas: A/C, furnace, well/sump pump, kitchen, living circuits.', href: '/22kw-whole-house-generator-installation/', featured: true },
+        { size: '24–26 kW', best: 'Large & high-demand homes', runs: 'Electric heat, two HVAC systems, EV charging, 2,500+ sq ft.', href: '/24-26kw-generator-installation/' },
+        { size: '18 kW', best: 'Mid-size & older homes', runs: 'Whole-home with a Smart Management Module shedding peak loads.', href: '/18kw-standby-generator-installation/' },
+        { size: '14 kW', best: 'Smaller homes, gas heat', runs: 'Entry whole-home with load management on the essentials.', href: '/14kw-standby-generator-installation/' },
+        { size: '10 kW', best: 'The essentials only', runs: 'Fridge, sump pump, furnace blower, and a handful of critical circuits.', href: '/10kw-essential-circuit-generator-installation/' },
       ],
     },
     childGroups: [
       {
         n: '01', title: 'Whole-home standby, by size',
         cards: [
-          { href: '/service/22kw-whole-house-generator-installation/', tag: 'MOST POPULAR', h: '22 kW Whole-House', p: 'The best-selling size for most Fishers homes.' },
-          { href: '/service/24-26kw-generator-installation/', tag: 'LARGE HOMES', h: '24–26 kW', p: 'Electric heat, multiple HVAC, EV charging.' },
-          { href: '/service/18kw-standby-generator-installation/', tag: 'MID-RANGE', h: '18 kW', p: 'Older or mid-size homes with load management.' },
-          { href: '/service/14kw-standby-generator-installation/', tag: 'ENTRY', h: '14 kW', p: 'Entry whole-home with smart load-shedding.' },
-          { href: '/service/10kw-essential-circuit-generator-installation/', tag: 'ESSENTIALS', h: '10 kW Essential-Circuit', p: 'Honestly-sized backup for the essentials.' },
+          { href: '/22kw-whole-house-generator-installation/', tag: 'MOST POPULAR', h: '22 kW Whole-House', p: 'The best-selling size for most Fishers homes.' },
+          { href: '/24-26kw-generator-installation/', tag: 'LARGE HOMES', h: '24–26 kW', p: 'Electric heat, multiple HVAC, EV charging.' },
+          { href: '/18kw-standby-generator-installation/', tag: 'MID-RANGE', h: '18 kW', p: 'Older or mid-size homes with load management.' },
+          { href: '/14kw-standby-generator-installation/', tag: 'ENTRY', h: '14 kW', p: 'Entry whole-home with smart load-shedding.' },
+          { href: '/10kw-essential-circuit-generator-installation/', tag: 'ESSENTIALS', h: '10 kW Essential-Circuit', p: 'Honestly-sized backup for the essentials.' },
         ],
       },
       {
         n: '02', title: 'Fuel & site prep',
         cards: [
-          { href: '/service/natural-gas-generator-installation/', tag: 'MOST COMMON', h: 'Natural-Gas Install', p: 'The default across developed Fishers/Noblesville.' },
-          { href: '/service/propane-generator-installation/', tag: 'RURAL', h: 'Propane (LP) Install', p: 'With tank coordination for rural Madison County.' },
-          { href: '/service/gas-line-installation-upsizing/', tag: 'PRE-INSTALL', h: 'Gas-Line & Meter Upsizing', p: 'So an undersized meter never starves the unit.' },
-          { href: '/service/electrical-panel-service-upgrade/', tag: 'PRE-INSTALL', h: 'Panel / Service Upgrade', p: 'Bring the load center up to spec for standby.' },
-          { href: '/service/generator-concrete-pad-installation/', tag: 'SITE', h: 'Pad Installation', p: 'Code-clearance composite pad, level and anchored.' },
+          { href: '/natural-gas-generator-installation/', tag: 'MOST COMMON', h: 'Natural-Gas Install', p: 'The default across developed Fishers/Noblesville.' },
+          { href: '/propane-generator-installation/', tag: 'RURAL', h: 'Propane (LP) Install', p: 'With tank coordination for rural Madison County.' },
+          { href: '/gas-line-installation-upsizing/', tag: 'PRE-INSTALL', h: 'Gas-Line & Meter Upsizing', p: 'So an undersized meter never starves the unit.' },
+          { href: '/electrical-panel-service-upgrade/', tag: 'PRE-INSTALL', h: 'Panel / Service Upgrade', p: 'Bring the load center up to spec for standby.' },
+          { href: '/generator-concrete-pad-installation/', tag: 'SITE', h: 'Pad Installation', p: 'Code-clearance composite pad, level and anchored.' },
         ],
       },
       {
         n: '03', title: 'Backup by need',
         cards: [
-          { href: '/service/sump-pump-backup-generator/', h: 'Sump-Pump Backup' },
-          { href: '/service/medical-equipment-backup-generator/', h: 'Medical-Equipment Backup' },
-          { href: '/service/ev-charger-backup-generator/', h: 'EV-Charger Backup' },
-          { href: '/service/well-pump-backup-generator/', h: 'Well-Pump Backup' },
-          { href: '/service/furnace-hvac-backup-generator/', h: 'Furnace & HVAC Backup' },
-          { href: '/service/food-storage-backup-generator/', h: 'Food-Storage Backup' },
+          { href: '/sump-pump-backup-generator/', h: 'Sump-Pump Backup' },
+          { href: '/medical-equipment-backup-generator/', h: 'Medical-Equipment Backup' },
+          { href: '/ev-charger-backup-generator/', h: 'EV-Charger Backup' },
+          { href: '/well-pump-backup-generator/', h: 'Well-Pump Backup' },
+          { href: '/furnace-hvac-backup-generator/', h: 'Furnace & HVAC Backup' },
+          { href: '/food-storage-backup-generator/', h: 'Food-Storage Backup' },
         ],
       },
     ],
@@ -138,16 +138,16 @@ export const CATEGORIES = [
       {
         n: '01', title: 'Service, repair & take-over',
         cards: [
-          { href: '/service/generac-take-over-service/', tag: 'MOST REQUESTED', h: 'Generac Take-Over Service', p: 'Adopt an orphaned unit for warranty-compliant service.' },
-          { href: '/service/bought-a-house-with-a-generator-inspection/', tag: 'NEW OWNER', h: '"Bought a House" Inspection', p: 'Confirm it runs and transfers under load.' },
-          { href: '/service/generator-yellow-light-diagnostic/', tag: 'FAULT CODE', h: 'Yellow-Light Diagnostic', p: 'Read the Evolution controller and clear the fault.' },
-          { href: '/service/annual-generator-maintenance-plan/', h: 'Annual Maintenance Plan', p: 'Scheduled service for units we installed.' },
-          { href: '/service/orphaned-generator-maintenance-plan/', h: 'Take-Over Maintenance Plan', p: 'Scheduled service for any installer’s unit.' },
-          { href: '/service/generator-battery-replacement/', h: 'Battery Replacement', p: 'The #1 reason a standby unit fails to start.' },
-          { href: '/service/remote-monitoring-mobile-link-setup/', h: 'Mobile Link Setup', p: 'Remote monitoring so you know before it fails.' },
-          { href: '/service/generator-repair-vs-replace-evaluation/', h: 'Repair-vs-Replace Evaluation', p: 'An honest call on an aging unit.' },
-          { href: '/service/kohler-generator-service/', h: 'Kohler Generator Service', p: 'Cross-brand take-over service.' },
-          { href: '/service/briggs-honeywell-generator-service/', h: 'Briggs / Honeywell Service', p: 'Cross-brand take-over service.' },
+          { href: '/generac-take-over-service/', tag: 'MOST REQUESTED', h: 'Generac Take-Over Service', p: 'Adopt an orphaned unit for warranty-compliant service.' },
+          { href: '/bought-a-house-with-a-generator-inspection/', tag: 'NEW OWNER', h: '"Bought a House" Inspection', p: 'Confirm it runs and transfers under load.' },
+          { href: '/generator-yellow-light-diagnostic/', tag: 'FAULT CODE', h: 'Yellow-Light Diagnostic', p: 'Read the Evolution controller and clear the fault.' },
+          { href: '/annual-generator-maintenance-plan/', h: 'Annual Maintenance Plan', p: 'Scheduled service for units we installed.' },
+          { href: '/orphaned-generator-maintenance-plan/', h: 'Take-Over Maintenance Plan', p: 'Scheduled service for any installer’s unit.' },
+          { href: '/generator-battery-replacement/', h: 'Battery Replacement', p: 'The #1 reason a standby unit fails to start.' },
+          { href: '/remote-monitoring-mobile-link-setup/', h: 'Mobile Link Setup', p: 'Remote monitoring so you know before it fails.' },
+          { href: '/generator-repair-vs-replace-evaluation/', h: 'Repair-vs-Replace Evaluation', p: 'An honest call on an aging unit.' },
+          { href: '/kohler-generator-service/', h: 'Kohler Generator Service', p: 'Cross-brand take-over service.' },
+          { href: '/briggs-honeywell-generator-service/', h: 'Briggs / Honeywell Service', p: 'Cross-brand take-over service.' },
         ],
       },
     ],
@@ -172,13 +172,13 @@ export const CATEGORIES = [
       {
         n: '01', title: 'Transfer switches & electrical',
         cards: [
-          { href: '/service/automatic-transfer-switch-installation/', tag: 'CORE', h: 'Automatic Transfer Switch', p: 'The switch that makes backup automatic.' },
-          { href: '/service/service-rated-transfer-switch/', h: 'Service-Rated Transfer Switch', p: 'Combines service disconnect and transfer.' },
-          { href: '/service/smart-management-module-load-shedding/', h: 'Smart Management Module', p: 'Load-shedding so a right-sized unit runs the home.' },
-          { href: '/service/200-amp-transfer-switch/', h: '200-Amp Transfer Switch', p: 'The common whole-home service size.' },
-          { href: '/service/whole-home-vs-managed-load-transfer-switch/', h: 'Whole-Home vs Managed-Load', p: 'Which switch strategy fits your panel.' },
-          { href: '/service/sub-panel-installation/', h: 'Generator Sub-Panel', p: 'A dedicated panel for backed-up circuits.' },
-          { href: '/service/nec-220-load-calculation/', h: 'NEC 220 Load Calculation', p: 'The math that sizes everything correctly.' },
+          { href: '/automatic-transfer-switch-installation/', tag: 'CORE', h: 'Automatic Transfer Switch', p: 'The switch that makes backup automatic.' },
+          { href: '/service-rated-transfer-switch/', h: 'Service-Rated Transfer Switch', p: 'Combines service disconnect and transfer.' },
+          { href: '/smart-management-module-load-shedding/', h: 'Smart Management Module', p: 'Load-shedding so a right-sized unit runs the home.' },
+          { href: '/200-amp-transfer-switch/', h: '200-Amp Transfer Switch', p: 'The common whole-home service size.' },
+          { href: '/whole-home-vs-managed-load-transfer-switch/', h: 'Whole-Home vs Managed-Load', p: 'Which switch strategy fits your panel.' },
+          { href: '/sub-panel-installation/', h: 'Generator Sub-Panel', p: 'A dedicated panel for backed-up circuits.' },
+          { href: '/nec-220-load-calculation/', h: 'NEC 220 Load Calculation', p: 'The math that sizes everything correctly.' },
         ],
       },
     ],
@@ -203,14 +203,14 @@ export const CATEGORIES = [
       {
         n: '01', title: 'Commercial & light-commercial standby',
         cards: [
-          { href: '/service/restaurant-backup-generator/', tag: 'FOOD SERVICE', h: 'Restaurant Backup', p: 'Keep refrigeration, lighting, and POS up.' },
-          { href: '/service/daycare-backup-generator/', tag: 'CONTINUITY', h: 'Daycare & Preschool Backup', p: 'Heat, lighting, and refrigeration continuity.' },
-          { href: '/service/medical-dental-backup-generator/', tag: 'COLD CHAIN', h: 'Medical & Dental Backup', p: 'Protect the cold chain and keep seeing patients.' },
-          { href: '/service/nfpa-110-generator-maintenance-load-bank-testing/', h: 'NFPA 110 Maintenance & Load-Bank', p: 'Scheduled testing for compliant standby.' },
-          { href: '/service/light-commercial-generator-installation/', h: 'Light-Commercial Install (30–60 kW NG)', p: 'Natural-gas systems for small business.' },
-          { href: '/service/veterinary-clinic-backup-generator/', h: 'Veterinary Clinic Backup', p: 'Surgery, recovery, and refrigeration.' },
-          { href: '/service/self-storage-backup-generator/', h: 'Self-Storage Backup', p: 'Gates, climate control, and security.' },
-          { href: '/service/convenience-store-backup-generator/', h: 'Convenience Store Backup', p: 'Coolers, pumps, and registers.' },
+          { href: '/restaurant-backup-generator/', tag: 'FOOD SERVICE', h: 'Restaurant Backup', p: 'Keep refrigeration, lighting, and POS up.' },
+          { href: '/daycare-backup-generator/', tag: 'CONTINUITY', h: 'Daycare & Preschool Backup', p: 'Heat, lighting, and refrigeration continuity.' },
+          { href: '/medical-dental-backup-generator/', tag: 'COLD CHAIN', h: 'Medical & Dental Backup', p: 'Protect the cold chain and keep seeing patients.' },
+          { href: '/nfpa-110-generator-maintenance-load-bank-testing/', h: 'NFPA 110 Maintenance & Load-Bank', p: 'Scheduled testing for compliant standby.' },
+          { href: '/light-commercial-generator-installation/', h: 'Light-Commercial Install (30–60 kW NG)', p: 'Natural-gas systems for small business.' },
+          { href: '/veterinary-clinic-backup-generator/', h: 'Veterinary Clinic Backup', p: 'Surgery, recovery, and refrigeration.' },
+          { href: '/self-storage-backup-generator/', h: 'Self-Storage Backup', p: 'Gates, climate control, and security.' },
+          { href: '/convenience-store-backup-generator/', h: 'Convenience Store Backup', p: 'Coolers, pumps, and registers.' },
         ],
       },
     ],
@@ -277,9 +277,9 @@ export const SERVICES = [
       ],
     },
     related: [
-      { href: '/service/24-26kw-generator-installation/', label: '24–26 kW Installation' },
-      { href: '/service/natural-gas-generator-installation/', label: 'Natural-Gas Install' },
-      { href: '/service/automatic-transfer-switch-installation/', label: 'Automatic Transfer Switch' },
+      { href: '/24-26kw-generator-installation/', label: '24–26 kW Installation' },
+      { href: '/natural-gas-generator-installation/', label: 'Natural-Gas Install' },
+      { href: '/automatic-transfer-switch-installation/', label: 'Automatic Transfer Switch' },
     ],
   }),
   svc({
@@ -305,8 +305,8 @@ export const SERVICES = [
       ],
     },
     related: [
-      { href: '/service/22kw-whole-house-generator-installation/', label: '22 kW Whole-House' },
-      { href: '/service/smart-management-module-load-shedding/', label: 'Smart Management Module' },
+      { href: '/22kw-whole-house-generator-installation/', label: '22 kW Whole-House' },
+      { href: '/smart-management-module-load-shedding/', label: 'Smart Management Module' },
     ],
   }),
   svc({
@@ -326,8 +326,8 @@ export const SERVICES = [
       ],
     },
     related: [
-      { href: '/service/22kw-whole-house-generator-installation/', label: '22 kW Whole-House' },
-      { href: '/service/14kw-standby-generator-installation/', label: '14 kW Standby' },
+      { href: '/22kw-whole-house-generator-installation/', label: '22 kW Whole-House' },
+      { href: '/14kw-standby-generator-installation/', label: '14 kW Standby' },
     ],
   }),
   svc({
@@ -347,8 +347,8 @@ export const SERVICES = [
       ],
     },
     related: [
-      { href: '/service/18kw-standby-generator-installation/', label: '18 kW Standby' },
-      { href: '/service/10kw-essential-circuit-generator-installation/', label: '10 kW Essential-Circuit' },
+      { href: '/18kw-standby-generator-installation/', label: '18 kW Standby' },
+      { href: '/10kw-essential-circuit-generator-installation/', label: '10 kW Essential-Circuit' },
     ],
   }),
   svc({
@@ -368,8 +368,8 @@ export const SERVICES = [
       ],
     },
     related: [
-      { href: '/service/14kw-standby-generator-installation/', label: '14 kW Standby' },
-      { href: '/service/sump-pump-backup-generator/', label: 'Sump-Pump Backup' },
+      { href: '/14kw-standby-generator-installation/', label: '14 kW Standby' },
+      { href: '/sump-pump-backup-generator/', label: 'Sump-Pump Backup' },
     ],
   }),
 
@@ -410,9 +410,9 @@ export const SERVICES = [
       ],
     },
     related: [
-      { href: '/service/22kw-whole-house-generator-installation/', label: '22 kW Whole-House' },
-      { href: '/service/propane-generator-installation/', label: 'Propane (LP) Install' },
-      { href: '/service/gas-line-installation-upsizing/', label: 'Gas-Line & Meter Upsizing' },
+      { href: '/22kw-whole-house-generator-installation/', label: '22 kW Whole-House' },
+      { href: '/propane-generator-installation/', label: 'Propane (LP) Install' },
+      { href: '/gas-line-installation-upsizing/', label: 'Gas-Line & Meter Upsizing' },
     ],
   }),
   svc({
@@ -432,8 +432,8 @@ export const SERVICES = [
       ],
     },
     related: [
-      { href: '/service/natural-gas-generator-installation/', label: 'Natural-Gas Install' },
-      { href: '/service/22kw-whole-house-generator-installation/', label: '22 kW Whole-House' },
+      { href: '/natural-gas-generator-installation/', label: 'Natural-Gas Install' },
+      { href: '/22kw-whole-house-generator-installation/', label: '22 kW Whole-House' },
     ],
   }),
   svc({
@@ -453,8 +453,8 @@ export const SERVICES = [
       ],
     },
     related: [
-      { href: '/service/natural-gas-generator-installation/', label: 'Natural-Gas Install' },
-      { href: '/service/electrical-panel-service-upgrade/', label: 'Panel / Service Upgrade' },
+      { href: '/natural-gas-generator-installation/', label: 'Natural-Gas Install' },
+      { href: '/electrical-panel-service-upgrade/', label: 'Panel / Service Upgrade' },
     ],
   }),
   svc({
@@ -474,8 +474,8 @@ export const SERVICES = [
       ],
     },
     related: [
-      { href: '/service/sub-panel-installation/', label: 'Generator Sub-Panel' },
-      { href: '/service/200-amp-transfer-switch/', label: '200-Amp Transfer Switch' },
+      { href: '/sub-panel-installation/', label: 'Generator Sub-Panel' },
+      { href: '/200-amp-transfer-switch/', label: '200-Amp Transfer Switch' },
     ],
   }),
   svc({
@@ -495,8 +495,8 @@ export const SERVICES = [
       ],
     },
     related: [
-      { href: '/service/22kw-whole-house-generator-installation/', label: '22 kW Whole-House' },
-      { href: '/service/gas-line-installation-upsizing/', label: 'Gas-Line & Meter Upsizing' },
+      { href: '/22kw-whole-house-generator-installation/', label: '22 kW Whole-House' },
+      { href: '/gas-line-installation-upsizing/', label: 'Gas-Line & Meter Upsizing' },
     ],
   }),
 
@@ -518,8 +518,8 @@ export const SERVICES = [
       ],
     },
     related: [
-      { href: '/service/well-pump-backup-generator/', label: 'Well-Pump Backup' },
-      { href: '/service/10kw-essential-circuit-generator-installation/', label: '10 kW Essential-Circuit' },
+      { href: '/well-pump-backup-generator/', label: 'Well-Pump Backup' },
+      { href: '/10kw-essential-circuit-generator-installation/', label: '10 kW Essential-Circuit' },
     ],
   }),
   svc({
@@ -539,8 +539,8 @@ export const SERVICES = [
       ],
     },
     related: [
-      { href: '/service/22kw-whole-house-generator-installation/', label: '22 kW Whole-House' },
-      { href: '/service/remote-monitoring-mobile-link-setup/', label: 'Mobile Link Setup' },
+      { href: '/22kw-whole-house-generator-installation/', label: '22 kW Whole-House' },
+      { href: '/remote-monitoring-mobile-link-setup/', label: 'Mobile Link Setup' },
     ],
   }),
   svc({
@@ -560,8 +560,8 @@ export const SERVICES = [
       ],
     },
     related: [
-      { href: '/service/24-26kw-generator-installation/', label: '24–26 kW Installation' },
-      { href: '/service/smart-management-module-load-shedding/', label: 'Smart Management Module' },
+      { href: '/24-26kw-generator-installation/', label: '24–26 kW Installation' },
+      { href: '/smart-management-module-load-shedding/', label: 'Smart Management Module' },
     ],
   }),
   svc({
@@ -581,8 +581,8 @@ export const SERVICES = [
       ],
     },
     related: [
-      { href: '/service/sump-pump-backup-generator/', label: 'Sump-Pump Backup' },
-      { href: '/service/propane-generator-installation/', label: 'Propane (LP) Install' },
+      { href: '/sump-pump-backup-generator/', label: 'Sump-Pump Backup' },
+      { href: '/propane-generator-installation/', label: 'Propane (LP) Install' },
     ],
   }),
   svc({
@@ -602,8 +602,8 @@ export const SERVICES = [
       ],
     },
     related: [
-      { href: '/service/22kw-whole-house-generator-installation/', label: '22 kW Whole-House' },
-      { href: '/service/smart-management-module-load-shedding/', label: 'Smart Management Module' },
+      { href: '/22kw-whole-house-generator-installation/', label: '22 kW Whole-House' },
+      { href: '/smart-management-module-load-shedding/', label: 'Smart Management Module' },
     ],
   }),
   svc({
@@ -623,8 +623,8 @@ export const SERVICES = [
       ],
     },
     related: [
-      { href: '/service/10kw-essential-circuit-generator-installation/', label: '10 kW Essential-Circuit' },
-      { href: '/service/sump-pump-backup-generator/', label: 'Sump-Pump Backup' },
+      { href: '/10kw-essential-circuit-generator-installation/', label: '10 kW Essential-Circuit' },
+      { href: '/sump-pump-backup-generator/', label: 'Sump-Pump Backup' },
     ],
   }),
 
@@ -651,9 +651,9 @@ export const SERVICES = [
       ],
     },
     related: [
-      { href: '/service/bought-a-house-with-a-generator-inspection/', label: '"Bought a House" Inspection' },
-      { href: '/service/generator-yellow-light-diagnostic/', label: 'Yellow-Light Diagnostic' },
-      { href: '/service/orphaned-generator-maintenance-plan/', label: 'Take-Over Maintenance Plan' },
+      { href: '/bought-a-house-with-a-generator-inspection/', label: '"Bought a House" Inspection' },
+      { href: '/generator-yellow-light-diagnostic/', label: 'Yellow-Light Diagnostic' },
+      { href: '/orphaned-generator-maintenance-plan/', label: 'Take-Over Maintenance Plan' },
     ],
   }),
   svc({
@@ -673,8 +673,8 @@ export const SERVICES = [
       ],
     },
     related: [
-      { href: '/service/generac-take-over-service/', label: 'Generac Take-Over Service' },
-      { href: '/service/annual-generator-maintenance-plan/', label: 'Annual Maintenance Plan' },
+      { href: '/generac-take-over-service/', label: 'Generac Take-Over Service' },
+      { href: '/annual-generator-maintenance-plan/', label: 'Annual Maintenance Plan' },
     ],
   }),
   svc({
@@ -694,8 +694,8 @@ export const SERVICES = [
       ],
     },
     related: [
-      { href: '/service/generator-battery-replacement/', label: 'Battery Replacement' },
-      { href: '/service/generac-take-over-service/', label: 'Generac Take-Over Service' },
+      { href: '/generator-battery-replacement/', label: 'Battery Replacement' },
+      { href: '/generac-take-over-service/', label: 'Generac Take-Over Service' },
     ],
   }),
   svc({
@@ -715,8 +715,8 @@ export const SERVICES = [
       ],
     },
     related: [
-      { href: '/service/orphaned-generator-maintenance-plan/', label: 'Take-Over Maintenance Plan' },
-      { href: '/service/generator-battery-replacement/', label: 'Battery Replacement' },
+      { href: '/orphaned-generator-maintenance-plan/', label: 'Take-Over Maintenance Plan' },
+      { href: '/generator-battery-replacement/', label: 'Battery Replacement' },
     ],
   }),
   svc({
@@ -736,8 +736,8 @@ export const SERVICES = [
       ],
     },
     related: [
-      { href: '/service/generac-take-over-service/', label: 'Generac Take-Over Service' },
-      { href: '/service/annual-generator-maintenance-plan/', label: 'Annual Maintenance Plan' },
+      { href: '/generac-take-over-service/', label: 'Generac Take-Over Service' },
+      { href: '/annual-generator-maintenance-plan/', label: 'Annual Maintenance Plan' },
     ],
   }),
   svc({
@@ -757,8 +757,8 @@ export const SERVICES = [
       ],
     },
     related: [
-      { href: '/service/generator-yellow-light-diagnostic/', label: 'Yellow-Light Diagnostic' },
-      { href: '/service/annual-generator-maintenance-plan/', label: 'Annual Maintenance Plan' },
+      { href: '/generator-yellow-light-diagnostic/', label: 'Yellow-Light Diagnostic' },
+      { href: '/annual-generator-maintenance-plan/', label: 'Annual Maintenance Plan' },
     ],
   }),
   svc({
@@ -778,8 +778,8 @@ export const SERVICES = [
       ],
     },
     related: [
-      { href: '/service/annual-generator-maintenance-plan/', label: 'Annual Maintenance Plan' },
-      { href: '/service/generac-take-over-service/', label: 'Generac Take-Over Service' },
+      { href: '/annual-generator-maintenance-plan/', label: 'Annual Maintenance Plan' },
+      { href: '/generac-take-over-service/', label: 'Generac Take-Over Service' },
     ],
   }),
   svc({
@@ -799,8 +799,8 @@ export const SERVICES = [
       ],
     },
     related: [
-      { href: '/service/generac-take-over-service/', label: 'Generac Take-Over Service' },
-      { href: '/service/22kw-whole-house-generator-installation/', label: '22 kW Whole-House' },
+      { href: '/generac-take-over-service/', label: 'Generac Take-Over Service' },
+      { href: '/22kw-whole-house-generator-installation/', label: '22 kW Whole-House' },
     ],
   }),
   svc({
@@ -820,8 +820,8 @@ export const SERVICES = [
       ],
     },
     related: [
-      { href: '/service/briggs-honeywell-generator-service/', label: 'Briggs / Honeywell Service' },
-      { href: '/service/generator-repair-vs-replace-evaluation/', label: 'Repair-vs-Replace Evaluation' },
+      { href: '/briggs-honeywell-generator-service/', label: 'Briggs / Honeywell Service' },
+      { href: '/generator-repair-vs-replace-evaluation/', label: 'Repair-vs-Replace Evaluation' },
     ],
   }),
   svc({
@@ -841,8 +841,8 @@ export const SERVICES = [
       ],
     },
     related: [
-      { href: '/service/kohler-generator-service/', label: 'Kohler Generator Service' },
-      { href: '/service/generator-repair-vs-replace-evaluation/', label: 'Repair-vs-Replace Evaluation' },
+      { href: '/kohler-generator-service/', label: 'Kohler Generator Service' },
+      { href: '/generator-repair-vs-replace-evaluation/', label: 'Repair-vs-Replace Evaluation' },
     ],
   }),
 
@@ -870,9 +870,9 @@ export const SERVICES = [
       ],
     },
     related: [
-      { href: '/service/service-rated-transfer-switch/', label: 'Service-Rated Transfer Switch' },
-      { href: '/service/200-amp-transfer-switch/', label: '200-Amp Transfer Switch' },
-      { href: '/service/smart-management-module-load-shedding/', label: 'Smart Management Module' },
+      { href: '/service-rated-transfer-switch/', label: 'Service-Rated Transfer Switch' },
+      { href: '/200-amp-transfer-switch/', label: '200-Amp Transfer Switch' },
+      { href: '/smart-management-module-load-shedding/', label: 'Smart Management Module' },
     ],
   }),
   svc({
@@ -892,8 +892,8 @@ export const SERVICES = [
       ],
     },
     related: [
-      { href: '/service/automatic-transfer-switch-installation/', label: 'Automatic Transfer Switch' },
-      { href: '/service/200-amp-transfer-switch/', label: '200-Amp Transfer Switch' },
+      { href: '/automatic-transfer-switch-installation/', label: 'Automatic Transfer Switch' },
+      { href: '/200-amp-transfer-switch/', label: '200-Amp Transfer Switch' },
     ],
   }),
   svc({
@@ -913,8 +913,8 @@ export const SERVICES = [
       ],
     },
     related: [
-      { href: '/service/whole-home-vs-managed-load-transfer-switch/', label: 'Whole-Home vs Managed-Load' },
-      { href: '/service/18kw-standby-generator-installation/', label: '18 kW Standby' },
+      { href: '/whole-home-vs-managed-load-transfer-switch/', label: 'Whole-Home vs Managed-Load' },
+      { href: '/18kw-standby-generator-installation/', label: '18 kW Standby' },
     ],
   }),
   svc({
@@ -934,8 +934,8 @@ export const SERVICES = [
       ],
     },
     related: [
-      { href: '/service/service-rated-transfer-switch/', label: 'Service-Rated Transfer Switch' },
-      { href: '/service/electrical-panel-service-upgrade/', label: 'Panel / Service Upgrade' },
+      { href: '/service-rated-transfer-switch/', label: 'Service-Rated Transfer Switch' },
+      { href: '/electrical-panel-service-upgrade/', label: 'Panel / Service Upgrade' },
     ],
   }),
   svc({
@@ -955,8 +955,8 @@ export const SERVICES = [
       ],
     },
     related: [
-      { href: '/service/smart-management-module-load-shedding/', label: 'Smart Management Module' },
-      { href: '/service/automatic-transfer-switch-installation/', label: 'Automatic Transfer Switch' },
+      { href: '/smart-management-module-load-shedding/', label: 'Smart Management Module' },
+      { href: '/automatic-transfer-switch-installation/', label: 'Automatic Transfer Switch' },
     ],
   }),
   svc({
@@ -976,8 +976,8 @@ export const SERVICES = [
       ],
     },
     related: [
-      { href: '/service/electrical-panel-service-upgrade/', label: 'Panel / Service Upgrade' },
-      { href: '/service/10kw-essential-circuit-generator-installation/', label: '10 kW Essential-Circuit' },
+      { href: '/electrical-panel-service-upgrade/', label: 'Panel / Service Upgrade' },
+      { href: '/10kw-essential-circuit-generator-installation/', label: '10 kW Essential-Circuit' },
     ],
   }),
   svc({
@@ -997,8 +997,8 @@ export const SERVICES = [
       ],
     },
     related: [
-      { href: '/service/22kw-whole-house-generator-installation/', label: '22 kW Whole-House' },
-      { href: '/service/electrical-panel-service-upgrade/', label: 'Panel / Service Upgrade' },
+      { href: '/22kw-whole-house-generator-installation/', label: '22 kW Whole-House' },
+      { href: '/electrical-panel-service-upgrade/', label: 'Panel / Service Upgrade' },
     ],
   }),
 
@@ -1020,8 +1020,8 @@ export const SERVICES = [
       ],
     },
     related: [
-      { href: '/service/light-commercial-generator-installation/', label: 'Light-Commercial Install' },
-      { href: '/service/convenience-store-backup-generator/', label: 'Convenience Store Backup' },
+      { href: '/light-commercial-generator-installation/', label: 'Light-Commercial Install' },
+      { href: '/convenience-store-backup-generator/', label: 'Convenience Store Backup' },
     ],
   }),
   svc({
@@ -1041,8 +1041,8 @@ export const SERVICES = [
       ],
     },
     related: [
-      { href: '/service/medical-dental-backup-generator/', label: 'Medical & Dental Backup' },
-      { href: '/service/light-commercial-generator-installation/', label: 'Light-Commercial Install' },
+      { href: '/medical-dental-backup-generator/', label: 'Medical & Dental Backup' },
+      { href: '/light-commercial-generator-installation/', label: 'Light-Commercial Install' },
     ],
   }),
   svc({
@@ -1062,8 +1062,8 @@ export const SERVICES = [
       ],
     },
     related: [
-      { href: '/service/veterinary-clinic-backup-generator/', label: 'Veterinary Clinic Backup' },
-      { href: '/service/nfpa-110-generator-maintenance-load-bank-testing/', label: 'NFPA 110 Maintenance' },
+      { href: '/veterinary-clinic-backup-generator/', label: 'Veterinary Clinic Backup' },
+      { href: '/nfpa-110-generator-maintenance-load-bank-testing/', label: 'NFPA 110 Maintenance' },
     ],
   }),
   svc({
@@ -1084,8 +1084,8 @@ export const SERVICES = [
       ],
     },
     related: [
-      { href: '/service/light-commercial-generator-installation/', label: 'Light-Commercial Install' },
-      { href: '/service/annual-generator-maintenance-plan/', label: 'Annual Maintenance Plan' },
+      { href: '/light-commercial-generator-installation/', label: 'Light-Commercial Install' },
+      { href: '/annual-generator-maintenance-plan/', label: 'Annual Maintenance Plan' },
     ],
   }),
   svc({
@@ -1105,8 +1105,8 @@ export const SERVICES = [
       ],
     },
     related: [
-      { href: '/service/restaurant-backup-generator/', label: 'Restaurant Backup' },
-      { href: '/service/nfpa-110-generator-maintenance-load-bank-testing/', label: 'NFPA 110 Maintenance' },
+      { href: '/restaurant-backup-generator/', label: 'Restaurant Backup' },
+      { href: '/nfpa-110-generator-maintenance-load-bank-testing/', label: 'NFPA 110 Maintenance' },
     ],
   }),
   svc({
@@ -1126,8 +1126,8 @@ export const SERVICES = [
       ],
     },
     related: [
-      { href: '/service/medical-dental-backup-generator/', label: 'Medical & Dental Backup' },
-      { href: '/service/light-commercial-generator-installation/', label: 'Light-Commercial Install' },
+      { href: '/medical-dental-backup-generator/', label: 'Medical & Dental Backup' },
+      { href: '/light-commercial-generator-installation/', label: 'Light-Commercial Install' },
     ],
   }),
   svc({
@@ -1147,8 +1147,8 @@ export const SERVICES = [
       ],
     },
     related: [
-      { href: '/service/convenience-store-backup-generator/', label: 'Convenience Store Backup' },
-      { href: '/service/light-commercial-generator-installation/', label: 'Light-Commercial Install' },
+      { href: '/convenience-store-backup-generator/', label: 'Convenience Store Backup' },
+      { href: '/light-commercial-generator-installation/', label: 'Light-Commercial Install' },
     ],
   }),
   svc({
@@ -1168,8 +1168,8 @@ export const SERVICES = [
       ],
     },
     related: [
-      { href: '/service/restaurant-backup-generator/', label: 'Restaurant Backup' },
-      { href: '/service/self-storage-backup-generator/', label: 'Self-Storage Backup' },
+      { href: '/restaurant-backup-generator/', label: 'Restaurant Backup' },
+      { href: '/self-storage-backup-generator/', label: 'Self-Storage Backup' },
     ],
   }),
 ];
@@ -1181,6 +1181,6 @@ export const getService = (slug) => SERVICES.find((s) => s.slug === slug);
 /** All internal page routes (for the sitemap): homepage + categories + services. */
 export const ALL_ROUTES = [
   '/',
-  ...CATEGORIES.map((c) => `/category/${c.slug}/`),
-  ...SERVICES.map((s) => `/service/${s.slug}/`),
+  ...CATEGORIES.map((c) => `/${c.slug}/`),
+  ...SERVICES.map((s) => `/${s.slug}/`),
 ];

@@ -238,6 +238,24 @@ own preset — and hits the same wall.
 - **Effort/impact:** small (idiom) + medium (lint check) / high — this is a
   recurring, easy-to-miss trap on every ported design.
 
+### B6 · URL structure must be FLAT (root-level), never `/category/` or `/service/`
+- **Rule (Core30).** Category and service pages live at **`/<slug>/`** at the
+  root — NEVER behind a `/category/` or `/service/` path segment. URL hierarchy
+  carries no taxonomy; hierarchy is expressed by **breadcrumbs + mirror-linking**.
+  (Location/landing pages MAY nest per the standard Core30 doc — defer to it.)
+- **What bit us.** The first template pass used `src/pages/category/[slug].astro`
+  and `src/pages/service/[slug].astro`, which emit `/category/…/` and `/service/…/`.
+  Corrected to a single root dispatch route `src/pages/[slug].astro` that renders a
+  `CategoryPage`/`ServicePage` component per slug, with slugs verified unique across
+  the combined set. Every internal link flattened to `/<slug>/`.
+- **Proposed starter fix.** Ship the route family AS the flat pattern from day one:
+  one `src/pages/[slug].astro` (or `[...slug].astro`) dispatching over the content
+  tree, a build-time unique-slug assertion (categories ∪ services ∪ reserved
+  routes), and docs that state the flat-URL rule explicitly so no build reintroduces
+  a `/category/` or `/service/` segment.
+- **Effort/impact:** small (pattern + assertion) / high — it's an SEO fundamental
+  and a silent-to-miss default.
+
 ### B4 · lead intent, tag, and label are auto-flavored in the engine
 - **Symptom.** `functions/api/lead.js` hardcodes `LEAD_TAG` (shipped as `'web-prequal'`),
   and `functions/api/_lead-summary.js` `INTENT_LABELS` is a fixed map skewed to the

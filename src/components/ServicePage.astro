@@ -1,30 +1,25 @@
 ---
 /**
- * Service template — one route family for all service rows (build-spec §3).
- * Ported from _handoff/design-reference/archetypes/service.html: the 6-block
- * content spine (Engineering / Spec / Process / Local / FAQ / External). Blocks
- * are optional per row and auto-numbered, so a leaner service omits what it lacks.
- * Driven by getStaticPaths over SERVICES in src/content/meridian.js (Phase 4 fills
- * the full set). Chrome + contact + why-Meridian are shared components.
+ * Service page component — the service template body (the 6-block content spine:
+ * Engineering / Spec / Process / Local / FAQ / External; blocks are optional per
+ * row and auto-numbered). Rendered by the root-level dispatch route
+ * src/pages/[slug].astro (Core30 URLs are flat: a service lives at /<slug>/,
+ * never behind a /service/ segment; hierarchy is carried by breadcrumbs +
+ * linking). Ported from the service.html archetype.
  *
  * Trinity: <title> == <h1> lead == the service slug's Service+City phrase.
  * provider schema block is byte-identical across every service page (rule 5).
  */
-import BaseLayout from '../../layouts/BaseLayout.astro';
-import Breadcrumbs from '../../components/Breadcrumbs.astro';
-import WhyMeridian from '../../components/WhyMeridian.astro';
-import ContactSection from '../../components/ContactSection.astro';
-import { NAP } from '../../lib/site.js';
-import { SERVICES } from '../../content/meridian.js';
-import { generatorService } from '../../../presets/generator/schema.js';
-import { faqSchema, breadcrumbSchema } from '../../lib/schema.js';
-
-export function getStaticPaths() {
-  return SERVICES.map((svc) => ({ params: { slug: svc.slug }, props: { svc } }));
-}
+import BaseLayout from '../layouts/BaseLayout.astro';
+import Breadcrumbs from './Breadcrumbs.astro';
+import WhyMeridian from './WhyMeridian.astro';
+import ContactSection from './ContactSection.astro';
+import { NAP } from '../lib/site.js';
+import { generatorService } from '../../presets/generator/schema.js';
+import { faqSchema, breadcrumbSchema } from '../lib/schema.js';
 
 const { svc } = Astro.props;
-const url = `/service/${svc.slug}/`;
+const url = `/${svc.slug}/`;
 const title = `${svc.trinity} ${svc.city}`; // Trinity: Service + City
 const crumbs = [
   { label: 'Home', href: '/' },

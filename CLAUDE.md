@@ -39,6 +39,12 @@ category pages (`standby-generator-installation` hub + service-repair + transfer
 + commercial) + 41 service pages, in `src/content/meridian.js`. `provider.@type`
 = `Electrician`, byte-identical site-wide (`presets/generator/schema.js`).
 
+**URLs are FLAT (Core30):** every category and service page lives at **`/<slug>/`**
+at the root — never behind a `/category/` or `/service/` segment. A single root
+dispatch route (`src/pages/[slug].astro`) renders the right page component per
+slug; taxonomy hierarchy is carried by breadcrumbs + mirror-linking, not URL
+segments. Slugs are unique across categories ∪ services.
+
 **Compliance posture as configured (never fabricate):**
 - `aggregateRating` **omitted** — zero-review IASD launch (`ratingConfirmed:false`).
 - `licensedClaimAllowed:false` → "Licensed & insured" is withheld until the

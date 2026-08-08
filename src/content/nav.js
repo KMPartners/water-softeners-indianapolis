@@ -8,7 +8,7 @@
  * importers.
  *
  * ⏳ SLUGS ARE PROVISIONAL (`‹SEO›`). The link hrefs below point at the eventual
- * category/service routes (`/category/<slug>/`, `/service/<slug>/`) that Phase 3
+ * category/service routes (`/<slug>/`, `/<slug>/`) that Phase 3
  * builds and Phase 4 fills from the content tree. Until then some links resolve
  * to not-yet-built routes — expected mid-build. A pre-launch slug change is a
  * find/replace here + sitemap regen (no redirects; nothing indexed yet).
@@ -22,8 +22,8 @@
 
 import { AREA_SERVED } from '../lib/site.js';
 
-const cat = (slug) => `/category/${slug}/`;
-const svc = (slug) => `/service/${slug}/`;
+const cat = (slug) => `/${slug}/`;
+const svc = (slug) => `/${slug}/`;
 
 /** Utility strip (top of the header, on --slab). */
 export const UTILITY_STRIP = {

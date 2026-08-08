@@ -1,27 +1,23 @@
 ---
 /**
- * Category template — one route family for all category rows (build-spec §3).
- * Ported from _handoff/design-reference/archetypes/category.html. Driven by
- * getStaticPaths over CATEGORIES in src/content/meridian.js; Phase 4 fills the
- * full set. Chrome + contact + why-Meridian are shared components.
+ * Category page component — the category template body, rendered by the
+ * root-level dispatch route src/pages/[slug].astro (Core30 URLs are flat: a
+ * category lives at /<slug>/, never behind a /category/ segment; hierarchy is
+ * carried by breadcrumbs + linking). Ported from the category.html archetype.
+ * Chrome + contact + why-Meridian are shared components.
  *
  * Trinity: <title> == <h1> lead == the category slug's Service+City phrase.
  */
-import BaseLayout from '../../layouts/BaseLayout.astro';
-import Breadcrumbs from '../../components/Breadcrumbs.astro';
-import WhyMeridian from '../../components/WhyMeridian.astro';
-import ContactSection from '../../components/ContactSection.astro';
-import { NAP } from '../../lib/site.js';
-import { CATEGORIES } from '../../content/meridian.js';
-import { generatorService } from '../../../presets/generator/schema.js';
-import { faqSchema, breadcrumbSchema } from '../../lib/schema.js';
-
-export function getStaticPaths() {
-  return CATEGORIES.map((cat) => ({ params: { slug: cat.slug }, props: { cat } }));
-}
+import BaseLayout from '../layouts/BaseLayout.astro';
+import Breadcrumbs from './Breadcrumbs.astro';
+import WhyMeridian from './WhyMeridian.astro';
+import ContactSection from './ContactSection.astro';
+import { NAP } from '../lib/site.js';
+import { generatorService } from '../../presets/generator/schema.js';
+import { faqSchema, breadcrumbSchema } from '../lib/schema.js';
 
 const { cat } = Astro.props;
-const url = `/category/${cat.slug}/`;
+const url = `/${cat.slug}/`;
 const title = `${cat.trinity} ${cat.city}`; // Trinity: Service + City
 const crumbs = [{ label: 'Home', href: '/' }, { label: cat.trinity }];
 ---

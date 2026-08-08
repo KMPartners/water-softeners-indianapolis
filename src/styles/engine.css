@@ -30,7 +30,11 @@ body {
   text-rendering: optimizeLegibility;
 }
 img, svg, video { display: block; max-width: 100%; }
-h1, h2, h3, h4 { font-family: var(--font-display); color: var(--text-strong); margin: 0; }
+/* No global heading COLOR: headings inherit their section's color, so a heading
+   on a dark section reads white (var(--on-slab)) and one on a light section reads
+   ink — components set an explicit color only when they need to override that.
+   (Setting color here forced every heading dark, incl. the on-slab hero H1s.) */
+h1, h2, h3, h4 { font-family: var(--font-display); margin: 0; }
 
 /* ---- layout container (Meridian width contract: 1140px + clamped side pad) */
 .container { max-width: var(--container); margin: 0 auto; padding: 0 var(--container-pad); }

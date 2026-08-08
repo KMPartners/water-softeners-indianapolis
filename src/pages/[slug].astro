@@ -1,0 +1,29 @@
+---
+/**
+ * Root-level dispatch route — Core30 flat URLs.
+ *
+ * Every category and service page lives at `/<slug>/` (NOT behind a `/category/`
+ * or `/service/` segment). URL hierarchy carries no taxonomy; the hierarchy is
+ * expressed by breadcrumbs + mirror-linking instead. One catch-all over the
+ * content tree renders the correct page component per slug.
+ *
+ * The static routes (index, privacy-policy, terms-of-service, sitemap) take
+ * precedence over this dynamic route, and their paths are never emitted here, so
+ * there is no collision. Category and service slugs are verified unique across
+ * the combined set (build fails on a duplicate param).
+ */
+import CategoryPage from '../components/CategoryPage.astro';
+import ServicePage from '../components/ServicePage.astro';
+import { CATEGORIES, SERVICES } from '../content/meridian.js';
+
+export function getStaticPaths() {
+  return [
+    ...CATEGORIES.map((cat) => ({ params: { slug: cat.slug }, props: { kind: 'category', cat } })),
+    ...SERVICES.map((svc) => ({ params: { slug: svc.slug }, props: { kind: 'service', svc } })),
+  ];
+}
+
+const { kind, cat, svc } = Astro.props;
+---
+
+{kind === 'category' ? <CategoryPage cat={cat} /> : <ServicePage svc={svc} />}
