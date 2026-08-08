@@ -92,8 +92,12 @@
       "CONSEQUENCE: the GHL workflow MUST filter on sms_consent === 'yes' before",
       "any SMS action, or the business will text people who never opted in.",
       "",
-      "legalReviewedBy stays null until counsel signs off (draft banner + lint",
-      "warning). a2pBrandRegistered gates turning SMS actions ON in the CRM.",
+      "legalReviewedBy: setting it non-null removes the draft banner + clears the",
+      "lint publish-gate. Owner decision (2026-08-08): accept the placeholder legal",
+      "text FOR LAUNCH to drop the banner. IT HAS NOT been reviewed by counsel, so",
+      "the value records owner-acceptance, NOT an attorney sign-off. Still send both",
+      "docs to counsel; replace this value with the reviewer once they sign off.",
+      "a2pBrandRegistered gates turning SMS actions ON in the CRM.",
       "governingState/venueCounty are the business's Indiana / Hamilton County;",
       "counsel confirms the venue at legal review."
     ],
@@ -101,7 +105,7 @@
     "governingState": "Indiana",
     "venueCounty": "Hamilton County, Indiana",
     "smsConsentRequired": false,
-    "legalReviewedBy": null,
+    "legalReviewedBy": "Owner-accepted for launch (formal counsel review pending)",
     "a2pBrandRegistered": false
   },
 
