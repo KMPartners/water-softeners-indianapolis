@@ -1,0 +1,414 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Archivo:wght@500;600;700;800;900&family=Hanken+Grotesk:wght@400;500;600;700&family=IBM+Plex+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+<style>
+  *{box-sizing:border-box;}
+  body{margin:0;}
+  a{color:inherit;text-decoration:none;}
+  .ks-field{width:100%;font-family:var(--font-body);font-size:15px;color:var(--ink);background:#fff;border:1px solid var(--rule2);border-radius:var(--radius);padding:12px 14px;outline:none;transition:border-color .15s ease,box-shadow .15s ease;}
+  .ks-field:focus{border-color:var(--accent);box-shadow:0 0 0 3px rgba(242,164,12,.18);}
+  .ks-field::placeholder{color:var(--ink3);}
+  select.ks-field{appearance:none;-webkit-appearance:none;background-image:linear-gradient(45deg,transparent 50%,var(--ink3) 50%),linear-gradient(135deg,var(--ink3) 50%,transparent 50%);background-position:calc(100% - 18px) 19px,calc(100% - 13px) 19px;background-size:5px 5px;background-repeat:no-repeat;}
+  @media (max-width:860px){ .ks-contact-grid{grid-template-columns:1fr !important;} }
+</style>
+<style>
+  /* paint hidden-state BEFORE async mobile-chrome.css to prevent first-load flash (no transition on initial paint) */
+  .mobile-nav{position:fixed;top:0;right:0;bottom:0;transform:translateX(102%);}
+  .mobile-bottom-bar{position:fixed;left:0;right:0;bottom:0;transform:translateY(110%);}
+  .mobile-nav-overlay{opacity:0;visibility:hidden;}
+</style>
+<link rel="stylesheet" href="assets/mobile-chrome.css">
+<link rel="stylesheet" href="assets/logo.css">
+<link rel="icon" href="assets/favicon.svg">
+<!-- byline system: linked AFTER brand styles · tokens only (do not hand-edit) -->
+<link rel="stylesheet" href="assets/byline.css">
+<!-- scroll mini-menu (2B, locked) · linked AFTER brand styles · tokens only (do not hand-edit) -->
+<link rel="stylesheet" href="assets/scroll-menu.css">
+<!-- ===== Rule 5 · Category = Service JSON-LD · provider block BYTE-IDENTICAL · aggregateRating omitted (zero reviews) ===== -->
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@type": "Service",
+  "serviceType": "Generator Service & Repair",
+  "name": "Generator Service, Repair & Take-Over",
+  "description": "Factory-authorized Generac service, repair, and take-over for home standby generators in Fishers, Indiana - diagnostics, maintenance plans, battery and parts, and adoption of orphaned units, all warranty-compliant.",
+  "provider": {
+    "@type": "Electrician",
+    "name": "Meridian Generator & Electric",
+    "telephone": "+1-463-283-5939",
+    "url": "https://example.com/",
+    "address": {
+      "@type": "PostalAddress",
+      "streetAddress": "VERIFY-STREET",
+      "addressLocality": "Fishers",
+      "addressRegion": "IN",
+      "postalCode": "46038",
+      "addressCountry": "US"
+    }
+  },
+  "areaServed": [
+    {"@type": "City", "name": "Fishers, IN"},
+    {"@type": "City", "name": "Noblesville, IN"},
+    {"@type": "City", "name": "Carmel, IN"},
+    {"@type": "City", "name": "Westfield, IN"},
+    {"@type": "City", "name": "Pendleton, IN"},
+    {"@type": "City", "name": "Anderson, IN"}
+  ],
+  "offers": {
+    "@type": "Offer",
+    "priceCurrency": "USD",
+    "availability": "https://schema.org/InStock",
+    "description": "Transparent, fixed-bid service, repair, and maintenance pricing."
+  }
+}
+</script>
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@type": "FAQPage",
+  "mainEntity": [
+    {"@type": "Question", "name": "Do you service generators you didn't install?", "acceptedAnswer": {"@type": "Answer", "text": "Yes. Take-over service is a core part of what we do - we adopt orphaned Generac units, inspect generators that came with a home, and pick up where a vanished installer left off, all warranty-compliant as a factory-authorized dealer."}},
+    {"@type": "Question", "name": "What does a maintenance plan include?", "acceptedAnswer": {"@type": "Answer", "text": "Scheduled service of the items that keep a standby unit ready - oil and filter, battery, spark plugs, and a load test - plus remote monitoring so problems surface early. We offer plans for units we installed and for take-over units from any installer."}},
+    {"@type": "Question", "name": "My Generac has a yellow light - is that urgent?", "acceptedAnswer": {"@type": "Answer", "text": "A yellow light usually means a maintenance reminder or a stored fault code rather than an emergency, but it does mean the unit may not be fully ready for the next outage. We read the code, fix the cause, and return it to green-ready."}},
+    {"@type": "Question", "name": "Should I repair or replace an older generator?", "acceptedAnswer": {"@type": "Answer", "text": "It depends on the unit's age, hours, and what's failing. We give an honest repair-vs-replace evaluation with the numbers both ways, so you're not pouring money into a unit near the end of its life."}}
+  ]
+}
+</script>
+</helmet>
+<div style="--bg:#F6F7F9;--bg2:#ECEFF3;--ink:#161D29;--ink2:#4A5663;--ink3:#828D9B;--rule:#DCE1E8;--rule2:#C4CCD6;--slab:#111824;--slab2:#1B2433;--slab-rule:#2C3849;--accent:#F2A40C;--accent-deep:#B87808;--accent-ink:#1A1206;--signal:#F2541B;--status-green:#3FB47C;--radius:2px;--container-pad:clamp(24px,5vw,56px);--font-display:'Archivo',sans-serif;--font-body:'Hanken Grotesk',sans-serif;--font-mono:'IBM Plex Mono',monospace;--fs-h2:clamp(26px,3.4vw,46px);--fs-h3:clamp(19px,2.2vw,28px);--fs-lede:clamp(16px,1.5vw,19px);background:var(--bg);color:var(--ink);font-family:var(--font-body);width:100%;min-height:100%;-webkit-font-smoothing:antialiased;line-height:1.5;" data-screen-label="Category · Generator Service & Repair">
+
+  <!-- ===== SITE HEADER (shared) ===== -->
+  <header>
+    <div style="background:var(--slab);color:#fff;">
+      <div style="padding:0 var(--container-pad);"><div style="max-width:1140px;margin:0 auto;display:flex;justify-content:space-between;align-items:center;gap:16px;padding:9px 0;flex-wrap:wrap;">
+      <span style="font-family:var(--font-mono);font-size:10.5px;letter-spacing:.14em;text-transform:uppercase;color:var(--accent);">Authorized Generac Dealer · Warranty-Compliant Service</span>
+      <span style="font-family:var(--font-mono);font-size:10.5px;letter-spacing:.1em;color:#9BA6B4;">Fishers · Noblesville · Hamilton &amp; Madison Co.</span>
+      </div></div>
+    </div>
+    <div style="background:var(--slab2);box-shadow:inset 0 1px 0 var(--slab-rule);">
+      <div style="padding:0 var(--container-pad);"><div style="max-width:1140px;margin:0 auto;display:flex;align-items:center;justify-content:space-between;gap:20px;padding:16px 0;flex-wrap:wrap;">
+      <button class="hamburger" aria-label="Open menu" aria-expanded="false" aria-controls="mobile-nav"><span></span><span></span><span></span><span class="hamburger-label">Menu</span></button>
+      <a href="index.dc.html" style="display:flex;align-items:center;gap:13px;">
+        <span style="line-height:1;"><span style="display:block;font-family:var(--font-display);font-weight:800;font-size:21px;letter-spacing:.005em;color:#fff;">MER<span class="mrd">I</span>DIAN</span><span style="display:block;font-family:var(--font-mono);font-size:9px;letter-spacing:.22em;color:#9BA6B4;margin-top:6px;">GENERATOR &amp; ELECTRIC</span></span>
+      </a>
+      <nav class="desktop-nav" aria-label="Primary">
+        <a href="standby-generator-installation.dc.html" style="font-family:var(--font-body);font-weight:600;font-size:14px;color:#D8DEE7;">Generators</a>
+        <a href="generator-service-repair.dc.html" style="font-family:var(--font-body);font-weight:700;font-size:14px;color:var(--accent);">Service &amp; Take-Over</a>
+        <a href="transfer-switch-installation.dc.html" style="font-family:var(--font-body);font-weight:600;font-size:14px;color:#D8DEE7;">Transfer Switches</a>
+        <a href="commercial-standby-generators.dc.html" style="font-family:var(--font-body);font-weight:600;font-size:14px;color:#D8DEE7;">Commercial</a>
+        <a href="tel:#" style="font-family:var(--font-display);font-weight:700;font-size:13px;background:var(--accent);color:var(--accent-ink);padding:11px 18px;border-radius:var(--radius);"><!-- VERIFY:nap -->(463) 283-5939</a>
+      </nav>
+      </div></div>
+    </div>
+    <div style="height:3px;background:var(--accent);"></div>
+  </header>
+
+  <!-- ===== SCROLL MINI-MENU (2B · locked · desktop only) ===== -->
+  <div class="scroll-mini" aria-label="Condensed header">
+    <div class="scroll-mini-plate">
+      <div class="scroll-mini-pad">
+        <div class="scroll-mini-row">
+          <div class="scroll-mini-id">
+            <a href="index.dc.html" class="scroll-mini-word">MER<span class="mrd">I</span>DIAN</a>
+            <span class="scroll-mini-div" aria-hidden="true"></span>
+            <span class="scroll-mini-page">Generator Service &amp; Repair</span>
+          </div>
+          <a href="#contact" class="scroll-mini-cta">Get a fixed-bid quote <span aria-hidden="true">&rarr;</span></a>
+        </div>
+      </div>
+    </div>
+    <div class="scroll-mini-seam" aria-hidden="true"></div>
+  </div>
+
+  <!-- ===== BREADCRUMB (Rule 3 · links UP) ===== -->
+  <nav aria-label="Breadcrumb" style="background:var(--bg2);padding:14px var(--container-pad);border-bottom:1px solid var(--rule);font-family:var(--font-mono);font-size:12px;letter-spacing:.04em;">
+    <a href="index.dc.html" style="color:var(--accent-deep);">Home</a> <span style="opacity:.4;">/</span> <span style="color:var(--ink2);">Generator Service &amp; Repair</span>
+  </nav>
+
+  <!-- ===== CATEGORY HERO · H1 = Trinity (Rule 1) · lede sentence 1 = goal completion (Rule 2) ===== -->
+  <section style="background:var(--slab);color:#fff;padding:clamp(40px,6vw,80px) var(--container-pad) clamp(36px,5vw,64px);">
+    <div style="max-width:1140px;margin:0 auto;">
+      <!-- byline · R1 eyebrow (positioning chrome, never Trinity) -->
+      <p class="byline--eyebrow byline--on-dark" style="margin:0 0 14px;"><span class="byline-tick" aria-hidden="true"></span><span class="byline-clause">Dealer-grade installs</span><span class="byline-sep" aria-hidden="true">·</span><span class="byline-clause byline-value">Owner-direct pricing</span></p>
+      <div style="font-family:var(--font-mono);font-size:11px;letter-spacing:.24em;text-transform:uppercase;color:var(--accent);margin-bottom:18px;">Category · Service, Repair &amp; Take-Over</div>
+      <h1 style="font-family:var(--font-display);font-weight:900;font-size:clamp(32px,5vw,64px);line-height:1;letter-spacing:-.02em;margin:0 0 20px;max-width:18ch;">Generator Service &amp; Repair <span style="color:var(--accent);">Fishers, IN</span></h1>
+      <p style="font-size:var(--fs-lede);color:#B9C2CE;max-width:62ch;margin:0 0 28px;line-height:1.55;"><strong style="color:#fff;">Whether we installed your Generac or not, we'll keep it ready : diagnostics, maintenance, repair, and take-over of orphaned units, all warranty-compliant.</strong> A standby generator only earns its keep if it actually starts on the night the power fails; we make sure yours does.</p>
+      <div style="display:flex;gap:12px;flex-wrap:wrap;">
+        <a href="#contact" style="font-family:var(--font-display);font-weight:700;font-size:14px;background:var(--accent);color:var(--accent-ink);padding:14px 22px;border-radius:var(--radius);">Get my unit checked →</a>
+        <a href="tel:#" style="font-family:var(--font-mono);font-size:13px;font-weight:500;color:#fff;border:1px solid var(--slab-rule);padding:13px 18px;border-radius:var(--radius);display:inline-flex;align-items:center;gap:9px;"><span style="width:7px;height:7px;border-radius:50%;background:var(--accent);"></span><!-- VERIFY:nap -->(463) 283-5939</a>
+      </div>
+    </div>
+  </section>
+
+  <!-- ===== CHILD GRID · Rule 3: parent links DOWN to EVERY child ===== -->
+  <section style="max-width:1140px;margin:0 auto;padding:clamp(40px,6vw,64px) var(--container-pad) clamp(8px,2vw,16px);">
+
+    <!-- Sub-group: Take-over & diagnostics -->
+    <div style="display:flex;align-items:baseline;gap:14px;margin-bottom:22px;">
+      <span style="font-family:var(--font-mono);font-size:12px;color:var(--accent-deep);font-weight:600;">01</span>
+      <h2 style="font-family:var(--font-display);font-weight:800;font-size:var(--fs-h3);letter-spacing:-.01em;margin:0;">Take-over &amp; diagnostics</h2>
+      <div style="flex:1;height:1px;background:var(--rule);"></div>
+    </div>
+    <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(240px,1fr));gap:1px;background:var(--rule);border:1px solid var(--rule);border-radius:var(--radius);overflow:hidden;margin-bottom:44px;">
+      <a href="generac-take-over-service.dc.html" style="background:#fff;padding:24px 22px;display:block;"><div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:10px;"><span style="font-family:var(--font-mono);font-size:11px;color:var(--accent-deep);letter-spacing:.06em;">MOST REQUESTED</span><span style="color:var(--accent);font-weight:800;">→</span></div><div style="font-family:var(--font-display);font-weight:700;font-size:18px;margin-bottom:6px;">Generac Take-Over Service</div><div style="font-size:13.5px;color:var(--ink2);line-height:1.5;">Installer gone or unresponsive? We adopt orphaned units.</div></a>
+      <a href="bought-a-house-with-a-generator-inspection.dc.html" style="background:#fff;padding:24px 22px;display:block;"><div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:10px;"><span style="font-family:var(--font-mono);font-size:11px;color:var(--ink3);letter-spacing:.06em;">NEW OWNER</span><span style="color:var(--accent);font-weight:800;">→</span></div><div style="font-family:var(--font-display);font-weight:700;font-size:18px;margin-bottom:6px;">"Bought a House with a Generator" Inspection</div><div style="font-size:13.5px;color:var(--ink2);line-height:1.5;">Find out if the unit you inherited actually works.</div></a>
+      <a href="generator-yellow-light-diagnostic.dc.html" style="background:#fff;padding:24px 22px;display:block;"><div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:10px;"><span style="font-family:var(--font-mono);font-size:11px;color:var(--ink3);letter-spacing:.06em;">WARNING LIGHT</span><span style="color:var(--accent);font-weight:800;">→</span></div><div style="font-family:var(--font-display);font-weight:700;font-size:18px;margin-bottom:6px;">Yellow-Light / Fault-Code Diagnostic</div><div style="font-size:13.5px;color:var(--ink2);line-height:1.5;">We read the Evolution controller and clear the cause.</div></a>
+      <a href="generator-repair-vs-replace-evaluation.dc.html" style="background:#fff;padding:24px 22px;display:block;"><div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:10px;"><span style="font-family:var(--font-mono);font-size:11px;color:var(--ink3);letter-spacing:.06em;">HONEST CALL</span><span style="color:var(--accent);font-weight:800;">→</span></div><div style="font-family:var(--font-display);font-weight:700;font-size:18px;margin-bottom:6px;">Repair-vs-Replace Evaluation</div><div style="font-size:13.5px;color:var(--ink2);line-height:1.5;">The numbers both ways on an aging unit.</div></a>
+    </div>
+
+    <!-- Sub-group: Maintenance plans & parts -->
+    <div style="display:flex;align-items:baseline;gap:14px;margin-bottom:22px;">
+      <span style="font-family:var(--font-mono);font-size:12px;color:var(--accent-deep);font-weight:600;">02</span>
+      <h2 style="font-family:var(--font-display);font-weight:800;font-size:var(--fs-h3);letter-spacing:-.01em;margin:0;">Maintenance plans &amp; parts</h2>
+      <div style="flex:1;height:1px;background:var(--rule);"></div>
+    </div>
+    <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(240px,1fr));gap:1px;background:var(--rule);border:1px solid var(--rule);border-radius:var(--radius);overflow:hidden;margin-bottom:44px;">
+      <a href="annual-generator-maintenance-plan.dc.html" style="background:#fff;padding:24px 22px;display:block;"><div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:10px;"><span style="font-family:var(--font-mono);font-size:11px;color:var(--accent-deep);letter-spacing:.06em;">OUR INSTALLS</span><span style="color:var(--accent);font-weight:800;">→</span></div><div style="font-family:var(--font-display);font-weight:700;font-size:18px;margin-bottom:6px;">Annual Maintenance Plan</div><div style="font-size:13.5px;color:var(--ink2);line-height:1.5;">Scheduled service that keeps the unit ready year-round.</div></a>
+      <a href="orphaned-generator-maintenance-plan.dc.html" style="background:#fff;padding:24px 22px;display:block;"><div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:10px;"><span style="font-family:var(--font-mono);font-size:11px;color:var(--ink3);letter-spacing:.06em;">ANY INSTALLER</span><span style="color:var(--accent);font-weight:800;">→</span></div><div style="font-family:var(--font-display);font-weight:700;font-size:18px;margin-bottom:6px;">Take-Over Maintenance Plan</div><div style="font-size:13.5px;color:var(--ink2);line-height:1.5;">A plan for units someone else installed.</div></a>
+      <a href="generator-battery-replacement.dc.html" style="background:#fff;padding:24px 22px;display:block;"><div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:10px;"><span style="font-family:var(--font-mono);font-size:11px;color:var(--ink3);letter-spacing:.06em;">#1 FAILURE</span><span style="color:var(--accent);font-weight:800;">→</span></div><div style="font-family:var(--font-display);font-weight:700;font-size:18px;margin-bottom:6px;">Battery Replacement</div><div style="font-size:13.5px;color:var(--ink2);line-height:1.5;">A dead battery is the most common no-start cause.</div></a>
+      <a href="remote-monitoring-mobile-link-setup.dc.html" style="background:#fff;padding:24px 22px;display:block;"><div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:10px;"><span style="font-family:var(--font-mono);font-size:11px;color:var(--ink3);letter-spacing:.06em;">SEE IT EARLY</span><span style="color:var(--accent);font-weight:800;">→</span></div><div style="font-family:var(--font-display);font-weight:700;font-size:18px;margin-bottom:6px;">Remote Monitoring (Mobile Link)</div><div style="font-size:13.5px;color:var(--ink2);line-height:1.5;">Get alerts before the next outage, not during it.</div></a>
+    </div>
+
+    <!-- Sub-group: Other brands -->
+    <div style="display:flex;align-items:baseline;gap:14px;margin-bottom:22px;">
+      <span style="font-family:var(--font-mono);font-size:12px;color:var(--accent-deep);font-weight:600;">03</span>
+      <h2 style="font-family:var(--font-display);font-weight:800;font-size:var(--fs-h3);letter-spacing:-.01em;margin:0;">Other brands (take-over service)</h2>
+      <div style="flex:1;height:1px;background:var(--rule);"></div>
+    </div>
+    <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(220px,1fr));gap:1px;background:var(--rule);border:1px solid var(--rule);border-radius:var(--radius);overflow:hidden;margin-bottom:12px;">
+      <a href="kohler-generator-service.dc.html" style="background:#fff;padding:22px;display:flex;justify-content:space-between;align-items:center;gap:10px;"><span style="font-family:var(--font-display);font-weight:700;font-size:16px;">Kohler Generator Service</span><span style="color:var(--accent);font-weight:800;">→</span></a>
+      <a href="briggs-honeywell-generator-service.dc.html" style="background:#fff;padding:22px;display:flex;justify-content:space-between;align-items:center;gap:10px;"><span style="font-family:var(--font-display);font-weight:700;font-size:16px;">Briggs / Honeywell Service</span><span style="color:var(--accent);font-weight:800;">→</span></a>
+    </div>
+    <p style="font-family:var(--font-mono);font-size:11px;color:var(--ink3);margin:0;">Cross-brand work is take-over service . We're not an authorized warranty dealer for non-Generac brands.</p>
+  </section>
+
+  <!-- ===== WHY / EXTERNAL AUTHORITY (Rule 6) ===== -->
+  <section style="max-width:1140px;margin:0 auto;padding:clamp(32px,5vw,56px) var(--container-pad);">
+    <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(280px,1fr));gap:24px;">
+      <div style="background:var(--bg2);border:1px solid var(--rule);border-radius:var(--radius);padding:28px;">
+        <h2 style="font-family:var(--font-display);font-weight:800;font-size:var(--fs-h3);letter-spacing:-.01em;margin:0 0 12px;">Ready means tested, not just installed</h2>
+        <p style="font-size:15px;color:var(--ink2);line-height:1.6;margin:0;">Standby generators sit idle for months, then are asked to carry a whole home on a moment's notice. Battery, fuel, oil, and the controller all drift over time. A maintenance rhythm, and remote monitoring, is what turns "it was working last year" into "it started tonight." In Fishers and Noblesville that matters most during <strong style="color:var(--ink);">Duke Energy</strong> and <strong style="color:var(--ink);">AES Indiana</strong> storm season; in Anderson, <strong style="color:var(--ink);">Anderson Municipal Light &amp; Power</strong>.</p>
+      </div>
+      <div style="background:var(--bg2);border:1px solid var(--rule);border-radius:var(--radius);padding:28px;">
+        <h2 style="font-family:var(--font-display);font-weight:800;font-size:var(--fs-h3);letter-spacing:-.01em;margin:0 0 12px;">Why warranty-compliant matters</h2>
+        <p style="font-size:15px;color:var(--ink2);line-height:1.6;margin:0 0 18px;">Only a Generac authorized service dealer can perform warranty-compliant repairs. Letting an uncertified tech work on the unit can put your remaining coverage at risk, so moving service to us protects the warranty you already paid for.</p>
+        <!-- VERIFY:external-url confirm Generac owner-support / warranty reference URL -->
+        <a href="https://www.generac.com/" target="_blank" rel="noopener" style="display:inline-flex;align-items:center;gap:10px;font-family:var(--font-display);font-weight:700;font-size:14px;color:var(--ink);border:1px solid var(--ink);padding:12px 18px;border-radius:var(--radius);">Generac authorized-dealer warranty policy <span style="color:var(--accent-deep);">↗</span></a>
+      </div>
+    </div>
+  </section>
+
+  <!-- ===== FAQ (static · matches FAQPage schema) ===== -->
+  <section style="max-width:1140px;margin:0 auto;padding:0 var(--container-pad) clamp(36px,5vw,56px);">
+    <div style="display:flex;align-items:baseline;gap:14px;margin-bottom:24px;">
+      <h2 style="font-family:var(--font-display);font-weight:800;font-size:var(--fs-h3);letter-spacing:-.01em;margin:0;">Service &amp; repair questions</h2>
+      <div style="flex:1;height:1px;background:var(--rule);"></div>
+    </div>
+    <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(300px,1fr));gap:14px 32px;">
+      <div style="border-bottom:1px solid var(--rule);padding:0 0 14px;"><div style="font-family:var(--font-display);font-weight:700;font-size:16px;margin-bottom:12px;">Do you service generators you didn't install?</div><p style="font-size:14.5px;color:var(--ink2);line-height:1.65;margin:0;">Yes . Take-over service is a core part of what we do. We adopt orphaned Generac units, inspect generators that came with a home, and pick up where a vanished installer left off, warranty-compliant as a factory-authorized dealer.</p></div>
+      <div style="border-bottom:1px solid var(--rule);padding:0 0 14px;"><div style="font-family:var(--font-display);font-weight:700;font-size:16px;margin-bottom:12px;">What does a maintenance plan include?</div><p style="font-size:14.5px;color:var(--ink2);line-height:1.65;margin:0;">Scheduled service of what keeps a unit ready (oil and filter, battery, plugs, and a load test) plus remote monitoring. Plans cover both our installs and take-over units from any installer.</p></div>
+      <div style="border-bottom:1px solid var(--rule);padding:0 0 14px;"><div style="font-family:var(--font-display);font-weight:700;font-size:16px;margin-bottom:12px;">My Generac has a yellow light, is that urgent?</div><p style="font-size:14.5px;color:var(--ink2);line-height:1.65;margin:0;">Usually a maintenance reminder or stored fault code, not an emergency, but it does mean the unit may not be fully ready for the next outage. We read the code, fix the cause, and return it to green-ready.</p></div>
+      <div style="border-bottom:1px solid var(--rule);padding:0 0 14px;"><div style="font-family:var(--font-display);font-weight:700;font-size:16px;margin-bottom:12px;">Should I repair or replace an older unit?</div><p style="font-size:14.5px;color:var(--ink2);line-height:1.65;margin:0;">It depends on age, hours, and what's failing. We give an honest repair-vs-replace evaluation with the numbers both ways, so you're not pouring money into a unit near the end of its life.</p></div>
+    </div>
+  </section>
+
+  <!-- ===== WHY MERIDIAN ===== -->
+  <section style="max-width:1140px;margin:0 auto;padding:clamp(8px,2vw,16px) var(--container-pad) clamp(8px,2vw,16px);">
+    <div style="display:flex;align-items:baseline;gap:14px;margin-bottom:28px;">
+      <h2 style="font-family:var(--font-display);font-weight:800;font-size:var(--fs-h2);letter-spacing:-.015em;margin:0;">Why homeowners choose Meridian</h2>
+      <div style="flex:1;height:1px;background:var(--rule);"></div>
+    </div>
+    <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(240px,1fr));gap:1px;background:var(--rule);border:1px solid var(--rule);border-radius:var(--radius);overflow:hidden;">
+      <div style="background:#fff;padding:30px 26px;border-top:3px solid var(--accent);"><div style="font-family:var(--font-mono);font-size:12px;color:var(--accent-deep);font-weight:600;margin-bottom:14px;">01</div><div style="font-family:var(--font-display);font-weight:800;font-size:18px;letter-spacing:-.01em;margin-bottom:9px;">Fixed-bid, in writing</div><div style="font-size:14px;color:var(--ink2);line-height:1.55;">No "call for pricing." A transparent quote after the diagnostic, and it doesn't move mid-job.</div></div>
+      <div style="background:#fff;padding:30px 26px;border-top:3px solid var(--accent);"><div style="font-family:var(--font-mono);font-size:12px;color:var(--accent-deep);font-weight:600;margin-bottom:14px;">02</div><div style="font-family:var(--font-display);font-weight:800;font-size:18px;letter-spacing:-.01em;margin-bottom:9px;">We answer, and we service</div><div style="font-size:14px;color:var(--ink2);line-height:1.55;">A real person responds, and we maintain what we touch. No call center, no chasing an installer.</div></div>
+      <div style="background:#fff;padding:30px 26px;border-top:3px solid var(--accent);"><div style="font-family:var(--font-mono);font-size:12px;color:var(--accent-deep);font-weight:600;margin-bottom:14px;">03</div><div style="font-family:var(--font-display);font-weight:800;font-size:18px;letter-spacing:-.01em;margin-bottom:9px;">Authorized &amp; warranty-compliant</div><div style="font-size:14px;color:var(--ink2);line-height:1.55;">Factory-authorized, so service keeps your coverage intact instead of voiding it.</div></div>
+      <div style="background:#fff;padding:30px 26px;border-top:3px solid var(--accent);"><div style="font-family:var(--font-mono);font-size:12px;color:var(--accent-deep);font-weight:600;margin-bottom:14px;">04</div><div style="font-family:var(--font-display);font-weight:800;font-size:18px;letter-spacing:-.01em;margin-bottom:9px;">Honest about repair vs. replace</div><div style="font-size:14px;color:var(--ink2);line-height:1.55;">If an aging unit isn't worth more money, we'll tell you, and show the math.</div></div>
+    </div>
+  </section>
+
+  <!-- ===== CONTACT + LEAD FORM (see docs/integration-notes.md for GHL wiring) ===== -->
+  <section id="contact" style="background:var(--slab);margin-top:clamp(36px,5vw,56px);">
+    <div class="ks-contact-grid" style="max-width:1140px;margin:0 auto;padding:clamp(44px,6vw,80px) var(--container-pad);display:grid;grid-template-columns:1fr 1.05fr;gap:clamp(32px,4vw,56px);align-items:start;">
+      <div style="color:#fff;">
+        <!-- byline · R1 eyebrow (positioning chrome, never Trinity) -->
+      <p class="byline--eyebrow byline--on-dark" style="margin:0 0 14px;"><span class="byline-tick" aria-hidden="true"></span><span class="byline-clause">Dealer-grade installs</span><span class="byline-sep" aria-hidden="true">·</span><span class="byline-clause byline-value">Owner-direct pricing</span></p>
+      <div style="font-family:var(--font-mono);font-size:11px;letter-spacing:.24em;text-transform:uppercase;color:var(--accent);margin-bottom:18px;">Get your unit checked</div>
+        <h2 style="font-family:var(--font-display);font-weight:900;font-size:clamp(28px,4vw,46px);line-height:1.02;letter-spacing:-.02em;margin:0 0 18px;max-width:16ch;">Keep it ready for the next storm.</h2>
+        <p style="font-size:var(--fs-lede);color:#B9C2CE;line-height:1.6;margin:0 0 28px;max-width:46ch;">Tell us what's going on: make, rough age, any warning lights, and we'll set up a diagnostic or a maintenance plan and a transparent quote. No obligation.</p>
+        <div style="display:flex;flex-direction:column;gap:14px;margin-bottom:28px;">
+          <div style="display:flex;gap:12px;align-items:flex-start;"><span style="color:var(--accent);font-weight:800;font-size:15px;">&#10003;</span><span style="font-size:14.5px;color:#DCE2EA;line-height:1.45;">We service any installer's Generac</span></div>
+          <div style="display:flex;gap:12px;align-items:flex-start;"><span style="color:var(--accent);font-weight:800;font-size:15px;">&#10003;</span><span style="font-size:14.5px;color:#DCE2EA;line-height:1.45;">A real person responds, usually same day</span></div>
+          <div style="display:flex;gap:12px;align-items:flex-start;"><span style="color:var(--accent);font-weight:800;font-size:15px;">&#10003;</span><span style="font-size:14.5px;color:#DCE2EA;line-height:1.45;">Warranty-compliant, authorized dealer</span></div>
+        </div>
+        <div style="border-top:1px solid var(--slab-rule);padding-top:22px;">
+          <div style="font-family:var(--font-mono);font-size:10px;letter-spacing:.2em;text-transform:uppercase;color:#6E7A89;margin-bottom:10px;">Prefer to call?</div>
+          <a href="tel:#" style="font-family:var(--font-display);font-weight:800;font-size:clamp(22px,2.4vw,30px);color:#fff;display:inline-flex;align-items:center;gap:12px;"><span style="width:9px;height:9px;border-radius:50%;background:var(--signal);"></span><!-- VERIFY:nap -->(463) 283-5939</a>
+          <div style="font-family:var(--font-mono);font-size:12px;color:#8A95A4;margin-top:8px;">Mon–Fri · 24/7 storm response</div>
+        </div>
+      </div>
+      <div style="background:#fff;border-radius:var(--radius);padding:clamp(24px,3vw,36px);">
+        <!-- VERIFY:ghl-endpoint set action to your GHL form/webhook POST URL (or swap for the iframe embed) -->
+        <form action="#" method="post" style="display:flex;flex-direction:column;gap:16px;">
+          <div>
+            <label for="ks-name" style="display:block;font-family:var(--font-mono);font-size:10px;letter-spacing:.14em;text-transform:uppercase;color:var(--ink3);margin-bottom:7px;">Full name</label>
+            <input id="ks-name" name="full_name" type="text" required autocomplete="name" placeholder="Jordan Miller" class="ks-field">
+          </div>
+          <div style="display:grid;grid-template-columns:1fr 1fr;gap:16px;">
+            <div><label for="ks-phone" style="display:block;font-family:var(--font-mono);font-size:10px;letter-spacing:.14em;text-transform:uppercase;color:var(--ink3);margin-bottom:7px;">Phone</label><input id="ks-phone" name="phone" type="tel" required autocomplete="tel" placeholder="(317) 555-0142" class="ks-field"></div>
+            <div><label for="ks-email" style="display:block;font-family:var(--font-mono);font-size:10px;letter-spacing:.14em;text-transform:uppercase;color:var(--ink3);margin-bottom:7px;">Email</label><input id="ks-email" name="email" type="email" required autocomplete="email" placeholder="you@email.com" class="ks-field"></div>
+          </div>
+          <div style="display:grid;grid-template-columns:1.4fr 1fr;gap:16px;">
+            <div><label for="ks-address" style="display:block;font-family:var(--font-mono);font-size:10px;letter-spacing:.14em;text-transform:uppercase;color:var(--ink3);margin-bottom:7px;">Street address</label><input id="ks-address" name="street_address" type="text" autocomplete="street-address" placeholder="123 Maple Dr" class="ks-field"></div>
+            <div><label for="ks-city" style="display:block;font-family:var(--font-mono);font-size:10px;letter-spacing:.14em;text-transform:uppercase;color:var(--ink3);margin-bottom:7px;">City</label><select id="ks-city" name="city" class="ks-field"><option value="">Select…</option><option>Fishers</option><option>Noblesville</option><option>Carmel</option><option>Westfield</option><option>Pendleton</option><option>Anderson</option><option>Other</option></select></div>
+          </div>
+          <div>
+            <label for="ks-need" style="display:block;font-family:var(--font-mono);font-size:10px;letter-spacing:.14em;text-transform:uppercase;color:var(--ink3);margin-bottom:7px;">What do you need?</label>
+            <select id="ks-need" name="service_needed" class="ks-field"><option value="">Select…</option><option>Take-over service (installer gone)</option><option>Bought a house with a generator</option><option>Yellow light / fault code</option><option>Maintenance plan</option><option>Battery / parts</option><option>Repair-vs-replace evaluation</option><option>Not sure, please advise</option></select>
+          </div>
+          <div>
+            <label for="ks-msg" style="display:block;font-family:var(--font-mono);font-size:10px;letter-spacing:.14em;text-transform:uppercase;color:var(--ink3);margin-bottom:7px;">Make / age / symptoms <span style="text-transform:none;letter-spacing:0;color:var(--ink3);">(optional)</span></label>
+            <textarea id="ks-msg" name="message" rows="3" placeholder="e.g. Generac 22kW, ~6 yrs, yellow light for a month…" class="ks-field" style="resize:vertical;"></textarea>
+          </div>
+          <button type="submit" style="font-family:var(--font-display);font-weight:700;font-size:15px;background:var(--accent);color:var(--accent-ink);border:none;border-radius:var(--radius);padding:16px 22px;cursor:pointer;">Request my diagnostic →</button>
+          <p style="font-family:var(--font-mono);font-size:11px;color:var(--ink3);line-height:1.5;margin:0;text-align:center;">No spam. We use your details only to help with your unit. <!-- VERIFY:privacy-link --></p>
+        </form>
+      </div>
+    </div>
+  </section>
+
+  <!-- ===== FOOTER (shared) ===== -->
+  <footer style="background:var(--slab);color:#fff;padding:clamp(36px,5vw,64px) var(--container-pad) 40px;border-top:1px solid var(--slab-rule);">
+    <div style="max-width:1140px;margin:0 auto;">
+      <a href="index.dc.html" style="display:flex;align-items:center;gap:13px;margin-bottom:28px;">
+        <span class="logo-mark logo-mark--invert logo-mark--36" aria-hidden="true"></span>
+        <span style="line-height:1;"><span style="display:block;font-family:var(--font-display);font-weight:800;font-size:18px;">MER<span class="mrd">I</span>DIAN</span><span style="display:block;font-family:var(--font-mono);font-size:9px;letter-spacing:.22em;color:var(--accent);margin-top:5px;">GENERATOR &amp; ELECTRIC</span></span>
+      </a>
+      <!-- byline · R1 micro (under footer lockup, above columns) -->
+      <p class="byline--micro byline--on-dark" style="margin:-14px 0 26px;"><span class="byline-tick" aria-hidden="true"></span><span class="byline-clause">Dealer-grade installs</span><span class="byline-sep" aria-hidden="true">·</span><span class="byline-clause byline-value">Owner-direct pricing</span></p>
+      <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(170px,1fr));gap:28px;border-top:1px solid var(--slab-rule);padding-top:28px;">
+        <div>
+          <div style="font-family:var(--font-mono);font-size:10px;letter-spacing:.18em;text-transform:uppercase;color:#6E7A89;margin-bottom:14px;">Service &amp; Take-Over</div>
+          <div style="display:flex;flex-direction:column;gap:8px;font-size:14px;">
+            <a href="generac-take-over-service.dc.html" style="color:#B9C2CE;">Generac Take-Over</a>
+            <a href="bought-a-house-with-a-generator-inspection.dc.html" style="color:#B9C2CE;">New-Owner Inspection</a>
+            <a href="generator-yellow-light-diagnostic.dc.html" style="color:#B9C2CE;">Yellow-Light Diagnostic</a>
+            <a href="annual-generator-maintenance-plan.dc.html" style="color:#B9C2CE;">Maintenance Plans</a>
+          </div>
+        </div>
+        <div>
+          <div style="font-family:var(--font-mono);font-size:10px;letter-spacing:.18em;text-transform:uppercase;color:#6E7A89;margin-bottom:14px;">More services</div>
+          <div style="display:flex;flex-direction:column;gap:8px;font-size:14px;">
+            <a href="standby-generator-installation.dc.html" style="color:#B9C2CE;">Standby Installation</a>
+            <a href="transfer-switch-installation.dc.html" style="color:#B9C2CE;">Transfer Switches</a>
+            <a href="commercial-standby-generators.dc.html" style="color:#B9C2CE;">Commercial</a>
+          </div>
+        </div>
+        <div>
+          <div style="font-family:var(--font-mono);font-size:10px;letter-spacing:.18em;text-transform:uppercase;color:#6E7A89;margin-bottom:14px;">Service area</div>
+          <div style="font-size:14px;color:#B9C2CE;line-height:2;">Fishers · Noblesville<br>Carmel · Westfield<br>Pendleton · Anderson</div>
+        </div>
+        <div>
+          <div style="font-family:var(--font-mono);font-size:10px;letter-spacing:.18em;text-transform:uppercase;color:#6E7A89;margin-bottom:14px;">Contact</div>
+          <div style="font-size:14px;color:#B9C2CE;line-height:2;"><!-- VERIFY:nap truth-doc -->(463) 283-5939<br>Fishers, IN<br>24/7 storm response</div>
+        </div>
+      </div>
+      <div style="border-top:1px solid var(--slab-rule);margin-top:28px;padding-top:18px;display:flex;justify-content:space-between;gap:16px;flex-wrap:wrap;font-family:var(--font-mono);font-size:11px;color:#6E7A89;">
+        <span>© 2026 Meridian Generator &amp; Electric · Authorized Generac Dealer</span>
+        <span style="color:#566273;">Generac is a trademark of its owner</span>
+      </div>
+    </div>
+  </footer>
+
+  <!-- ===== SHARED MOBILE CHROME ===== -->
+  <div class="mobile-bottom-bar" aria-hidden="true">
+    <div class="mbb-status"><span class="dot"></span><span>Open now · 24/7 storm response</span></div>
+    <div class="mbb-actions">
+      <a href="tel:#" class="mbb-call"><span class="mbb-icon">▣</span><span><span class="mbb-sm">Call</span><span class="mbb-lg">(463) 283-5939</span></span></a>
+      <a href="#contact" class="mbb-quote">Free Quote <span>→</span></a>
+    </div>
+  </div>
+  <div id="mobile-nav-overlay" class="mobile-nav-overlay"></div>
+  <nav id="mobile-nav" class="mobile-nav" aria-label="Mobile navigation" aria-hidden="true">
+    <div class="mobile-nav-header">
+      <a href="index.dc.html" style="display:flex;align-items:center;gap:11px;">
+        <span class="logo-mark logo-mark--invert logo-mark--34" aria-hidden="true"></span>
+        <span style="line-height:1;"><span style="display:block;font-family:var(--font-display);font-weight:800;font-size:16px;color:#fff;">MER<span class="mrd">I</span>DIAN</span><span style="display:block;font-family:var(--font-mono);font-size:8px;letter-spacing:.22em;color:var(--accent);margin-top:5px;">GENERATOR &amp; ELECTRIC</span></span>
+      </a>
+      <button class="mobile-nav-close" aria-label="Close menu">✕</button>
+    </div>
+    <div class="mobile-nav-scroll">
+    <!-- byline · R1 micro (under drawer lockup, above status eyebrow) -->
+      <p class="byline--micro byline--on-dark" style="margin:0 0 18px;"><span class="byline-tick" aria-hidden="true"></span><span class="byline-clause">Dealer-grade installs</span><span class="byline-sep" aria-hidden="true">·</span><span class="byline-clause byline-value">Owner-direct pricing</span></p>
+      <div class="mobile-menu-eyebrow"><span class="dot"></span><span>Open · Mon–Fri · 24/7 Storm Response</span></div>
+    <ul class="mobile-menu-primary">
+      <li><a href="standby-generator-installation.dc.html"><span class="mm-num">01</span><span class="mm-label">Standby Generator Services</span><span class="mm-meta">22 kW · 24–26 kW · natural gas · by-need</span></a></li>
+      <li><a href="transfer-switch-installation.dc.html"><span class="mm-num">02</span><span class="mm-label">Transfer Switch &amp; Electrical</span><span class="mm-meta">ATS · panel upgrade · load calc</span></a></li>
+      <li><a href="generator-service-repair.dc.html"><span class="mm-num">03</span><span class="mm-label">Maintenance &amp; Repair</span><span class="mm-meta">Take-over · diagnostics · plans</span></a></li>
+    </ul>
+    <div class="mobile-menu-section">
+      <div class="mm-section-label">Quick links</div>
+      <div class="mobile-menu-secondary">
+        <a href="standby-generator-installation.dc.html">All Services</a>
+        <a href="index.dc.html#areas">Service Areas</a>
+        <a href="commercial-standby-generators.dc.html">Commercial</a>
+        <a href="#contact">Contact</a>
+      </div>
+    </div>
+    <div class="mobile-menu-section">
+      <div class="mm-section-label">Service area</div>
+      <div class="mobile-menu-areas">
+        <span class="mm-area">Fishers</span><span class="mm-area">Noblesville</span><span class="mm-area">Carmel</span><span class="mm-area">Westfield</span><span class="mm-area">Pendleton</span><span class="mm-area">Anderson</span>
+      </div>
+    </div>
+    </div>
+    <!-- pinned action bar: call + quote. Never scrolls with the menu. -->
+    <div class="mobile-menu-cta">
+      <a href="tel:#" class="mm-call"><span class="mm-call-label">Tap to call</span><span class="mm-call-number">(463) 283-5939</span></a>
+      <a href="#contact" class="mm-quote"><span class="mm-call-label mm-quote-label">Fixed-bid</span><span class="mm-quote-action">Get a quote</span></a>
+      <div class="mm-license">Authorized Generac Dealer · Licensed &amp; insured · Free assessments</div>
+    </div>
+  </nav>
+
+</div>
+</x-dc>
+<script type="text/x-dc" data-dc-script>
+class Component extends DCLogic {
+  componentDidMount() {
+    const q = (s) => document.querySelector(s);
+    const burger = q('.hamburger'); const nav = q('#mobile-nav'); const overlay = q('#mobile-nav-overlay');
+    const closeBtn = q('.mobile-nav-close'); const bar = q('.mobile-bottom-bar');
+    if (!nav || !overlay || !burger) return;
+    const open = () => { nav.classList.add('open'); overlay.classList.add('open'); burger.setAttribute('aria-expanded','true'); nav.setAttribute('aria-hidden','false'); document.body.style.overflow='hidden'; const f=nav.querySelector('a, button'); if(f) setTimeout(()=>f.focus(),60); };
+    const close = () => { nav.classList.remove('open'); overlay.classList.remove('open'); burger.setAttribute('aria-expanded','false'); nav.setAttribute('aria-hidden','true'); document.body.style.overflow=''; };
+    const toggle = () => (nav.classList.contains('open') ? close() : open());
+    burger.addEventListener('click', toggle);
+    overlay.addEventListener('click', close);
+    if (closeBtn) closeBtn.addEventListener('click', () => { close(); burger.focus(); });
+    nav.querySelectorAll('a').forEach((a) => a.addEventListener('click', close));
+    this._onKey = (e) => { if (e.key === 'Escape' && nav.classList.contains('open')) { close(); burger.focus(); } };
+    document.addEventListener('keydown', this._onKey);
+    const mini = q('.scroll-mini');
+    if (bar || mini) { this._onScroll = () => { const y = window.scrollY||document.documentElement.scrollTop||0; if (bar) bar.classList.toggle('show', y > 480); if (mini) mini.classList.toggle('show', y > 480); }; this._onScroll(); window.addEventListener('scroll', this._onScroll, {passive:true}); }
+    this._burger = burger; this._toggle = toggle;
+  }
+  componentWillUnmount() {
+    if (this._onKey) document.removeEventListener('keydown', this._onKey);
+    if (this._onScroll) window.removeEventListener('scroll', this._onScroll);
+    if (this._burger && this._toggle) this._burger.removeEventListener('click', this._toggle);
+    document.body.style.overflow = '';
+  }
+  renderVals() { return {}; }
+}
+</script>
+</body>
+</html>

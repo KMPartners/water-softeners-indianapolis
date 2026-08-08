@@ -1,0 +1,36 @@
+<!-- @dsCard group="Components" viewport="700x210" name="Button" subtitle="Amber CTA, outline, ghost, call chip + states" -->
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<link rel="stylesheet" href="../../styles.css">
+<style>
+  body { margin: 0; background: var(--surface-card); padding: 28px; font-family: var(--font-body); }
+  .row { display: flex; flex-wrap: wrap; gap: 14px; align-items: center; }
+  .row + .row { margin-top: 16px; }
+  .lbl { font-family: var(--font-mono); font-size: 10px; letter-spacing: .14em; text-transform: uppercase; color: var(--ink3); width: 100%; }
+  .btn { display: inline-flex; align-items: center; gap: 9px; font-family: var(--font-display); font-weight: 700; font-size: 14px; line-height: 1; border-radius: var(--radius); padding: 13px 22px; border: 1px solid transparent; }
+  .primary { background: var(--accent); color: var(--accent-ink); }
+  .primary.hover { background: var(--accent-deep); color: #fff; }
+  .primary.focus { outline: 2px solid var(--accent-deep); outline-offset: 2px; }
+  .primary.disabled { opacity: .45; }
+  .secondary { background: transparent; color: var(--ink); border-color: var(--ink); }
+  .ghost { background: transparent; color: var(--accent-deep); padding: 4px 2px; text-decoration: underline; text-underline-offset: 3px; }
+  .call { background: transparent; color: var(--ink); border-color: var(--rule2); font-family: var(--font-mono); font-weight: 500; font-size: 13px; }
+  .dot { width: 7px; height: 7px; border-radius: 50%; background: var(--signal); }
+</style>
+</head>
+<body>
+  <div class="row"><span class="lbl">Primary · default / hover / focus / disabled</span>
+    <span class="btn primary">Get a quote <span>→</span></span>
+    <span class="btn primary hover">Get a quote <span>→</span></span>
+    <span class="btn primary focus">Get a quote <span>→</span></span>
+    <span class="btn primary disabled">Get a quote <span>→</span></span>
+  </div>
+  <div class="row"><span class="lbl">Secondary · ghost · call</span>
+    <span class="btn secondary">View sizing guide</span>
+    <span class="btn ghost">load calculation</span>
+    <span class="btn call"><span class="dot"></span>(463) 283-5939</span>
+  </div>
+</body>
+</html>

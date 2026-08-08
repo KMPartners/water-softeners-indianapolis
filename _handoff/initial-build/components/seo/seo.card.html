@@ -1,0 +1,35 @@
+<!-- @dsCard group="Components" viewport="700x520" name="Schema (JSON-LD)" subtitle="LocalBusiness · Service · FAQPage, Core30 Rule 5" -->
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<link rel="stylesheet" href="../../styles.css">
+<style>
+  body { margin: 0; background: var(--slab); padding: 24px; font-family: var(--font-mono); }
+  .lbl { font-size: 10px; letter-spacing: .18em; text-transform: uppercase; color: var(--accent); margin-bottom: 12px; }
+  pre { margin: 0; font-family: var(--font-mono); font-size: 11.5px; line-height: 1.55; color: #C7D0DB; background: var(--slab2); border: 1px solid var(--slab-rule); border-radius: var(--radius); padding: 18px 20px; overflow: auto; white-space: pre-wrap; }
+  .k { color: #9BA6B4; }
+  .s { color: var(--accent); }
+  .note { color: var(--status-green); }
+  .flag { color: var(--signal); }
+</style>
+</head>
+<body>
+  <div class="lbl">Service page · emitted structured data</div>
+  <pre>{
+  <span class="k">"@context"</span>: <span class="s">"https://schema.org"</span>,
+  <span class="k">"@type"</span>: <span class="s">"Service"</span>,
+  <span class="k">"serviceType"</span>: <span class="s">"22 kW Generator Installation"</span>,
+  <span class="k">"description"</span>: <span class="s">"A 22 kW Generac Guardian restores your whole home..."</span>,
+  <span class="k">"provider"</span>: {                 <span class="note">// byte-identical across pages</span>
+    <span class="k">"@type"</span>: <span class="s">"Electrician"</span>,
+    <span class="k">"name"</span>: <span class="s">"Meridian Generator &amp; Electric"</span>,
+    <span class="k">"telephone"</span>: <span class="flag">"+1-463-283-5939"</span>,   <span class="flag">// VERIFY: truth doc</span>
+    <span class="k">"areaServed"</span>: [<span class="s">"Fishers"</span>, <span class="s">"Noblesville"</span>, <span class="s">"Carmel"</span>, ...]
+  },
+  <span class="k">"areaServed"</span>: { <span class="k">"@type"</span>: <span class="s">"City"</span>, <span class="k">"name"</span>: <span class="s">"Fishers"</span> },
+  <span class="k">"offers"</span>: { <span class="k">"@type"</span>: <span class="s">"Offer"</span>, <span class="k">"priceCurrency"</span>: <span class="s">"USD"</span> }
+  <span class="note">// aggregateRating OMITTED, zero reviews at launch, never fabricated</span>
+}</pre>
+</body>
+</html>

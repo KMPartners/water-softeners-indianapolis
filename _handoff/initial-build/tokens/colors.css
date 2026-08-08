@@ -1,0 +1,52 @@
+/* ============================================================================
+   Meridian · Color tokens (LOCKED)
+   The only colors any page may use. Components reference var(--…) only,
+   never a literal hex. Amber nods to the Generac yellow LED without copying
+   Generac's brand color: Meridian stands alone.
+   ============================================================================ */
+:root {
+  /* --- base surfaces (light) --- */
+  --bg:        #F6F7F9;   /* page background */
+  --bg2:       #ECEFF3;   /* alternate section background */
+
+  /* --- ink (text) --- */
+  --ink:       #161D29;   /* headings + body */
+  --ink2:      #4A5663;   /* lede + secondary */
+  --ink3:      #828D9B;   /* mono labels + muted */
+
+  /* --- rules / borders --- */
+  --rule:      #DCE1E8;   /* hairline divider */
+  --rule2:     #C4CCD6;   /* stronger border (inputs, pills) */
+
+  /* --- dark slab surfaces --- */
+  --slab:      #111824;   /* hero + footer + CTA */
+  --slab2:     #1B2433;   /* raised dark card */
+  --slab-rule: #2C3849;   /* divider on dark */
+
+  /* --- accent (amber, the workhorse) --- */
+  --accent:      #F2A40C; /* links · bullets · CTA */
+  --accent-deep: #B87808; /* underline · hover fill · shadow */
+  --accent-ink:  #1A1206; /* text on amber */
+
+  /* --- signal + status --- */
+  --signal:       #F2541B; /* urgency / alt accent */
+  --status-green: #3FB47C; /* open / confirmed */
+
+  /* --- semantic aliases (prefer these in new work) --- */
+  --text-strong:  var(--ink);
+  --text-body:    var(--ink2);
+  --text-muted:   var(--ink3);
+  --surface:      var(--bg);
+  --surface-alt:  var(--bg2);
+  --surface-card: #ffffff;
+  --surface-dark: var(--slab);
+  --surface-dark-raised: var(--slab2);
+  --border:        var(--rule);
+  --border-strong: var(--rule2);
+  --border-dark:   var(--slab-rule);
+  --brand:      var(--accent);
+  --brand-deep: var(--accent-deep);
+  --brand-ink:  var(--accent-ink);
+  --danger:     var(--signal);
+  --success:    var(--status-green);
+}

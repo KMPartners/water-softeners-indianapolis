@@ -1,0 +1,22 @@
+/* ============================================================================
+   Meridian · Spacing, radius & layout tokens (LOCKED)
+   8px base scale with a few optical in-betweens. Flat 2px radius everywhere.
+   ============================================================================ */
+:root {
+  --space-4:  4px;   /* hairline nudge · icon gaps */
+  --space-8:  8px;   /* tight stack · chip gap */
+  --space-12: 12px;  /* button gap · row gap */
+  --space-16: 16px;  /* card inner gap */
+  --space-24: 24px;  /* small block padding */
+  --space-32: 32px;  /* card padding */
+  --space-48: 48px;  /* small section padding */
+  --space-64: 64px;  /* section rhythm */
+  --space-96: 96px;  /* major section break */
+
+  --radius: 2px;     /* every surface; pills use 999px */
+  --radius-pill: 999px;
+
+  --container:     1140px;                    /* page container max-width */
+  --container-pad: clamp(24px, 5vw, 56px);    /* clamped side padding */
+  --measure:       66ch;                      /* default prose measure */
+}

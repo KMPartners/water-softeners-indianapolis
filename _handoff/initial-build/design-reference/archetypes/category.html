@@ -1,0 +1,483 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Archivo:wght@500;600;700;800;900&family=Hanken+Grotesk:wght@400;500;600;700&family=IBM+Plex+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+<style>
+  *{box-sizing:border-box;}
+  body{margin:0;}
+  a{color:inherit;text-decoration:none;}
+  .ks-field{width:100%;font-family:var(--font-body);font-size:15px;color:var(--ink);background:#fff;border:1px solid var(--rule2);border-radius:var(--radius);padding:12px 14px;outline:none;transition:border-color .15s ease,box-shadow .15s ease;}
+  .ks-field:focus{border-color:var(--accent);box-shadow:0 0 0 3px rgba(242,164,12,.18);}
+  .ks-field::placeholder{color:var(--ink3);}
+  select.ks-field{appearance:none;-webkit-appearance:none;background-image:linear-gradient(45deg,transparent 50%,var(--ink3) 50%),linear-gradient(135deg,var(--ink3) 50%,transparent 50%);background-position:calc(100% - 18px) 19px,calc(100% - 13px) 19px;background-size:5px 5px;background-repeat:no-repeat;}
+  @media (max-width:860px){ .ks-contact-grid{grid-template-columns:1fr !important;} }
+</style>
+<style>
+  /* paint hidden-state BEFORE async mobile-chrome.css to prevent first-load flash (no transition on initial paint) */
+  .mobile-nav{position:fixed;top:0;right:0;bottom:0;transform:translateX(102%);}
+  .mobile-bottom-bar{position:fixed;left:0;right:0;bottom:0;transform:translateY(110%);}
+  .mobile-nav-overlay{opacity:0;visibility:hidden;}
+</style>
+<link rel="stylesheet" href="assets/mobile-chrome.css">
+<link rel="stylesheet" href="assets/logo.css">
+<link rel="icon" href="assets/favicon.svg">
+<!-- byline system: linked AFTER brand styles · tokens only (do not hand-edit) -->
+<link rel="stylesheet" href="assets/byline.css">
+<!-- scroll mini-menu (2B, locked) · linked AFTER brand styles · tokens only (do not hand-edit) -->
+<link rel="stylesheet" href="assets/scroll-menu.css">
+<!-- ===== Rule 5 · Category = Service JSON-LD · provider block BYTE-IDENTICAL across every page · aggregateRating omitted (zero reviews) ===== -->
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@type": "Service",
+  "serviceType": "Standby Generator Installation",
+  "name": "Standby Generator Installation",
+  "description": "Whole-house Generac standby generator installation in Fishers, Indiana, sized by size, fuel, and backup need, with transparent fixed-bid pricing from a factory-authorized dealer.",
+  "provider": {
+    "@type": "Electrician",
+    "name": "Meridian Generator & Electric",
+    "telephone": "+1-463-283-5939",
+    "url": "https://example.com/",
+    "address": {
+      "@type": "PostalAddress",
+      "streetAddress": "VERIFY-STREET",
+      "addressLocality": "Fishers",
+      "addressRegion": "IN",
+      "postalCode": "46038",
+      "addressCountry": "US"
+    }
+  },
+  "areaServed": [
+    {"@type": "City", "name": "Fishers, IN"},
+    {"@type": "City", "name": "Noblesville, IN"},
+    {"@type": "City", "name": "Carmel, IN"},
+    {"@type": "City", "name": "Westfield, IN"},
+    {"@type": "City", "name": "Pendleton, IN"},
+    {"@type": "City", "name": "Anderson, IN"}
+  ],
+  "offers": {
+    "@type": "Offer",
+    "priceCurrency": "USD",
+    "availability": "https://schema.org/InStock",
+    "description": "Transparent, fixed-bid installation quote sized to your home."
+  }
+}
+</script>
+<!-- ===== FAQPage schema · mirrors the visible Sizing &amp; install questions section ===== -->
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@type": "FAQPage",
+  "mainEntity": [
+    {"@type": "Question", "name": "What size standby generator do I need?", "acceptedAnswer": {"@type": "Answer", "text": "It is set by the electrical load you want to keep running, not your home's square footage. Most Fishers and Noblesville homes run the whole house on a 22 kW unit; smaller or partial-home setups use 14-18 kW, and large homes with electric heat or EV charging may need 24-26 kW. An on-site NEC 220 load calculation gives the exact answer."}},
+    {"@type": "Question", "name": "What's the difference between air-cooled and liquid-cooled generators?", "acceptedAnswer": {"@type": "Answer", "text": "Air-cooled units (typically 10-26 kW) cover the vast majority of homes and cost far less to buy and install. Liquid-cooled units handle much larger loads and are built for estates and light-commercial buildings. Most Fishers homes are well served by an air-cooled Generac Guardian."}},
+    {"@type": "Question", "name": "Should I run my generator on natural gas or propane?", "acceptedAnswer": {"@type": "Answer", "text": "If your home has natural gas, that is almost always best: it is an essentially unlimited supply, so the unit runs as long as the outage lasts. Propane suits rural properties without a gas main, and we size the tank for extended outages."}},
+    {"@type": "Question", "name": "Do I need a permit to install a home generator?", "acceptedAnswer": {"@type": "Answer", "text": "Yes. A standby generator install requires an electrical permit, and gas-line work and placement must meet code. We pull the permit with your local authority, file an Indiana 811 locate before digging, and handle the inspection."}}
+  ]
+}
+</script>
+</helmet>
+<div style="--bg:#F6F7F9;--bg2:#ECEFF3;--ink:#161D29;--ink2:#4A5663;--ink3:#828D9B;--rule:#DCE1E8;--rule2:#C4CCD6;--slab:#111824;--slab2:#1B2433;--slab-rule:#2C3849;--accent:#F2A40C;--accent-deep:#B87808;--accent-ink:#1A1206;--signal:#F2541B;--status-green:#3FB47C;--radius:2px;--container-pad:clamp(24px,5vw,56px);--font-display:'Archivo',sans-serif;--font-body:'Hanken Grotesk',sans-serif;--font-mono:'IBM Plex Mono',monospace;--fs-h2:clamp(26px,3.4vw,46px);--fs-h3:clamp(19px,2.2vw,28px);--fs-lede:clamp(16px,1.5vw,19px);background:var(--bg);color:var(--ink);font-family:var(--font-body);width:100%;min-height:100%;-webkit-font-smoothing:antialiased;line-height:1.5;" data-screen-label="Category · Standby Generator Installation">
+
+  <!-- ===== SITE HEADER (shared) ===== -->
+  <header>
+    <div style="background:var(--slab);color:#fff;">
+      <div style="padding:0 var(--container-pad);"><div style="max-width:1140px;margin:0 auto;display:flex;justify-content:space-between;align-items:center;gap:16px;padding:9px 0;flex-wrap:wrap;">
+      <span style="font-family:var(--font-mono);font-size:10.5px;letter-spacing:.14em;text-transform:uppercase;color:var(--accent);">Authorized Generac Dealer · Warranty-Compliant Service</span>
+      <span style="font-family:var(--font-mono);font-size:10.5px;letter-spacing:.1em;color:#9BA6B4;">Fishers · Noblesville · Hamilton &amp; Madison Co.</span>
+      </div></div>
+    </div>
+    <div style="background:var(--slab2);box-shadow:inset 0 1px 0 var(--slab-rule);">
+      <div style="padding:0 var(--container-pad);"><div style="max-width:1140px;margin:0 auto;display:flex;align-items:center;justify-content:space-between;gap:20px;padding:16px 0;flex-wrap:wrap;">
+      <button class="hamburger" aria-label="Open menu" aria-expanded="false" aria-controls="mobile-nav"><span></span><span></span><span></span><span class="hamburger-label">Menu</span></button>
+      <a href="index.dc.html" style="display:flex;align-items:center;gap:13px;">
+        <span style="line-height:1;"><span style="display:block;font-family:var(--font-display);font-weight:800;font-size:21px;letter-spacing:.005em;color:#fff;">MER<span class="mrd">I</span>DIAN</span><span style="display:block;font-family:var(--font-mono);font-size:9px;letter-spacing:.22em;color:#9BA6B4;margin-top:6px;">GENERATOR &amp; ELECTRIC</span></span>
+      </a>
+      <nav class="desktop-nav" aria-label="Primary">
+        <a href="standby-generator-installation.dc.html" style="font-family:var(--font-body);font-weight:700;font-size:14px;color:var(--accent);">Generators</a>
+        <a href="generator-service-repair.dc.html" style="font-family:var(--font-body);font-weight:600;font-size:14px;color:#D8DEE7;">Service &amp; Take-Over</a>
+        <a href="transfer-switch-installation.dc.html" style="font-family:var(--font-body);font-weight:600;font-size:14px;color:#D8DEE7;">Transfer Switches</a>
+        <a href="commercial-standby-generators.dc.html" style="font-family:var(--font-body);font-weight:600;font-size:14px;color:#D8DEE7;">Commercial</a>
+        <a href="tel:#" style="font-family:var(--font-display);font-weight:700;font-size:13px;background:var(--accent);color:var(--accent-ink);padding:11px 18px;border-radius:var(--radius);"><!-- VERIFY:nap -->(463) 283-5939</a>
+      </nav>
+      </div></div>
+    </div>
+    <div style="height:3px;background:var(--accent);"></div>
+  </header>
+
+  <!-- ===== SCROLL MINI-MENU (2B · locked · desktop only) ===== -->
+  <div class="scroll-mini" aria-label="Condensed header">
+    <div class="scroll-mini-plate">
+      <div class="scroll-mini-pad">
+        <div class="scroll-mini-row">
+          <div class="scroll-mini-id">
+            <a href="index.dc.html" class="scroll-mini-word">MER<span class="mrd">I</span>DIAN</a>
+            <span class="scroll-mini-div" aria-hidden="true"></span>
+            <span class="scroll-mini-page">Standby Generator Installation</span>
+          </div>
+          <a href="#contact" class="scroll-mini-cta">Get a fixed-bid quote <span aria-hidden="true">&rarr;</span></a>
+        </div>
+      </div>
+    </div>
+    <div class="scroll-mini-seam" aria-hidden="true"></div>
+  </div>
+
+  <!-- ===== BREADCRUMB (Rule 3 · links UP) ===== -->
+  <nav aria-label="Breadcrumb" style="background:var(--bg2);padding:14px var(--container-pad);border-bottom:1px solid var(--rule);font-family:var(--font-mono);font-size:12px;letter-spacing:.04em;">
+    <a href="index.dc.html" style="color:var(--accent-deep);">Home</a> <span style="opacity:.4;">/</span> <span style="color:var(--ink2);">Standby Generator Installation</span>
+  </nav>
+
+  <!-- ===== CATEGORY HERO · H1 = Trinity (Rule 1) · lede sentence 1 = goal completion (Rule 2) ===== -->
+  <section style="background:var(--slab);color:#fff;padding:clamp(40px,6vw,80px) var(--container-pad) clamp(36px,5vw,64px);">
+    <div style="max-width:1140px;margin:0 auto;">
+      <!-- byline · R1 eyebrow (positioning chrome, never Trinity) -->
+      <p class="byline--eyebrow byline--on-dark" style="margin:0 0 14px;"><span class="byline-tick" aria-hidden="true"></span><span class="byline-clause">Dealer-grade installs</span><span class="byline-sep" aria-hidden="true">·</span><span class="byline-clause byline-value">Owner-direct pricing</span></p>
+      <div style="font-family:var(--font-mono);font-size:11px;letter-spacing:.24em;text-transform:uppercase;color:var(--accent);margin-bottom:18px;">Category · Generators</div>
+      <h1 style="font-family:var(--font-display);font-weight:900;font-size:clamp(32px,5vw,64px);line-height:1;letter-spacing:-.02em;margin:0 0 20px;max-width:18ch;">Standby Generator Installation <span style="color:var(--accent);">Fishers, IN</span></h1>
+      <p style="font-size:var(--fs-lede);color:#B9C2CE;max-width:62ch;margin:0 0 28px;line-height:1.55;"><strong style="color:#fff;">Whatever your home needs to stay powered, we install the right Generac standby generator for it, sized by load, not by sales target.</strong> Browse by unit size, by fuel, or by the exact backup you're protecting, and get a transparent fixed-bid quote from a factory-authorized dealer.</p>
+      <div style="display:flex;gap:12px;flex-wrap:wrap;">
+        <a href="#contact" style="font-family:var(--font-display);font-weight:700;font-size:14px;background:var(--accent);color:var(--accent-ink);padding:14px 22px;border-radius:var(--radius);">Get a fixed-bid quote →</a>
+        <a href="tel:#" style="font-family:var(--font-mono);font-size:13px;font-weight:500;color:#fff;border:1px solid var(--slab-rule);padding:13px 18px;border-radius:var(--radius);display:inline-flex;align-items:center;gap:9px;"><span style="width:7px;height:7px;border-radius:50%;background:var(--accent);"></span><!-- VERIFY:nap -->(463) 283-5939</a>
+      </div>
+    </div>
+  </section>
+
+  <!-- ===== SIZING GUIDE (educational · goal-completion UX) ===== -->
+  <section style="max-width:1140px;margin:0 auto;padding:clamp(40px,6vw,64px) var(--container-pad) clamp(8px,2vw,16px);">
+    <div style="display:flex;align-items:baseline;gap:14px;margin-bottom:14px;">
+      <h2 style="font-family:var(--font-display);font-weight:800;font-size:var(--fs-h2);letter-spacing:-.015em;margin:0;">How to choose your size</h2>
+      <div style="flex:1;height:1px;background:var(--rule);"></div>
+    </div>
+    <p style="font-size:var(--fs-lede);color:var(--ink2);line-height:1.6;margin:0 0 26px;max-width:64ch;">Generator size is set by the <strong style="color:var(--ink);">load you want to keep running</strong>, not your home's square footage. Use this as a starting point, then we'll confirm the exact fit with an on-site NEC&nbsp;220 load calculation before you commit to anything.</p>
+    <div style="border:1px solid var(--rule);border-radius:var(--radius);overflow:hidden;">
+      <div style="display:grid;grid-template-columns:120px 1fr 1.4fr;gap:0;background:var(--slab);color:#fff;">
+        <div style="padding:14px 20px;font-family:var(--font-mono);font-size:11px;letter-spacing:.12em;text-transform:uppercase;color:var(--accent);">Size</div>
+        <div style="padding:14px 20px;font-family:var(--font-mono);font-size:11px;letter-spacing:.12em;text-transform:uppercase;color:#9BA6B4;">Best for</div>
+        <div style="padding:14px 20px;font-family:var(--font-mono);font-size:11px;letter-spacing:.12em;text-transform:uppercase;color:#9BA6B4;">What it typically runs</div>
+      </div>
+      <a href="22kw-whole-house-generator-installation.dc.html" style="display:grid;grid-template-columns:120px 1fr 1.4fr;background:var(--bg2);border-top:2px solid var(--accent);align-items:center;">
+        <div style="padding:18px 20px;"><span style="font-family:var(--font-display);font-weight:800;font-size:19px;color:var(--ink);">22 kW</span><span style="display:block;font-family:var(--font-mono);font-size:10px;letter-spacing:.08em;color:var(--accent-deep);margin-top:4px;">MOST POPULAR</span></div>
+        <div style="padding:18px 20px;font-size:14.5px;color:var(--ink);font-weight:600;">Most Fishers / Noblesville homes</div>
+        <div style="padding:18px 20px;font-size:14px;color:var(--ink2);line-height:1.5;">Whole house on natural gas: A/C, furnace, well/sump pump, kitchen, living circuits.</div>
+      </a>
+      <a href="24-26kw-generator-installation.dc.html" style="display:grid;grid-template-columns:120px 1fr 1.4fr;background:#fff;border-top:1px solid var(--rule);align-items:center;">
+        <div style="padding:18px 20px;"><span style="font-family:var(--font-display);font-weight:800;font-size:19px;color:var(--ink);">24&ndash;26 kW</span></div>
+        <div style="padding:18px 20px;font-size:14.5px;color:var(--ink);font-weight:600;">Large &amp; high-demand homes</div>
+        <div style="padding:18px 20px;font-size:14px;color:var(--ink2);line-height:1.5;">Electric heat, two HVAC systems, EV charging, 2,500+ sq&nbsp;ft.</div>
+      </a>
+      <a href="18kw-standby-generator-installation.dc.html" style="display:grid;grid-template-columns:120px 1fr 1.4fr;background:#fff;border-top:1px solid var(--rule);align-items:center;">
+        <div style="padding:18px 20px;"><span style="font-family:var(--font-display);font-weight:800;font-size:19px;color:var(--ink);">18 kW</span></div>
+        <div style="padding:18px 20px;font-size:14.5px;color:var(--ink);font-weight:600;">Mid-size &amp; older homes</div>
+        <div style="padding:18px 20px;font-size:14px;color:var(--ink2);line-height:1.5;">Whole-home with a Smart Management Module shedding peak loads.</div>
+      </a>
+      <a href="14kw-standby-generator-installation.dc.html" style="display:grid;grid-template-columns:120px 1fr 1.4fr;background:#fff;border-top:1px solid var(--rule);align-items:center;">
+        <div style="padding:18px 20px;"><span style="font-family:var(--font-display);font-weight:800;font-size:19px;color:var(--ink);">14 kW</span></div>
+        <div style="padding:18px 20px;font-size:14.5px;color:var(--ink);font-weight:600;">Smaller homes, gas heat</div>
+        <div style="padding:18px 20px;font-size:14px;color:var(--ink2);line-height:1.5;">Entry whole-home with load management on the essentials.</div>
+      </a>
+      <a href="10kw-essential-circuit-generator-installation.dc.html" style="display:grid;grid-template-columns:120px 1fr 1.4fr;background:#fff;border-top:1px solid var(--rule);align-items:center;">
+        <div style="padding:18px 20px;"><span style="font-family:var(--font-display);font-weight:800;font-size:19px;color:var(--ink);">10 kW</span></div>
+        <div style="padding:18px 20px;font-size:14.5px;color:var(--ink);font-weight:600;">The essentials only</div>
+        <div style="padding:18px 20px;font-size:14px;color:var(--ink2);line-height:1.5;">Fridge, sump pump, furnace blower, and a handful of critical circuits.</div>
+      </a>
+    </div>
+    <p style="font-family:var(--font-mono);font-size:11px;color:var(--ink3);margin:12px 0 0;">Tap any row for that size's installation page. Final sizing is confirmed by load calculation.</p>
+  </section>
+
+  <!-- ===== CHILD GRID · Rule 3: parent links DOWN to EVERY child ===== -->
+  <section style="max-width:1140px;margin:0 auto;padding:clamp(40px,6vw,64px) var(--container-pad) clamp(8px,2vw,16px);">
+
+    <!-- Sub-group: By size -->
+    <div style="display:flex;align-items:baseline;gap:14px;margin-bottom:22px;">
+      <span style="font-family:var(--font-mono);font-size:12px;color:var(--accent-deep);font-weight:600;">01</span>
+      <h2 style="font-family:var(--font-display);font-weight:800;font-size:var(--fs-h3);letter-spacing:-.01em;margin:0;">Whole-home standby, by size</h2>
+      <div style="flex:1;height:1px;background:var(--rule);"></div>
+    </div>
+    <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(240px,1fr));gap:1px;background:var(--rule);border:1px solid var(--rule);border-radius:var(--radius);overflow:hidden;margin-bottom:44px;">
+      <a href="22kw-whole-house-generator-installation.dc.html" style="background:#fff;padding:24px 22px;display:block;">
+        <div style="display:flex;justify-content:space-between;align-items:center;gap:10px;margin-bottom:10px;"><span style="font-family:var(--font-mono);font-size:11px;color:var(--accent-deep);letter-spacing:.06em;">MOST POPULAR</span><span style="color:var(--accent);font-weight:800;">→</span></div>
+        <div style="font-family:var(--font-display);font-weight:700;font-size:18px;margin-bottom:6px;">22 kW Whole-House</div>
+        <div style="font-size:13.5px;color:var(--ink2);line-height:1.5;">The best-selling size for most Fishers homes.</div>
+      </a>
+      <a href="24-26kw-generator-installation.dc.html" style="background:#fff;padding:24px 22px;display:block;">
+        <div style="display:flex;justify-content:space-between;align-items:center;gap:10px;margin-bottom:10px;"><span style="font-family:var(--font-mono);font-size:11px;color:var(--ink3);letter-spacing:.06em;">LARGE HOMES</span><span style="color:var(--accent);font-weight:800;">→</span></div>
+        <div style="font-family:var(--font-display);font-weight:700;font-size:18px;margin-bottom:6px;">24–26 kW</div>
+        <div style="font-size:13.5px;color:var(--ink2);line-height:1.5;">Electric heat, multiple HVAC, EV charging.</div>
+      </a>
+      <a href="18kw-standby-generator-installation.dc.html" style="background:#fff;padding:24px 22px;display:block;">
+        <div style="display:flex;justify-content:space-between;align-items:center;gap:10px;margin-bottom:10px;"><span style="font-family:var(--font-mono);font-size:11px;color:var(--ink3);letter-spacing:.06em;">MID-RANGE</span><span style="color:var(--accent);font-weight:800;">→</span></div>
+        <div style="font-family:var(--font-display);font-weight:700;font-size:18px;margin-bottom:6px;">18 kW</div>
+        <div style="font-size:13.5px;color:var(--ink2);line-height:1.5;">Older or mid-size homes with load management.</div>
+      </a>
+      <a href="14kw-standby-generator-installation.dc.html" style="background:#fff;padding:24px 22px;display:block;">
+        <div style="display:flex;justify-content:space-between;align-items:center;gap:10px;margin-bottom:10px;"><span style="font-family:var(--font-mono);font-size:11px;color:var(--ink3);letter-spacing:.06em;">ENTRY</span><span style="color:var(--accent);font-weight:800;">→</span></div>
+        <div style="font-family:var(--font-display);font-weight:700;font-size:18px;margin-bottom:6px;">14 kW</div>
+        <div style="font-size:13.5px;color:var(--ink2);line-height:1.5;">Entry whole-home with smart load-shedding.</div>
+      </a>
+      <a href="10kw-essential-circuit-generator-installation.dc.html" style="background:#fff;padding:24px 22px;display:block;">
+        <div style="display:flex;justify-content:space-between;align-items:center;gap:10px;margin-bottom:10px;"><span style="font-family:var(--font-mono);font-size:11px;color:var(--ink3);letter-spacing:.06em;">ESSENTIALS</span><span style="color:var(--accent);font-weight:800;">→</span></div>
+        <div style="font-family:var(--font-display);font-weight:700;font-size:18px;margin-bottom:6px;">10 kW Essential-Circuit</div>
+        <div style="font-size:13.5px;color:var(--ink2);line-height:1.5;">Honestly-sized backup for the essentials.</div>
+      </a>
+    </div>
+
+    <!-- Sub-group: By fuel & site prep -->
+    <div style="display:flex;align-items:baseline;gap:14px;margin-bottom:22px;">
+      <span style="font-family:var(--font-mono);font-size:12px;color:var(--accent-deep);font-weight:600;">02</span>
+      <h2 style="font-family:var(--font-display);font-weight:800;font-size:var(--fs-h3);letter-spacing:-.01em;margin:0;">Fuel &amp; site prep</h2>
+      <div style="flex:1;height:1px;background:var(--rule);"></div>
+    </div>
+    <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(240px,1fr));gap:1px;background:var(--rule);border:1px solid var(--rule);border-radius:var(--radius);overflow:hidden;margin-bottom:44px;">
+      <a href="natural-gas-generator-installation.dc.html" style="background:#fff;padding:24px 22px;display:block;"><div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:10px;"><span style="font-family:var(--font-mono);font-size:11px;color:var(--accent-deep);letter-spacing:.06em;">MOST COMMON</span><span style="color:var(--accent);font-weight:800;">→</span></div><div style="font-family:var(--font-display);font-weight:700;font-size:18px;margin-bottom:6px;">Natural-Gas Install</div><div style="font-size:13.5px;color:var(--ink2);line-height:1.5;">The default across developed Fishers/Noblesville.</div></a>
+      <a href="propane-generator-installation.dc.html" style="background:#fff;padding:24px 22px;display:block;"><div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:10px;"><span style="font-family:var(--font-mono);font-size:11px;color:var(--ink3);letter-spacing:.06em;">RURAL</span><span style="color:var(--accent);font-weight:800;">→</span></div><div style="font-family:var(--font-display);font-weight:700;font-size:18px;margin-bottom:6px;">Propane (LP) Install</div><div style="font-size:13.5px;color:var(--ink2);line-height:1.5;">With tank coordination for rural Madison County.</div></a>
+      <a href="gas-line-installation-upsizing.dc.html" style="background:#fff;padding:24px 22px;display:block;"><div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:10px;"><span style="font-family:var(--font-mono);font-size:11px;color:var(--ink3);letter-spacing:.06em;">PRE-INSTALL</span><span style="color:var(--accent);font-weight:800;">→</span></div><div style="font-family:var(--font-display);font-weight:700;font-size:18px;margin-bottom:6px;">Gas-Line &amp; Meter Upsizing</div><div style="font-size:13.5px;color:var(--ink2);line-height:1.5;">So an undersized meter never starves the unit.</div></a>
+      <a href="electrical-panel-service-upgrade.dc.html" style="background:#fff;padding:24px 22px;display:block;"><div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:10px;"><span style="font-family:var(--font-mono);font-size:11px;color:var(--ink3);letter-spacing:.06em;">PRE-INSTALL</span><span style="color:var(--accent);font-weight:800;">→</span></div><div style="font-family:var(--font-display);font-weight:700;font-size:18px;margin-bottom:6px;">Panel / Service Upgrade</div><div style="font-size:13.5px;color:var(--ink2);line-height:1.5;">Bring the load center up to spec for standby.</div></a>
+      <a href="generator-concrete-pad-installation.dc.html" style="background:#fff;padding:24px 22px;display:block;"><div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:10px;"><span style="font-family:var(--font-mono);font-size:11px;color:var(--ink3);letter-spacing:.06em;">SITE</span><span style="color:var(--accent);font-weight:800;">→</span></div><div style="font-family:var(--font-display);font-weight:700;font-size:18px;margin-bottom:6px;">Pad Installation</div><div style="font-size:13.5px;color:var(--ink2);line-height:1.5;">Code-clearance composite pad, level and anchored.</div></a>
+    </div>
+
+    <!-- Sub-group: By need -->
+    <div style="display:flex;align-items:baseline;gap:14px;margin-bottom:22px;">
+      <span style="font-family:var(--font-mono);font-size:12px;color:var(--accent-deep);font-weight:600;">03</span>
+      <h2 style="font-family:var(--font-display);font-weight:800;font-size:var(--fs-h3);letter-spacing:-.01em;margin:0;">Backup by need</h2>
+      <div style="flex:1;height:1px;background:var(--rule);"></div>
+    </div>
+    <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(220px,1fr));gap:1px;background:var(--rule);border:1px solid var(--rule);border-radius:var(--radius);overflow:hidden;margin-bottom:12px;">
+      <a href="sump-pump-backup-generator.dc.html" style="background:#fff;padding:22px;display:flex;justify-content:space-between;align-items:center;gap:10px;"><span style="font-family:var(--font-display);font-weight:700;font-size:16px;">Sump-Pump Backup</span><span style="color:var(--accent);font-weight:800;">→</span></a>
+      <a href="medical-equipment-backup-generator.dc.html" style="background:#fff;padding:22px;display:flex;justify-content:space-between;align-items:center;gap:10px;"><span style="font-family:var(--font-display);font-weight:700;font-size:16px;">Medical-Equipment Backup</span><span style="color:var(--accent);font-weight:800;">→</span></a>
+      <a href="ev-charger-backup-generator.dc.html" style="background:#fff;padding:22px;display:flex;justify-content:space-between;align-items:center;gap:10px;"><span style="font-family:var(--font-display);font-weight:700;font-size:16px;">EV-Charger Backup</span><span style="color:var(--accent);font-weight:800;">→</span></a>
+      <a href="well-pump-backup-generator.dc.html" style="background:#fff;padding:22px;display:flex;justify-content:space-between;align-items:center;gap:10px;"><span style="font-family:var(--font-display);font-weight:700;font-size:16px;">Well-Pump Backup</span><span style="color:var(--accent);font-weight:800;">→</span></a>
+      <a href="furnace-hvac-backup-generator.dc.html" style="background:#fff;padding:22px;display:flex;justify-content:space-between;align-items:center;gap:10px;"><span style="font-family:var(--font-display);font-weight:700;font-size:16px;">Furnace &amp; HVAC Backup</span><span style="color:var(--accent);font-weight:800;">→</span></a>
+      <a href="food-storage-backup-generator.dc.html" style="background:#fff;padding:22px;display:flex;justify-content:space-between;align-items:center;gap:10px;"><span style="font-family:var(--font-display);font-weight:700;font-size:16px;">Food-Storage Backup</span><span style="color:var(--accent);font-weight:800;">→</span></a>
+    </div>
+  </section>
+
+  <!-- ===== WHY / GOAL CONTENT + external authority (Rule 6) ===== -->
+  <section style="max-width:1140px;margin:0 auto;padding:clamp(32px,5vw,56px) var(--container-pad);">
+    <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(280px,1fr));gap:24px;">
+      <div style="background:var(--bg2);border:1px solid var(--rule);border-radius:var(--radius);padding:28px;">
+        <h2 style="font-family:var(--font-display);font-weight:800;font-size:var(--fs-h3);letter-spacing:-.01em;margin:0 0 12px;">Sizing is the whole job</h2>
+        <p style="font-size:15px;color:var(--ink2);line-height:1.6;margin:0;">Every install starts with an NEC 220 load calculation, so you buy the unit your home actually needs, not the one that's easiest to upsell. In Fishers and Noblesville, outages are typically <strong style="color:var(--ink);">Duke Energy</strong> or <strong style="color:var(--ink);">AES Indiana</strong> storm events; in Anderson, <strong style="color:var(--ink);">Anderson Municipal Light &amp; Power</strong>. <!-- VERIFY:permit-portal RESEARCH §3 --></p>
+      </div>
+      <div style="background:var(--bg2);border:1px solid var(--rule);border-radius:var(--radius);padding:28px;">
+        <h2 style="font-family:var(--font-display);font-weight:800;font-size:var(--fs-h3);letter-spacing:-.01em;margin:0 0 12px;">Installed to code</h2>
+        <p style="font-size:15px;color:var(--ink2);line-height:1.6;margin:0 0 18px;">Whole-house standby is wired as an optional standby system under the National Electrical Code, with transfer equipment and overcurrent protection sized to spec.</p>
+        <!-- VERIFY:external-url confirm canonical NFPA/NEC 702 URL -->
+        <a href="https://www.nfpa.org/" target="_blank" rel="noopener" style="display:inline-flex;align-items:center;gap:10px;font-family:var(--font-display);font-weight:700;font-size:14px;color:var(--ink);border:1px solid var(--ink);padding:12px 18px;border-radius:var(--radius);">NFPA 70 (NEC) Article 702 <span style="color:var(--accent-deep);">↗</span></a>
+      </div>
+    </div>
+  </section>
+
+  <!-- ===== CATEGORY FAQ (goal-completion · matches FAQPage schema) ===== -->
+  <section style="max-width:1140px;margin:0 auto;padding:clamp(8px,2vw,16px) var(--container-pad) clamp(36px,5vw,56px);">
+    <div style="display:flex;align-items:baseline;gap:14px;margin-bottom:24px;">
+      <h2 style="font-family:var(--font-display);font-weight:800;font-size:var(--fs-h3);letter-spacing:-.01em;margin:0;">Sizing &amp; install questions</h2>
+      <div style="flex:1;height:1px;background:var(--rule);"></div>
+    </div>
+    <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(300px,1fr));gap:14px 32px;">
+      <div style="border-bottom:1px solid var(--rule);padding:0 0 14px;"><div style="font-family:var(--font-display);font-weight:700;font-size:16px;display:flex;justify-content:space-between;gap:16px;align-items:center;">What size standby generator do I need?</div><p style="font-size:14.5px;color:var(--ink2);line-height:1.65;margin:12px 0 0;">It's set by the load you want to keep running, not square footage. Most Fishers and Noblesville homes run the whole house on 22 kW; partial-home setups use 14&ndash;18 kW, and large homes with electric heat or EV charging may need 24&ndash;26 kW. The on-site NEC 220 load calc gives the exact answer.</p></div>
+      <div style="border-bottom:1px solid var(--rule);padding:0 0 14px;"><div style="font-family:var(--font-display);font-weight:700;font-size:16px;display:flex;justify-content:space-between;gap:16px;align-items:center;">Air-cooled or liquid-cooled?</div><p style="font-size:14.5px;color:var(--ink2);line-height:1.65;margin:12px 0 0;">Air-cooled units (10&ndash;26 kW) cover the vast majority of homes and cost far less to buy and install. Liquid-cooled units handle much larger loads for estates and light-commercial buildings. Most Fishers homes are well served by an air-cooled Guardian.</p></div>
+      <div style="border-bottom:1px solid var(--rule);padding:0 0 14px;"><div style="font-family:var(--font-display);font-weight:700;font-size:16px;display:flex;justify-content:space-between;gap:16px;align-items:center;">Natural gas or propane?</div><p style="font-size:14.5px;color:var(--ink2);line-height:1.65;margin:12px 0 0;">If your home has natural gas, that's almost always best: an essentially unlimited supply, so the unit runs as long as the outage lasts. Propane suits rural properties without a gas main, and we size the tank for extended outages.</p></div>
+      <div style="border-bottom:1px solid var(--rule);padding:0 0 14px;"><div style="font-family:var(--font-display);font-weight:700;font-size:16px;display:flex;justify-content:space-between;gap:16px;align-items:center;">Do I need a permit?</div><p style="font-size:14.5px;color:var(--ink2);line-height:1.65;margin:12px 0 0;">Yes. A standby install needs an electrical permit, and gas and placement must meet code. We pull the permit with your local authority, file an Indiana 811 locate before digging, and handle the inspection.</p></div>
+    </div>
+  </section>
+
+  <!-- ===== WHY MERIDIAN (positioning wedge · differentiators) ===== -->
+  <section style="max-width:1140px;margin:0 auto;padding:clamp(40px,6vw,64px) var(--container-pad) clamp(8px,2vw,16px);">
+    <div style="display:flex;align-items:baseline;gap:14px;margin-bottom:28px;">
+      <h2 style="font-family:var(--font-display);font-weight:800;font-size:var(--fs-h2);letter-spacing:-.015em;margin:0;">Why homeowners choose Meridian</h2>
+      <div style="flex:1;height:1px;background:var(--rule);"></div>
+    </div>
+    <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(240px,1fr));gap:1px;background:var(--rule);border:1px solid var(--rule);border-radius:var(--radius);overflow:hidden;">
+      <div style="background:#fff;padding:30px 26px;border-top:3px solid var(--accent);"><div style="font-family:var(--font-mono);font-size:12px;color:var(--accent-deep);font-weight:600;margin-bottom:14px;">01</div><div style="font-family:var(--font-display);font-weight:800;font-size:18px;letter-spacing:-.01em;margin-bottom:9px;">Fixed-bid, in writing</div><div style="font-size:14px;color:var(--ink2);line-height:1.55;">No "call for pricing." You get a transparent quote after an on-site load calc, and it doesn't move on you mid-job.</div></div>
+      <div style="background:#fff;padding:30px 26px;border-top:3px solid var(--accent);"><div style="font-family:var(--font-mono);font-size:12px;color:var(--accent-deep);font-weight:600;margin-bottom:14px;">02</div><div style="font-family:var(--font-display);font-weight:800;font-size:18px;letter-spacing:-.01em;margin-bottom:9px;">We answer, and we service</div><div style="font-size:14px;color:var(--ink2);line-height:1.55;">You reach a person, not a call center, and we maintain what we install. No being handed off or chasing a vanished installer.</div></div>
+      <div style="background:#fff;padding:30px 26px;border-top:3px solid var(--accent);"><div style="font-family:var(--font-mono);font-size:12px;color:var(--accent-deep);font-weight:600;margin-bottom:14px;">03</div><div style="font-family:var(--font-display);font-weight:800;font-size:18px;letter-spacing:-.01em;margin-bottom:9px;">Authorized &amp; warranty-compliant</div><div style="font-size:14px;color:var(--ink2);line-height:1.55;">As a factory-authorized dealer our work keeps your coverage intact. Only an authorized service dealer can perform warranty repairs.</div></div>
+      <div style="background:#fff;padding:30px 26px;border-top:3px solid var(--accent);"><div style="font-family:var(--font-mono);font-size:12px;color:var(--accent-deep);font-weight:600;margin-bottom:14px;">04</div><div style="font-family:var(--font-display);font-weight:800;font-size:18px;letter-spacing:-.01em;margin-bottom:9px;">Sized by load, not by upsell</div><div style="font-size:14px;color:var(--ink2);line-height:1.55;">An NEC 220 load calculation sizes the unit to your home, so you buy the generator you actually need, nothing more.</div></div>
+    </div>
+  </section>
+
+  <!-- ===== CONTACT + LEAD FORM =====
+       GHL INTEGRATION (see docs/integration-notes.md): the styled form below is the visible
+       design and posts to your GoHighLevel endpoint. (A) keep native form, set <form action>
+       to your GHL form/webhook POST URL (VERIFY:ghl-endpoint); or (B) replace <form>..</form>
+       with GHL's hosted iframe (api.leadconnectorhq.com/widget/form/GHL_FORM_ID) + form_embed.js. ===== -->
+  <section id="contact" style="background:var(--slab);">
+    <div class="ks-contact-grid" style="max-width:1140px;margin:0 auto;padding:clamp(44px,6vw,80px) var(--container-pad);display:grid;grid-template-columns:1fr 1.05fr;gap:clamp(32px,4vw,56px);align-items:start;">
+      <div style="color:#fff;">
+        <div style="font-family:var(--font-mono);font-size:11px;letter-spacing:.24em;text-transform:uppercase;color:var(--accent);margin-bottom:18px;">Get your fixed-bid quote</div>
+        <h2 style="font-family:var(--font-display);font-weight:900;font-size:clamp(28px,4vw,46px);line-height:1.02;letter-spacing:-.02em;margin:0 0 18px;max-width:16ch;">Tell us about your home.</h2>
+        <p style="font-size:var(--fs-lede);color:#B9C2CE;line-height:1.6;margin:0 0 28px;max-width:46ch;">Send the basics and we'll set up a free on-site assessment, run the load calc, and come back with a transparent, fixed bid, no obligation.</p>
+        <div style="display:flex;flex-direction:column;gap:14px;margin-bottom:28px;">
+          <div style="display:flex;gap:12px;align-items:flex-start;"><span style="color:var(--accent);font-weight:800;font-size:15px;">&#10003;</span><span style="font-size:14.5px;color:#DCE2EA;line-height:1.45;">Free on-site assessment, no obligation</span></div>
+          <div style="display:flex;gap:12px;align-items:flex-start;"><span style="color:var(--accent);font-weight:800;font-size:15px;">&#10003;</span><span style="font-size:14.5px;color:#DCE2EA;line-height:1.45;">A real person responds, usually same day</span></div>
+          <div style="display:flex;gap:12px;align-items:flex-start;"><span style="color:var(--accent);font-weight:800;font-size:15px;">&#10003;</span><span style="font-size:14.5px;color:#DCE2EA;line-height:1.45;">Authorized Generac dealer &middot; warranty-compliant</span></div>
+        </div>
+        <div style="border-top:1px solid var(--slab-rule);padding-top:22px;">
+          <div style="font-family:var(--font-mono);font-size:10px;letter-spacing:.2em;text-transform:uppercase;color:#6E7A89;margin-bottom:10px;">Prefer to call?</div>
+          <a href="tel:#" style="font-family:var(--font-display);font-weight:800;font-size:clamp(22px,2.4vw,30px);color:#fff;display:inline-flex;align-items:center;gap:12px;"><span style="width:9px;height:9px;border-radius:50%;background:var(--signal);"></span><!-- VERIFY:nap -->(463) 283-5939</a>
+          <div style="font-family:var(--font-mono);font-size:12px;color:#8A95A4;margin-top:8px;">Mon&ndash;Fri &middot; 24/7 storm response</div>
+        </div>
+      </div>
+      <div style="background:#fff;border-radius:var(--radius);padding:clamp(24px,3vw,36px);">
+        <!-- VERIFY:ghl-endpoint set action to your GHL form/webhook POST URL (or swap for the iframe embed) -->
+        <form action="#" method="post" style="display:flex;flex-direction:column;gap:16px;">
+          <div>
+            <label for="ks-name" style="display:block;font-family:var(--font-mono);font-size:10px;letter-spacing:.14em;text-transform:uppercase;color:var(--ink3);margin-bottom:7px;">Full name</label>
+            <input id="ks-name" name="full_name" type="text" required autocomplete="name" placeholder="Jordan Miller" class="ks-field">
+          </div>
+          <div style="display:grid;grid-template-columns:1fr 1fr;gap:16px;">
+            <div><label for="ks-phone" style="display:block;font-family:var(--font-mono);font-size:10px;letter-spacing:.14em;text-transform:uppercase;color:var(--ink3);margin-bottom:7px;">Phone</label><input id="ks-phone" name="phone" type="tel" required autocomplete="tel" placeholder="(317) 555-0142" class="ks-field"></div>
+            <div><label for="ks-email" style="display:block;font-family:var(--font-mono);font-size:10px;letter-spacing:.14em;text-transform:uppercase;color:var(--ink3);margin-bottom:7px;">Email</label><input id="ks-email" name="email" type="email" required autocomplete="email" placeholder="you@email.com" class="ks-field"></div>
+          </div>
+          <div style="display:grid;grid-template-columns:1.4fr 1fr;gap:16px;">
+            <div><label for="ks-address" style="display:block;font-family:var(--font-mono);font-size:10px;letter-spacing:.14em;text-transform:uppercase;color:var(--ink3);margin-bottom:7px;">Street address</label><input id="ks-address" name="street_address" type="text" autocomplete="street-address" placeholder="123 Maple Dr" class="ks-field"></div>
+            <div><label for="ks-city" style="display:block;font-family:var(--font-mono);font-size:10px;letter-spacing:.14em;text-transform:uppercase;color:var(--ink3);margin-bottom:7px;">City</label><select id="ks-city" name="city" class="ks-field"><option value="">Select&hellip;</option><option>Fishers</option><option>Noblesville</option><option>Carmel</option><option>Westfield</option><option>Pendleton</option><option>Anderson</option><option>Other</option></select></div>
+          </div>
+          <div>
+            <label for="ks-need" style="display:block;font-family:var(--font-mono);font-size:10px;letter-spacing:.14em;text-transform:uppercase;color:var(--ink3);margin-bottom:7px;">What do you need?</label>
+            <select id="ks-need" name="service_needed" class="ks-field"><option value="">Select&hellip;</option><option>New whole-house generator install</option><option>Take-over service / repair (existing unit)</option><option>"Bought a house with a generator" inspection</option><option>Transfer switch or electrical</option><option>Commercial / light-commercial</option><option>Not sure yet, help me figure it out</option></select>
+          </div>
+          <div>
+            <label for="ks-msg" style="display:block;font-family:var(--font-mono);font-size:10px;letter-spacing:.14em;text-transform:uppercase;color:var(--ink3);margin-bottom:7px;">Anything else? <span style="text-transform:none;letter-spacing:0;color:var(--ink3);">(optional)</span></label>
+            <textarea id="ks-msg" name="message" rows="3" placeholder="Outage history, panel size, HOA notes&hellip;" class="ks-field" style="resize:vertical;"></textarea>
+          </div>
+          <button type="submit" style="font-family:var(--font-display);font-weight:700;font-size:15px;background:var(--accent);color:var(--accent-ink);border:none;border-radius:var(--radius);padding:16px 22px;cursor:pointer;">Request my fixed-bid quote &rarr;</button>
+          <p style="font-family:var(--font-mono);font-size:11px;color:var(--ink3);line-height:1.5;margin:0;text-align:center;">No spam. We use your details only to prepare your quote. <!-- VERIFY:privacy-link --></p>
+        </form>
+      </div>
+    </div>
+  </section>
+
+  <!-- ===== FOOTER (shared) ===== -->
+  <footer style="background:var(--slab);color:#fff;padding:clamp(36px,5vw,64px) var(--container-pad) 40px;">
+    <div style="max-width:1140px;margin:0 auto;">
+      <a href="index.dc.html" style="display:flex;align-items:center;gap:13px;margin-bottom:28px;">
+        <span class="logo-mark logo-mark--invert logo-mark--36" aria-hidden="true"></span>
+        <span style="line-height:1;"><span style="display:block;font-family:var(--font-display);font-weight:800;font-size:18px;">MER<span class="mrd">I</span>DIAN</span><span style="display:block;font-family:var(--font-mono);font-size:9px;letter-spacing:.22em;color:var(--accent);margin-top:5px;">GENERATOR &amp; ELECTRIC</span></span>
+      </a>
+      <!-- byline · R1 micro (under footer lockup, above columns) -->
+      <p class="byline--micro byline--on-dark" style="margin:-14px 0 26px;"><span class="byline-tick" aria-hidden="true"></span><span class="byline-clause">Dealer-grade installs</span><span class="byline-sep" aria-hidden="true">·</span><span class="byline-clause byline-value">Owner-direct pricing</span></p>
+      <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(170px,1fr));gap:28px;border-top:1px solid var(--slab-rule);padding-top:28px;">
+        <div>
+          <div style="font-family:var(--font-mono);font-size:10px;letter-spacing:.18em;text-transform:uppercase;color:#6E7A89;margin-bottom:14px;">Standby installs</div>
+          <div style="display:flex;flex-direction:column;gap:8px;font-size:14px;">
+            <a href="22kw-whole-house-generator-installation.dc.html" style="color:#B9C2CE;">22 kW Whole-House</a>
+            <a href="24-26kw-generator-installation.dc.html" style="color:#B9C2CE;">24–26 kW</a>
+            <a href="natural-gas-generator-installation.dc.html" style="color:#B9C2CE;">Natural-Gas Install</a>
+          </div>
+        </div>
+        <div>
+          <div style="font-family:var(--font-mono);font-size:10px;letter-spacing:.18em;text-transform:uppercase;color:#6E7A89;margin-bottom:14px;">More services</div>
+          <div style="display:flex;flex-direction:column;gap:8px;font-size:14px;">
+            <a href="generator-service-repair.dc.html" style="color:#B9C2CE;">Service &amp; Take-Over</a>
+            <a href="transfer-switch-installation.dc.html" style="color:#B9C2CE;">Transfer Switches</a>
+            <a href="commercial-standby-generators.dc.html" style="color:#B9C2CE;">Commercial</a>
+          </div>
+        </div>
+        <div>
+          <div style="font-family:var(--font-mono);font-size:10px;letter-spacing:.18em;text-transform:uppercase;color:#6E7A89;margin-bottom:14px;">Service area</div>
+          <div style="font-size:14px;color:#B9C2CE;line-height:2;">Fishers · Noblesville<br>Carmel · Westfield<br>Pendleton · Anderson</div>
+        </div>
+        <div>
+          <div style="font-family:var(--font-mono);font-size:10px;letter-spacing:.18em;text-transform:uppercase;color:#6E7A89;margin-bottom:14px;">Contact</div>
+          <div style="font-size:14px;color:#B9C2CE;line-height:2;"><!-- VERIFY:nap truth-doc -->(463) 283-5939<br>Fishers, IN<br>24/7 storm response</div>
+        </div>
+      </div>
+      <div style="border-top:1px solid var(--slab-rule);margin-top:28px;padding-top:18px;display:flex;justify-content:space-between;gap:16px;flex-wrap:wrap;font-family:var(--font-mono);font-size:11px;color:#6E7A89;">
+        <span>© 2026 Meridian Generator &amp; Electric · Authorized Generac Dealer</span>
+        <span style="color:#566273;">Generac is a trademark of its owner</span>
+      </div>
+    </div>
+  </footer>
+
+  <!-- ===== SHARED MOBILE CHROME ===== -->
+  <div class="mobile-bottom-bar" aria-hidden="true">
+    <div class="mbb-status"><span class="dot"></span><span>Open now · 24/7 storm response</span></div>
+    <div class="mbb-actions">
+      <a href="tel:#" class="mbb-call"><span class="mbb-icon">▣</span><span><span class="mbb-sm">Call</span><span class="mbb-lg">(463) 283-5939</span></span></a>
+      <a href="#contact" class="mbb-quote">Free Quote <span>→</span></a>
+    </div>
+  </div>
+  <div id="mobile-nav-overlay" class="mobile-nav-overlay"></div>
+  <nav id="mobile-nav" class="mobile-nav" aria-label="Mobile navigation" aria-hidden="true">
+    <div class="mobile-nav-header">
+      <a href="index.dc.html" style="display:flex;align-items:center;gap:11px;">
+        <span class="logo-mark logo-mark--invert logo-mark--34" aria-hidden="true"></span>
+        <span style="line-height:1;"><span style="display:block;font-family:var(--font-display);font-weight:800;font-size:16px;color:#fff;">MER<span class="mrd">I</span>DIAN</span><span style="display:block;font-family:var(--font-mono);font-size:8px;letter-spacing:.22em;color:var(--accent);margin-top:5px;">GENERATOR &amp; ELECTRIC</span></span>
+      </a>
+      <button class="mobile-nav-close" aria-label="Close menu">✕</button>
+    </div>
+    <div class="mobile-nav-scroll">
+    <!-- byline · R1 micro (under drawer lockup, above status eyebrow) -->
+      <p class="byline--micro byline--on-dark" style="margin:0 0 18px;"><span class="byline-tick" aria-hidden="true"></span><span class="byline-clause">Dealer-grade installs</span><span class="byline-sep" aria-hidden="true">·</span><span class="byline-clause byline-value">Owner-direct pricing</span></p>
+      <div class="mobile-menu-eyebrow"><span class="dot"></span><span>Open · Mon–Fri · 24/7 Storm Response</span></div>
+    <ul class="mobile-menu-primary">
+      <li><a href="standby-generator-installation.dc.html"><span class="mm-num">01</span><span class="mm-label">Standby Generator Services</span><span class="mm-meta">22 kW · 24–26 kW · natural gas · by-need</span></a></li>
+      <li><a href="transfer-switch-installation.dc.html"><span class="mm-num">02</span><span class="mm-label">Transfer Switch &amp; Electrical</span><span class="mm-meta">ATS · panel upgrade · load calc</span></a></li>
+      <li><a href="generator-service-repair.dc.html"><span class="mm-num">03</span><span class="mm-label">Maintenance &amp; Repair</span><span class="mm-meta">Take-over · diagnostics · plans</span></a></li>
+    </ul>
+    <div class="mobile-menu-section">
+      <div class="mm-section-label">Quick links</div>
+      <div class="mobile-menu-secondary">
+        <a href="standby-generator-installation.dc.html">All Services</a>
+        <a href="index.dc.html#areas">Service Areas</a>
+        <a href="commercial-standby-generators.dc.html">Commercial</a>
+        <a href="#contact">Contact</a>
+      </div>
+    </div>
+    <div class="mobile-menu-section">
+      <div class="mm-section-label">Service area</div>
+      <div class="mobile-menu-areas">
+        <span class="mm-area">Fishers</span><span class="mm-area">Noblesville</span><span class="mm-area">Carmel</span><span class="mm-area">Westfield</span><span class="mm-area">Pendleton</span><span class="mm-area">Anderson</span>
+      </div>
+    </div>
+    </div>
+    <!-- pinned action bar: call + quote. Never scrolls with the menu. -->
+    <div class="mobile-menu-cta">
+      <a href="tel:#" class="mm-call"><span class="mm-call-label">Tap to call</span><span class="mm-call-number">(463) 283-5939</span></a>
+      <a href="#contact" class="mm-quote"><span class="mm-call-label mm-quote-label">Fixed-bid</span><span class="mm-quote-action">Get a quote</span></a>
+      <div class="mm-license">Authorized Generac Dealer · Licensed &amp; insured · Free assessments</div>
+    </div>
+  </nav>
+
+</div>
+</x-dc>
+<script type="text/x-dc" data-dc-script>
+class Component extends DCLogic {
+  componentDidMount() {
+    const q = (s) => document.querySelector(s);
+    const burger = q('.hamburger'); const nav = q('#mobile-nav'); const overlay = q('#mobile-nav-overlay');
+    const closeBtn = q('.mobile-nav-close'); const bar = q('.mobile-bottom-bar');
+    if (!nav || !overlay || !burger) return;
+    const open = () => { nav.classList.add('open'); overlay.classList.add('open'); burger.setAttribute('aria-expanded','true'); nav.setAttribute('aria-hidden','false'); document.body.style.overflow='hidden'; const f=nav.querySelector('a, button'); if(f) setTimeout(()=>f.focus(),60); };
+    const close = () => { nav.classList.remove('open'); overlay.classList.remove('open'); burger.setAttribute('aria-expanded','false'); nav.setAttribute('aria-hidden','true'); document.body.style.overflow=''; };
+    const toggle = () => (nav.classList.contains('open') ? close() : open());
+    burger.addEventListener('click', toggle);
+    overlay.addEventListener('click', close);
+    if (closeBtn) closeBtn.addEventListener('click', () => { close(); burger.focus(); });
+    nav.querySelectorAll('a').forEach((a) => a.addEventListener('click', close));
+    this._onKey = (e) => { if (e.key === 'Escape' && nav.classList.contains('open')) { close(); burger.focus(); } };
+    document.addEventListener('keydown', this._onKey);
+    const mini = q('.scroll-mini');
+    if (bar || mini) { this._onScroll = () => { const y = window.scrollY||document.documentElement.scrollTop||0; if (bar) bar.classList.toggle('show', y > 480); if (mini) mini.classList.toggle('show', y > 480); }; this._onScroll(); window.addEventListener('scroll', this._onScroll, {passive:true}); }
+    this._burger = burger; this._toggle = toggle;
+  }
+  componentWillUnmount() {
+    if (this._onKey) document.removeEventListener('keydown', this._onKey);
+    if (this._onScroll) window.removeEventListener('scroll', this._onScroll);
+    if (this._burger && this._toggle) this._burger.removeEventListener('click', this._toggle);
+    document.body.style.overflow = '';
+  }
+  renderVals() { return {}; }
+}
+</script>
+</body>
+</html>
