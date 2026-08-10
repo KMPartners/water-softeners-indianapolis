@@ -1,0 +1,47 @@
+#!/bin/sh
+#
+# pre-push guard — refuse to push to the core30-starter ENGINE repo from a
+# CLIENT site. This exists because a client folder whose `main` was
+# mis-tracked to the engine's remote once pushed client commits straight onto
+# core30-starter's main. This hook makes that structurally impossible.
+#
+# Rule: block any push whose destination URL is core30-starter, UNLESS this
+# repo's own `origin` is ALSO core30-starter (i.e. this IS the starter, which
+# must still be able to push to itself). git passes:
+#   $1 = remote name        $2 = remote URL (the push destination)
+#
+# Activated via core.hooksPath=.githooks (set by scripts/setup-hooks.mjs, run
+# from the npm "prepare" lifecycle), so every clone — starter or client — gets
+# it automatically after `npm install`.
+
+remote_url="$2"
+origin_url="$(git config --get remote.origin.url 2>/dev/null)"
+
+# Match the engine repo by name, protocol-agnostic (https or ssh).
+case "$remote_url" in
+  *core30-starter*)
+    case "$origin_url" in
+      *core30-starter*)
+        exit 0  # this repo IS the starter — pushing to itself is fine
+        ;;
+      *)
+        printf '\n' >&2
+        printf '  \033[31m✋ BLOCKED\033[0m — refusing to push to the core30-starter ENGINE repo.\n' >&2
+        printf '     destination : %s\n' "$remote_url" >&2
+        printf '     this origin : %s\n' "${origin_url:-<unset>}" >&2
+        printf '\n' >&2
+        printf '  You are in a CLIENT site. Pushing here would pollute the shared engine\n' >&2
+        printf '  (the exact accident this hook prevents). Instead:\n' >&2
+        printf '     push your work     :  git push origin <branch>\n' >&2
+        printf '     pull engine updates:  git fetch upstream\n' >&2
+        printf '\n' >&2
+        printf '  If you really are the engine maintainer, your origin should point at\n' >&2
+        printf '  core30-starter — check `git remote -v`.\n' >&2
+        printf '\n' >&2
+        exit 1
+        ;;
+    esac
+    ;;
+esac
+
+exit 0
