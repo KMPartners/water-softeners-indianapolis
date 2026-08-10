@@ -1,0 +1,5 @@
+# Keep the git hooks and shell scripts LF on every platform. They are executed
+# by /bin/sh, and a CRLF shebang (`#!/bin/sh\r`) fails to run — which would
+# silently disable the pre-push guard on a Windows clone with core.autocrlf=true.
+.githooks/** text eol=lf
+*.sh text eol=lf
