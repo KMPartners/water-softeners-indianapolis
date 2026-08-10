@@ -105,13 +105,14 @@ export function prettyPage(raw) {
   return s.startsWith('/') || s.startsWith('http') ? s : '/' + s;
 }
 
-/** Heading label per lead intent (or derived from the `web-<intent>` tag). */
+/**
+ * Heading label per lead intent (or derived from the `web-<intent>` tag). These
+ * are generic, vertical-agnostic intents; a preset with its own intents can add
+ * to this map. An unknown intent falls through to a bare "NEW LEAD" heading.
+ */
 const INTENT_LABELS = {
   quote: 'Quote request',
-  prequal: 'Financing pre-qualification',
-  'vehicle-inquiry': 'Vehicle inquiry',
   service: 'Service request',
-  tradein: 'Trade-in',
   contact: 'Contact',
 };
 

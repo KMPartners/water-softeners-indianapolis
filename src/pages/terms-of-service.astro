@@ -2,19 +2,24 @@
 /**
  * Terms of Service. Trinity: "Terms of Service". ENGINE route.
  *
- * The ToS section list is the part that genuinely varies per vertical (task
- * §1.2), so the document comes from the ACTIVE preset — here the generator
- * preset (installs, service scope, warranties, permits/utility realities). The
- * spine, schema, breadcrumb, and layout are all Engine and do not change.
+ * DEFAULTS to the Engine-generic ToS (src/lib/legal-content.js → buildTerms()),
+ * so a fresh clone — with or without an industry preset — always builds green
+ * and never hard-fails on a missing preset import. The ToS middle sections are
+ * the part that genuinely varies per vertical (task §1.2); a preset overrides
+ * them by importing its own section list and passing it to buildTerms(sections)
+ * here, e.g. `import { TERMS_SECTIONS } from '../../presets/<vertical>/legal.js'`.
+ * The spine, schema, breadcrumb, and layout are all Engine and do not change.
  *
- * INDEXABLE and in the sitemap (task §2.6). Content: presets/generator/legal.js;
- * the spine is components/LegalDoc.astro.
+ * INDEXABLE and in the sitemap (task §2.6). The spine is components/LegalDoc.astro.
  */
 import BaseLayout from '../layouts/BaseLayout.astro';
 import Breadcrumbs from '../components/Breadcrumbs.astro';
 import LegalDoc from '../components/LegalDoc.astro';
-import { TERMS_OF_SERVICE as doc } from '../../presets/generator/legal.js';
+import { buildTerms } from '../lib/legal-content.js';
 import { legalPageSchema, breadcrumbSchema } from '../lib/schema.js';
+
+// Engine-generic Terms. A preset passes its own middle sections: buildTerms(SECTIONS).
+const doc = buildTerms();
 
 const crumbs = [{ label: 'Home', href: '/' }, { label: doc.trinity }];
 ---

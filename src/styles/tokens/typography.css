@@ -1,12 +1,14 @@
 /* ============================================================================
-   Meridian · Type tokens (LOCKED)
-   3 roles: display (Archivo), body (Hanken Grotesk), mono (IBM Plex Mono).
+   Type tokens.
+   3 roles: display, body, mono — all mapped to system font stacks so the starter
+   needs no external font fetch. To use webfonts, add the @font-face/@import in
+   fonts.css and point these three tokens at the new families.
    Fluid heading/lede sizes via clamp().
    ============================================================================ */
 :root {
-  --font-display: 'Archivo', sans-serif;      /* H1/H2/H3, numbers, button labels (500–900) */
-  --font-body:    'Hanken Grotesk', sans-serif;/* lede, paragraphs (400–700) */
-  --font-mono:    'IBM Plex Mono', monospace;  /* eyebrows, spec values, breadcrumbs, status */
+  --font-display: system-ui, -apple-system, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif; /* H1/H2/H3, numbers, button labels */
+  --font-body:    system-ui, -apple-system, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif; /* lede, paragraphs */
+  --font-mono:    ui-monospace, SFMono-Regular, 'SF Mono', Menlo, Consolas, monospace;         /* eyebrows, spec values, breadcrumbs, status */
 
   /* fluid type scale */
   --fs-hero:  clamp(34px, 6vw, 80px);   /* homepage H1 */

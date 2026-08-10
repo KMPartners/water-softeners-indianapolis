@@ -5,9 +5,10 @@
  * Run: node --test scripts/lead-summary.test.mjs  (also `npm test`)
  *
  * The cases that matter: the injection guard (a client-supplied lead_summary is
- * overwritten, and a <script> lands inert), the /homepage source_page bug that
- * shipped past a full review at Anderson, empty-row dropping, and that the
- * rendered time honors the passed timezone rather than a hardcoded one.
+ * overwritten, and a <script> lands inert), the "/" source_page bug (a bare or
+ * "/" page must never render a 404 URL), empty-row dropping, and that the
+ * rendered time honors the passed timezone rather than a hardcoded one. The
+ * fixture is the vertical-agnostic Core30 lead set (name/phone/email/message).
  */
 
 import test from 'node:test';
@@ -26,27 +27,25 @@ const TZ = 'America/New_York';
 const baseLead = {
   name: 'Jane Q. Smith',
   phone: '+15555550199',
-  zip: '46011',
-  income: '$2,500 – $3,500',
-  down: '$500 – $1,000',
-  vehicle: '2012 Jeep Wrangler Unlimited',
+  email: 'jane@example.com',
+  message: 'Please quote drywall repair in the hallway.',
   consent: true,
-  intent: 'prequal',
-  tag: 'web-prequal',
-  source_page: '/buy-here-pay-here-anderson/',
+  intent: 'quote',
+  tag: 'web-lead',
+  source_page: '/drywall-repair/',
   submittedAt: '2026-08-05T14:32:00.000Z',
   utm_source: 'google',
   utm_medium: 'cpc',
-  utm_campaign: 'bhph',
+  utm_campaign: 'services',
 };
 
 test('renders both variants with an intent-based heading', () => {
   const { text, html } = buildLeadSummary(baseLead, { timeZone: TZ });
-  assert.match(text, /^NEW LEAD — Financing pre-qualification/, 'heading from intent');
+  assert.match(text, /^NEW LEAD — Quote request/, 'heading from intent');
   assert.match(text, /Name:\s+Jane Q\. Smith/);
   assert.match(text, /Phone:\s+\(555\) 555-0199/, 'phone formatted from E.164');
   assert.match(html, /^<table[\s>]/, 'html variant is a table');
-  assert.match(html, /Financing pre-qualification/);
+  assert.match(html, /Quote request/);
 });
 
 test('phone: E.164 and bare 10-digit both format; junk echoes back', () => {
@@ -58,17 +57,16 @@ test('phone: E.164 and bare 10-digit both format; junk echoes back', () => {
 test('empty rows drop, but the row set never loses a provided field', () => {
   const rows = summaryRows(baseLead, TZ);
   const labels = rows.map(([l]) => l);
-  assert.ok(labels.includes('Vehicle'));
-  assert.ok(!labels.includes('Email'), 'absent email row is dropped');
-  assert.ok(!labels.includes('Service needed'), 'absent detail field is dropped');
+  assert.ok(labels.includes('Message'), 'a provided detail field renders');
+  assert.ok(!labels.includes('ZIP'), 'absent ZIP row is dropped');
 });
 
 test('/homepage bug: a bare/"/" source_page never renders a 404 URL', () => {
   assert.equal(prettyPage('/'), '/ (homepage)');
   assert.equal(prettyPage('homepage'), '/ (homepage)');
   assert.equal(prettyPage(''), '/ (homepage)');
-  assert.equal(prettyPage('buy-here-pay-here'), '/buy-here-pay-here', 'bare slug gets a leading slash');
-  assert.equal(prettyPage('/used-cars/'), '/used-cars/', 'real path passes through');
+  assert.equal(prettyPage('drywall-repair'), '/drywall-repair', 'bare slug gets a leading slash');
+  assert.equal(prettyPage('/home-repair-services/'), '/home-repair-services/', 'real path passes through');
 });
 
 test('injection guard: a client-supplied lead_summary cannot reach the block', () => {
@@ -81,7 +79,7 @@ test('injection guard: a client-supplied lead_summary cannot reach the block', (
 });
 
 test('injection guard: HTML in a field value lands inert, not as markup', () => {
-  const xss = { ...baseLead, vehicle: '<script>alert(1)</script>' };
+  const xss = { ...baseLead, message: '<script>alert(1)</script>' };
   const { html } = buildLeadSummary(xss, { timeZone: TZ });
   assert.doesNotMatch(html, /<script>/, 'no live script tag');
   assert.match(html, /&lt;script&gt;/, 'escaped to inert text');
@@ -106,7 +104,7 @@ test('SMS consent row reflects the consent package when present', () => {
 });
 
 test('an unknown forwarded field is humanized, not silently dropped', () => {
-  const rows = summaryRows({ ...baseLead, trade_in_vehicle: '2009 Ford F-150' }, TZ);
-  const row = rows.find(([l]) => l === 'Trade In Vehicle');
-  assert.ok(row && row[1] === '2009 Ford F-150', 'unknown key surfaces with a humanized label');
+  const rows = summaryRows({ ...baseLead, preferred_time: 'Weekday mornings' }, TZ);
+  const row = rows.find(([l]) => l === 'Preferred Time');
+  assert.ok(row && row[1] === 'Weekday mornings', 'unknown key surfaces with a humanized label');
 });
