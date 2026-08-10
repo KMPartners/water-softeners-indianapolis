@@ -16,10 +16,11 @@ import EntityPage from '../components/EntityPage.astro';
 import { PAGES, pageBySlug } from '../content/example.js';
 import { exampleService } from '../../presets/example/schema.js';
 import { breadcrumbSchema, faqSchema } from '../lib/schema.js';
-import { interpolate } from '../lib/content-tree.js';
+import { interpolate, assertUniqueSlugs } from '../lib/content-tree.js';
 
 export function getStaticPaths() {
-  return PAGES.map((page) => ({ params: { slug: page.slug }, props: { page } }));
+  // Build-time guard: unique, non-empty, non-reserved slugs (Core30 flat URLs).
+  return assertUniqueSlugs(PAGES).map((page) => ({ params: { slug: page.slug }, props: { page } }));
 }
 
 const { page } = Astro.props;
