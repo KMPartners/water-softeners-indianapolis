@@ -1,110 +1,73 @@
 ---
 /**
- * Site header, Meridian 1D (LOCKED): utility strip (--slab) → nav plate
- * (--slab2, inset top rule) → 3px --accent meridian seam. Wordmark only (the F1
- * mark is square-contexts-only); the real letter "I" stays in the markup inside
- * `.mrd` so the accessible name reads MERIDIAN. Contains the hamburger button
- * (styled globally by mobile-chrome.css; shown ≤1024). Retires the starter's
- * auto Header + its inline mobile nav (now the separate MobileDrawer component).
- *
- * Width contract: --container-pad on the OUTER full-bleed wrapper; the inner row
- * is max-width:1140px with vertical-only padding, so header content aligns with
- * the hero at every breakpoint.
+ * Site header — ENGINE chrome. A simple, neutral, responsive header: the wordmark
+ * lockup (from brand.wordmark in site.config), the primary nav (src/content/nav.js),
+ * and a click-to-call. No client design baked in — reskin via tokens, re-nav via
+ * the content file. The nav wraps below the brand on narrow screens (no JS).
  */
-import { NAP } from '../lib/site.js';
-import { HEADER_NAV, UTILITY_STRIP } from '../content/nav.js';
+import { NAP, WORDMARK } from '../lib/site.js';
+import { HEADER_NAV } from '../content/nav.js';
 
 interface Props {
   /** Current path, for active-nav highlighting. */
   current?: string;
 }
 const { current = '' } = Astro.props;
-const isActive = (href: string) => href !== '/' && current.startsWith(href);
+const isActive = (href: string) => href.startsWith('/') && href !== '/' && current.startsWith(href);
 ---
 
 <header class="site-header">
-  {/* utility strip */}
-  <div class="util">
-    <div class="wrap"><div class="row util-row">
-      <span class="util-claim">{UTILITY_STRIP.claim}</span>
-      <span class="util-area">{UTILITY_STRIP.area}</span>
-    </div></div>
+  <div class="container header-row">
+    <a href="/" class="brand" aria-label={`${NAP.name}, home`}>
+      <span class="brand-line1">{WORDMARK.line1}</span>
+      {WORDMARK.line2 && <span class="brand-line2">{WORDMARK.line2}</span>}
+    </a>
+
+    <nav class="nav" aria-label="Primary">
+      {HEADER_NAV.map((l) => (
+        <a href={l.href} class:list={['nav-link', { active: isActive(l.href) }]} aria-current={isActive(l.href) ? 'page' : undefined}>{l.label}</a>
+      ))}
+      <a href={NAP.phoneTel} class="nav-phone">{NAP.phoneDisplay}</a>
+    </nav>
   </div>
-
-  {/* nav plate */}
-  <div class="plate">
-    <div class="wrap"><div class="row plate-row">
-      <button class="hamburger" aria-label="Open menu" aria-expanded="false" aria-controls="mobile-nav">
-        <span></span><span></span><span></span><span class="hamburger-label">Menu</span>
-      </button>
-
-      <a href="/" class="brand" aria-label={`${NAP.name}, home`}>
-        <span class="brand-lines">
-          <span class="brand-word">MER<span class="mrd">I</span>DIAN</span>
-          <span class="brand-sub">GENERATOR &amp; ELECTRIC</span>
-        </span>
-      </a>
-
-      <nav class="desktop-nav" aria-label="Primary">
-        {HEADER_NAV.map((l) => (
-          <a href={l.href} class:list={['nav-link', { active: isActive(l.href) }]} aria-current={isActive(l.href) ? 'page' : undefined}>{l.label}</a>
-        ))}
-        <a href={NAP.phoneTel} class="nav-phone">{NAP.phoneDisplay}</a>
-      </nav>
-    </div></div>
-  </div>
-
-  {/* 3px meridian seam, the join that echoes the logo's meridian */}
-  <div class="seam" aria-hidden="true"></div>
 </header>
 
 <style>
-  /* outer bands carry the side pad; the inner row is the 1140 measure */
-  .wrap { padding: 0 var(--container-pad); }
-  .row { max-width: 1140px; margin: 0 auto; }
-
-  .util { background: var(--slab); color: var(--on-slab); }
-  .util-row {
-    display: flex; align-items: center; justify-content: space-between;
-    gap: 16px; padding: 9px 0; flex-wrap: wrap;
+  .site-header {
+    background: var(--surface-card);
+    border-bottom: 1px solid var(--border);
+    position: sticky;
+    top: 0;
+    z-index: 50;
   }
-  .util-claim {
-    font-family: var(--font-mono); font-size: 10.5px; letter-spacing: .14em;
-    text-transform: uppercase; color: var(--accent);
+  .header-row {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 16px 24px;
+    padding: 14px 0;
+    flex-wrap: wrap;
   }
-  .util-area {
-    font-family: var(--font-mono); font-size: 10.5px; letter-spacing: .1em; color: var(--on-slab-dim);
+  .brand { display: flex; flex-direction: column; text-decoration: none; line-height: 1.1; }
+  .brand-line1 {
+    font-family: var(--font-display); font-weight: 800; font-size: 19px;
+    letter-spacing: -0.01em; color: var(--text-strong);
   }
-
-  .plate { background: var(--slab2); box-shadow: inset 0 1px 0 var(--slab-rule); }
-  .plate-row {
-    display: flex; align-items: center; justify-content: space-between;
-    gap: 20px; padding: 16px 0; flex-wrap: wrap;
+  .brand-line2 {
+    font-family: var(--font-mono); font-size: 10px; letter-spacing: 0.14em;
+    text-transform: uppercase; color: var(--text-muted); margin-top: 4px;
   }
-
-  .brand { display: flex; align-items: center; gap: 13px; }
-  .brand-lines { line-height: 1; }
-  .brand-word {
-    display: block; font-family: var(--font-display); font-weight: 800;
-    font-size: 21px; letter-spacing: .005em; color: var(--on-slab);
-  }
-  .brand-sub {
-    display: block; font-family: var(--font-mono); font-size: 9px;
-    letter-spacing: .22em; color: var(--on-slab-dim); margin-top: 6px;
-  }
-
-  /* .desktop-nav display + hide-at-1024 is owned by mobile-chrome.css */
+  .nav { display: flex; align-items: center; gap: 20px; flex-wrap: wrap; }
   .nav-link {
-    font-family: var(--font-body); font-weight: 600; font-size: 14px; color: var(--on-slab-body);
+    font-family: var(--font-body); font-weight: 600; font-size: 14.5px;
+    color: var(--text-body); text-decoration: none;
   }
-  .nav-link:hover { color: var(--on-slab); }
-  .nav-link.active { color: var(--accent); } /* active = --accent, never --accent-deep (contrast on dark) */
+  .nav-link:hover { color: var(--accent-deep); }
+  .nav-link.active { color: var(--accent-deep); }
   .nav-phone {
-    font-family: var(--font-display); font-weight: 700; font-size: 13px;
+    font-family: var(--font-display); font-weight: 700; font-size: 14px;
     background: var(--accent); color: var(--accent-ink);
-    padding: 11px 18px; border-radius: var(--radius);
+    padding: 10px 16px; border-radius: var(--radius); text-decoration: none;
   }
-  .nav-phone:hover { background: var(--accent-deep); color: var(--accent-ink); }
-
-  .seam { height: 3px; background: var(--accent); }
+  .nav-phone:hover { background: var(--accent-deep); }
 </style>

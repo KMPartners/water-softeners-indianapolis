@@ -1,40 +1,36 @@
 ---
 /**
- * Global footer, Meridian chrome (dark --slab). Carries, on every page:
- *   · the wordmark lockup (logo-mark--invert) + R1 micro byline,
+ * Global footer — ENGINE chrome. Carries, on every page:
+ *   · the wordmark lockup (from brand.wordmark / a derived monogram),
  *   · the full parent link set (Mirror-Linking, Core30 rule 3),
  *   · byte-identical NAP,
  *   · the legal links A2P brand review expects to reach here as well as from the
- *     consent checkbox, plus the copyright + Generac trademark line.
- * Retires the starter's auto footer. All values are tokens/config-driven.
+ *     consent checkbox, plus a plain copyright line.
+ * All values are tokens/config-driven — no client design baked in.
  */
-import { NAP } from '../lib/site.js';
+import { NAP, WORDMARK, LOGO_MARK, AREA_SERVED, FOOTER_BLURB, FOOTER_LEGAL } from '../lib/site.js';
 import { LEGAL_LINKS } from '../lib/legal.js';
-import { FOOTER_COLUMNS, SERVICE_AREAS } from '../content/nav.js';
+import { FOOTER_COLUMNS } from '../content/nav.js';
 
 interface Props {
   /** Optional vertical-specific disclaimer paragraph, above the legal line. */
   disclaimer?: string;
 }
 const { disclaimer } = Astro.props;
+const areas = AREA_SERVED.map((a) => String(a).split(',')[0].trim());
 ---
 
 <footer class="footer">
   <div class="footer-inner">
     <a href="/" class="footer-brand" aria-label={`${NAP.name}, home`}>
-      <span class="logo-mark logo-mark--invert logo-mark--36" aria-hidden="true"></span>
+      <span class="footer-mark" aria-hidden="true">{LOGO_MARK}</span>
       <span class="footer-lines">
-        <span class="footer-word">MER<span class="mrd">I</span>DIAN</span>
-        <span class="footer-sub">GENERATOR &amp; ELECTRIC</span>
+        <span class="footer-word">{WORDMARK.line1}</span>
+        {WORDMARK.line2 && <span class="footer-sub">{WORDMARK.line2}</span>}
       </span>
     </a>
 
-    <p class="byline--micro byline--on-dark footer-byline">
-      <span class="byline-tick" aria-hidden="true"></span>
-      <span class="byline-clause">Dealer-grade installs</span>
-      <span class="byline-sep" aria-hidden="true">·</span>
-      <span class="byline-clause byline-value">Owner-direct pricing</span>
-    </p>
+    <p class="footer-blurb">{FOOTER_BLURB}</p>
 
     <div class="footer-grid">
       {FOOTER_COLUMNS.map((col) => (
@@ -46,10 +42,12 @@ const { disclaimer } = Astro.props;
         </div>
       ))}
 
-      <div class="footer-col">
-        <div class="footer-heading">Service area</div>
-        <div class="footer-areas">{SERVICE_AREAS.join(' · ')}</div>
-      </div>
+      {areas.length > 0 && (
+        <div class="footer-col">
+          <div class="footer-heading">Service area</div>
+          <div class="footer-areas">{areas.join(' · ')}</div>
+        </div>
+      )}
 
       <div class="footer-col">
         <div class="footer-heading">Contact</div>
@@ -73,8 +71,7 @@ const { disclaimer } = Astro.props;
         ))}
       </p>
       <div class="footer-copy">
-        <span>© 2026 {NAP.name} · Authorized Generac Dealer</span>
-        <span class="footer-tm">Generac is a trademark of its owner</span>
+        <span>{FOOTER_LEGAL}</span>
       </div>
     </div>
   </div>
@@ -87,17 +84,22 @@ const { disclaimer } = Astro.props;
     padding: clamp(36px, 5vw, 64px) var(--container-pad) 40px;
     border-top: 1px solid var(--slab-rule);
   }
-  .footer-inner { max-width: 1140px; margin: 0 auto; }
+  .footer-inner { max-width: var(--container); margin: 0 auto; }
 
-  .footer-brand { display: flex; align-items: center; gap: 13px; margin-bottom: 20px; }
-  .footer-lines { line-height: 1; }
+  .footer-brand { display: flex; align-items: center; gap: 13px; margin-bottom: 16px; text-decoration: none; }
+  .footer-mark {
+    display: grid; place-items: center; width: 36px; height: 36px; flex-shrink: 0;
+    font-family: var(--font-display); font-weight: 800; font-size: 14px;
+    background: var(--accent); color: var(--accent-ink); border-radius: var(--radius);
+  }
+  .footer-lines { line-height: 1.1; }
   .footer-word { display: block; font-family: var(--font-display); font-weight: 800; font-size: 18px; color: var(--on-slab); }
-  .footer-sub { display: block; font-family: var(--font-mono); font-size: 9px; letter-spacing: .22em; color: var(--accent); margin-top: 5px; }
-  .footer-byline { margin: 0 0 26px; }
+  .footer-sub { display: block; font-family: var(--font-mono); font-size: 9px; letter-spacing: .2em; text-transform: uppercase; color: var(--accent); margin-top: 5px; }
+  .footer-blurb { margin: 0 0 26px; font-size: 14px; color: var(--on-slab-muted); max-width: 60ch; }
 
   .footer-grid {
     display: grid;
-    grid-template-columns: repeat(auto-fit, minmax(170px, 1fr));
+    grid-template-columns: repeat(auto-fit, minmax(min(170px, 100%), 1fr));
     gap: 28px;
     border-top: 1px solid var(--slab-rule);
     padding-top: 28px;
@@ -107,7 +109,7 @@ const { disclaimer } = Astro.props;
     text-transform: uppercase; color: var(--on-slab-faint); margin-bottom: 14px;
   }
   .footer-links { display: flex; flex-direction: column; gap: 8px; }
-  .footer-links a { color: var(--on-slab-muted); font-size: 14px; }
+  .footer-links a { color: var(--on-slab-muted); font-size: 14px; text-decoration: none; }
   .footer-links a:hover { color: var(--accent); }
   .footer-areas, .footer-nap { font-size: 14px; color: var(--on-slab-muted); line-height: 2; font-style: normal; }
   .footer-nap a { color: var(--on-slab-muted); }
@@ -127,5 +129,4 @@ const { disclaimer } = Astro.props;
     display: flex; justify-content: space-between; gap: 16px; flex-wrap: wrap;
     font-family: var(--font-mono); font-size: 11px; color: var(--on-slab-faint);
   }
-  .footer-tm { color: var(--on-slab-faintest); }
 </style>

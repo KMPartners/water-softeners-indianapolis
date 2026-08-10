@@ -28,15 +28,15 @@
  * name-split, source_page, spam_signal — are NOT here; they are appended by
  * src/lib/lead-capture.js and handled explicitly in lead.js.
  */
-// Meridian (generator vertical) lead-field set. Matches the fields declared in
-// presets/generator/lead-forms.js and the design's quote form. `name` and
-// `phone` are the required, separately-validated fields in lead.js; the rest are
-// derived into the allow-list + summary. Keep this in sync with the preset form.
+// Example lead-field set. Matches the fields declared in the active preset form
+// (presets/example/lead-forms.js). `name` and `phone` are the required,
+// separately-validated fields in lead.js; the rest are derived into the
+// allow-list + summary. Keep this in sync with the preset form — core30-lint
+// fails the build if a preset form field is missing here.
 export const LEAD_FIELDS = [
   { key: 'name', label: 'Name', forward: true, summary: true, contact: true },
   { key: 'phone', label: 'Phone', forward: true, summary: true, contact: true },
   { key: 'email', label: 'Email', forward: true, summary: true, contact: true },
-  { key: 'service', label: 'Service needed', forward: true, summary: true },
   { key: 'message', label: 'Message', forward: true, summary: true },
 ];
 

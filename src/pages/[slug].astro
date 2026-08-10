@@ -1,29 +1,52 @@
 ---
 /**
- * Root-level dispatch route — Core30 flat URLs.
+ * Root-level dispatch route — Core30 FLAT URLs.
  *
  * Every category and service page lives at `/<slug>/` (NOT behind a `/category/`
  * or `/service/` segment). URL hierarchy carries no taxonomy; the hierarchy is
  * expressed by breadcrumbs + mirror-linking instead. One catch-all over the
- * content tree renders the correct page component per slug.
+ * content tree renders each row through the generic EntityPage template.
  *
  * The static routes (index, privacy-policy, terms-of-service, sitemap) take
  * precedence over this dynamic route, and their paths are never emitted here, so
- * there is no collision. Category and service slugs are verified unique across
- * the combined set (build fails on a duplicate param).
+ * there is no collision. Slugs are unique across the content tree (Astro's build
+ * fails on a duplicate `slug` param, so the flat set can never collide silently).
  */
-import CategoryPage from '../components/CategoryPage.astro';
-import ServicePage from '../components/ServicePage.astro';
-import { CATEGORIES, SERVICES } from '../content/meridian.js';
+import EntityPage from '../components/EntityPage.astro';
+import { PAGES, pageBySlug } from '../content/example.js';
+import { exampleService } from '../../presets/example/schema.js';
+import { breadcrumbSchema, faqSchema } from '../lib/schema.js';
+import { interpolate } from '../lib/content-tree.js';
 
 export function getStaticPaths() {
-  return [
-    ...CATEGORIES.map((cat) => ({ params: { slug: cat.slug }, props: { kind: 'category', cat } })),
-    ...SERVICES.map((svc) => ({ params: { slug: svc.slug }, props: { kind: 'service', svc } })),
-  ];
+  return PAGES.map((page) => ({ params: { slug: page.slug }, props: { page } }));
 }
 
-const { kind, cat, svc } = Astro.props;
+const { page } = Astro.props;
+
+// Breadcrumbs: Home › [parent hub] › this page. A child links UP to its parent
+// (Core30 rule 3, mirror-linking); the footer carries the parent set every page.
+const parent = page.parentSlug ? pageBySlug(page.parentSlug) : null;
+const crumbs = [
+  { label: 'Home', href: '/' },
+  ...(parent ? [{ label: parent.trinity, href: `/${parent.slug}/` }] : []),
+  { label: page.trinity },
+];
+
+const faqBlock = (page.blocks || []).find((b) => b.type === 'faq');
+
+const schemas = [
+  exampleService({
+    name: interpolate(page.trinity),
+    serviceType: page.serviceType,
+    description: interpolate(page.description),
+    url: `/${page.slug}/`,
+  }),
+  breadcrumbSchema(crumbs),
+  ...(faqBlock
+    ? [faqSchema(faqBlock.items.map((f) => ({ q: interpolate(f.q), a: interpolate(f.a) })))]
+    : []),
+];
 ---
 
-{kind === 'category' ? <CategoryPage cat={cat} /> : <ServicePage svc={svc} />}
+<EntityPage page={{ ...page, canonical: `/${page.slug}/` }} crumbs={crumbs} schemas={schemas} />

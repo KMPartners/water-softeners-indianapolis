@@ -4,14 +4,12 @@
  * invariants (canonical, one JSON-LD block minimum, the sticky header, the
  * footer link set) cannot be forgotten on a page-by-page basis.
  */
-// The single global sheet: an @import closure of Meridian's tokens + the four
-// verbatim asset sheets + the engine primitives. Load order is fixed inside it.
+// The single global sheet: an @import closure of the design tokens + the engine
+// primitives. Load order is fixed inside it.
 import '../styles/styles.css';
 
 import IconSprite from '../components/IconSprite.astro';
 import Header from '../components/Header.astro';
-import ScrollMiniMenu from '../components/ScrollMiniMenu.astro';
-import MobileDrawer from '../components/MobileDrawer.astro';
 import Footer from '../components/Footer.astro';
 import { SITE_URL, NAP, OG_IMAGE, FAVICON } from '../lib/site.js';
 
@@ -31,8 +29,8 @@ interface Props {
   /** og/twitter share image. Absolute URL or site-root path. Defaults to
       brand.ogImage; a detail page can pass a real photo. */
   image?: string;
-  /** The page label shown in the desktop scroll mini-menu — the last breadcrumb
-      crumb (build-spec §2). Defaults to the page title. */
+  /** Optional short page label (last breadcrumb crumb). Accepted for callers
+      that pass it; not rendered by the base chrome. */
   pageLabel?: string;
 }
 
@@ -60,8 +58,6 @@ const gtmId = import.meta.env.PUBLIC_GTM_ID;
 <!doctype html>
 <html lang="en">
   <head>
-    {/* Meridian's locked palette (amber accent on light + dark slab) is the
-        permanent :root in tokens/colors.css — no runtime theme switching. */}
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
 
@@ -105,15 +101,9 @@ const gtmId = import.meta.env.PUBLIC_GTM_ID;
     )}
     <IconSprite />
     <Header current={canonical} />
-    <ScrollMiniMenu pageLabel={pageLabel ?? title} />
     <main>
       <slot />
     </main>
     <Footer disclaimer={footerDisclaimer} />
-    <MobileDrawer />
-    {/* The only chrome JS: one scroll listener (mini-menu + bottom bar) + drawer. */}
-    <script>
-      import '../scripts/chrome.js';
-    </script>
   </body>
 </html>

@@ -1,26 +1,18 @@
 /* ============================================================================
-   Meridian Generator & Electric — design-system entry point.
-   BaseLayout imports ONLY this file. It is an @import closure: every token,
-   font, and shared stylesheet reaches the page through here, in a fixed order.
+   Design-system entry point. BaseLayout imports ONLY this file. It is an
+   @import closure: every token and shared stylesheet reaches the page through
+   here, in a fixed order.
 
-   Load order is a CONTRACT (build-spec §1.1, PHASE0-FINDINGS §Global CSS):
-     tokens(fonts→colors→typography→spacing→base)
-       → byline → logo → mobile-chrome → scroll-menu   (Meridian, verbatim)
-       → engine                                         (engine primitives)
+   Load order is a CONTRACT:
+     tokens(fonts → colors → typography → spacing → base) → engine primitives
 
-   Ported from Meridian's assets/styles.css with two quirks fixed on port:
-     · Meridian's original imported logo.css TWICE — collapsed to one.
-     · scroll-menu.css was omitted — appended (loaded globally per findings).
-   The four asset sheets are tokens-only and NEVER hand-edited; reskin by
-   changing token values, not these files.
+   To reskin the starter, change the token VALUES in src/styles/tokens/*.css —
+   never hand-edit component styles for brand color/type. A client build layers
+   its own design sheets after the tokens and before engine.css.
    ============================================================================ */
 @import url('tokens/fonts.css');
 @import url('tokens/colors.css');
 @import url('tokens/typography.css');
 @import url('tokens/spacing.css');
 @import url('tokens/base.css');
-@import url('byline.css');
-@import url('logo.css');
-@import url('mobile-chrome.css');
-@import url('scroll-menu.css');
 @import url('engine.css');

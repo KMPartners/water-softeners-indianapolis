@@ -1,7 +1,8 @@
 {
   "$comment": [
     "CLIENT CONFIG — the only file (besides brand tokens and the content tree)",
-    "a new site edits. Charter §5. Filled for Meridian Generator & Electric.",
+    "a new site edits. Charter §5. Filled with NEUTRAL PLACEHOLDER values for the",
+    "'Example Home Services' demo. Replace every value with the real client's facts.",
     "",
     "GOLDEN RULE (charter §1): if a value is true for ONE client only, it lives",
     "here — never hardcoded in an Engine file.",
@@ -11,36 +12,34 @@
     "than inventing it. A confirmed-false flag is a real answer; leaving it",
     "unconfirmed is what keeps an unverified claim off the page.",
     "",
-    "OPEN VERIFY items still unfilled (do not fabricate — ship flagged/withheld):",
-    "  · site.domain is PROVISIONAL (no live domain chosen). Pre-launch it is a",
-    "    find/replace + sitemap regen, not a redirect exercise.",
-    "  · business.hoursSpec is a placeholder (hoursConfirmed:false).",
-    "  · compliance.licenseNumber is null and licensedClaimAllowed:false until the",
-    "    license # lands (then flip both).",
-    "  · business.geo / rating stay null/false (never fabricated).",
+    "OPEN VERIFY items a new site fills before launch (do not fabricate):",
+    "  · site.domain (provisional example.com until the real domain is chosen).",
+    "  · business.hoursSpec / hoursConfirmed.",
+    "  · compliance.licenseNumber / licensedClaimAllowed (if the vertical is licensed).",
+    "  · business.geo / rating (never fabricated).",
     "  · GHL endpoint + GTM id are Cloudflare secrets / build vars, not here."
   ],
 
   "business": {
-    "name": "Meridian Generator & Electric",
-    "primaryCategory": "Generator shop",
-    "legalDisclaimerName": "Meridian Generator & Electric",
+    "name": "Example Home Services",
+    "primaryCategory": "Handyman service",
+    "legalDisclaimerName": "Example Home Services LLC",
 
-    "phone": "+14632835939",
+    "phone": "+15555550100",
     "phoneDisplayOverride": null,
 
     "address": {
-      "street": "12514 Reynolds Dr Ste. B",
-      "city": "Fishers",
-      "state": "IN",
-      "zip": "46038",
-      "county": "Hamilton County",
+      "street": "100 Example Plaza, Suite 200",
+      "city": "Anytown",
+      "state": "CA",
+      "zip": "90001",
+      "county": "Example County",
       "country": "US"
     },
 
     "geo": null,
 
-    "$comment_hours": "VERIFY:hours — placeholder Mon–Fri 9–5; hoursConfirmed stays false until the owner confirms real hours, so nothing claims confirmed hours in schema.",
+    "$comment_hours": "Placeholder Mon–Fri 8–5; hoursConfirmed stays false until real hours are confirmed, so nothing claims confirmed hours in schema.",
     "hoursSpec": [
       { "days": ["Monday", "Tuesday", "Wednesday", "Thursday", "Friday"], "opens": "08:00", "closes": "17:00" }
     ],
@@ -54,29 +53,28 @@
       "Entity-identity fields for the business JSON-LD node. Each is OMITTED",
       "from the schema when blank/null. `sameAs` cites the business's own",
       "authoritative profiles (GBP, Facebook, BBB) so Google can reconcile this",
-      "site with a known entity. Empty until the real GBP export lands."
+      "site with a known entity. Empty until the real profiles land."
     ],
     "foundingYear": null,
     "naics": "",
     "priceRange": "",
     "sameAs": [],
     "knowsAbout": [
-      "Whole-home standby generator installation",
-      "Generac generator service and repair",
-      "Automatic transfer switch installation",
-      "Commercial standby power"
+      "Home repairs",
+      "Drywall repair",
+      "Fixture installation"
     ]
   },
 
   "compliance": {
-    "$comment_licensed": "licensedClaimAllowed stays false until the electrical license # is confirmed (VERIFY:license). The 'authorized Generac dealer / warranty-compliant' claim is a separate, handoff-confirmed brand fact and does not depend on this flag.",
+    "$comment_licensed": "licensedClaimAllowed stays false until a real license # is confirmed. Flip both together for a licensed vertical.",
     "licensedClaimAllowed": false,
     "bannedPhrases": [],
     "chamberMember": false,
     "publishGate": [],
 
     "claimGates": {
-      "$comment": "Per-client claim gates. Each defaults false; the Engine withholds the claim until confirmed. Generator-specific gates are added in presets/generator (Phase 5) as the lead-form assurances need them."
+      "$comment": "Per-client claim gates. Each defaults false; the Engine withholds the claim until confirmed. A preset adds vertical-specific gates as its lead-form assurances need them."
     },
 
     "licenseNumber": null
@@ -87,43 +85,41 @@
       "Legal-doc + TCPA/A2P posture. Every value is a per-client fact.",
       "`effectiveDate` is a HARDCODED string, never a computed date.",
       "",
-      "smsConsentRequired = FALSE (OPTIONAL) — owner decision (2026-08-08): keep",
-      "the SMS opt-in on the form but do not require it, to avoid form friction.",
-      "CONSEQUENCE: the GHL workflow MUST filter on sms_consent === 'yes' before",
-      "any SMS action, or the business will text people who never opted in.",
+      "smsConsentRequired has NO Engine default — the build throws if it is unset.",
+      "It is a real business decision: required = a lead implies SMS consent but",
+      "adds submit friction; optional = no friction but the CRM MUST filter on",
+      "sms_consent === 'yes' before any SMS action. Set here to false (optional).",
       "",
-      "legalReviewedBy: setting it non-null removes the draft banner + clears the",
-      "lint publish-gate. Owner decision (2026-08-08): accept the placeholder legal",
-      "text FOR LAUNCH to drop the banner. IT HAS NOT been reviewed by counsel, so",
-      "the value records owner-acceptance, NOT an attorney sign-off. Still send both",
-      "docs to counsel; replace this value with the reviewer once they sign off.",
-      "a2pBrandRegistered gates turning SMS actions ON in the CRM.",
-      "governingState/venueCounty are the business's Indiana / Hamilton County;",
-      "counsel confirms the venue at legal review."
+      "legalReviewedBy stays null until counsel signs off — both legal pages show a",
+      "draft banner and core30-lint warns (publish gate) until then. Do not set it",
+      "to drop the banner without a real review.",
+      "a2pBrandRegistered gates turning SMS actions ON in the CRM."
     ],
     "effectiveDate": "January 1, 2026",
-    "governingState": "Indiana",
-    "venueCounty": "Hamilton County, Indiana",
+    "governingState": "California",
+    "venueCounty": "Example County, California",
     "smsConsentRequired": false,
-    "legalReviewedBy": "Owner-accepted for launch (formal counsel review pending)",
+    "legalReviewedBy": null,
     "a2pBrandRegistered": false
   },
 
   "geoScope": {
-    "primaryCities": ["Fishers, IN"],
-    "extendedAreas": ["Noblesville, IN", "Carmel, IN", "Westfield, IN", "Pendleton, IN", "Anderson, IN"],
-    "counties": ["Hamilton County", "Madison County"]
+    "primaryCities": ["Anytown, CA"],
+    "extendedAreas": ["Springvale, CA", "Rivertown, CA", "Lake Haven, CA"],
+    "counties": ["Example County"]
   },
 
   "site": {
-    "$comment_domain": "VERIFY:domain — PROVISIONAL. No live domain chosen yet. Canonical <link>s, JSON-LD url, and the sitemap all derive from this. No prior indexed site, so swapping it pre-launch is a find/replace + sitemap regen, not a redirect exercise.",
-    "domain": "meridiangeneratorelectric.com",
+    "$comment_domain": "PROVISIONAL placeholder. Canonical <link>s, JSON-LD url, and the sitemap all derive from this. Set the real domain before launch (find/replace + sitemap regen).",
+    "domain": "example.com",
     "canonicalHost": "www",
     "leadSecretName": "GHL_WEBHOOK_URL",
-    "leadSource": "meridian-website-lead",
+    "leadSource": "example-website-lead",
+    "$comment_leadTag": "CRM tag applied to every lead from this site's single quote form. Per-client / per-vertical; read by functions/api/lead.js via the generated config.",
+    "leadTag": "web-lead",
     "ogImage": "/og-image.png",
-    "$comment_timeZone": "IANA zone for lead-summary local times. Fishers, IN observes US Eastern.",
-    "timeZone": "America/Indiana/Indianapolis"
+    "$comment_timeZone": "IANA zone for lead-summary local times. Anytown, CA → US Pacific.",
+    "timeZone": "America/Los_Angeles"
   },
 
   "brand": {
@@ -131,18 +127,18 @@
     "logos": {},
 
     "wordmark": {
-      "$comment": "Two-line lockup used by the starter chrome until Phase 2 replaces it with the logo.css wordmark system. line1 is the identity word; line2 the subline.",
-      "line1": "Meridian",
-      "line2": "Generator & Electric · Fishers, IN"
+      "$comment": "Two-line lockup used by the starter chrome. line1 is the identity word; line2 the subline.",
+      "line1": "Example Home Services",
+      "line2": "Anytown, CA"
     },
 
-    "ctaStatus": "Serving Fishers & Hamilton County, IN",
+    "ctaStatus": "Serving Anytown & Example County",
 
     "$comment_footer": "logoMark/footerBlurb/footerLegal/favicon each fall back to a sensible derived default when blank (see src/lib/site.js). primaryCta is the mobile bar's main button.",
     "logoMark": "",
     "footerBlurb": "",
     "footerLegal": "",
     "favicon": "/favicon.svg",
-    "primaryCta": { "label": "Get a Fixed-Bid Quote", "href": "#lead-form" }
+    "primaryCta": { "label": "Get a Free Quote", "href": "#lead-form" }
   }
 }

@@ -57,6 +57,8 @@ demo site plus a clean lint pass.
 ## Status
 
 The Engine layer, the config seam, the schema generator, `core30-lint`, and the
-intake pipeline are in place and building green. The auto vertical ships as a
-reference preset you can study or delete. See the charter's Definition of Done
-(§12) for what "v1 complete" means.
+intake pipeline are in place and building green. A neutral **example** vertical
+ships as a reference: `presets/example/` (schema + lead form) plus the
+`src/content/example.js` content tree (one hub + two service pages) rendered at
+flat URLs through `src/pages/[slug].astro`. Study it, then replace it with your
+own. See the charter's Definition of Done (§12) for what "v1 complete" means.

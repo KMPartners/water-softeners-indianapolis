@@ -1,5 +1,5 @@
 /* ============================================================================
-   Meridian · Base resets + shared field styles
+   Base resets + shared field styles
    Minimal, class-scoped. Links default to amber-deep and darken to ink on hover.
    ============================================================================ */
 *, *::before, *::after { box-sizing: border-box; }

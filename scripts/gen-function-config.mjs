@@ -54,7 +54,15 @@ const banner =
 const body =
   banner +
   'export const SITE = ' +
-  JSON.stringify({ timeZone, leadSource: String(site.leadSource || '').trim() }, null, 2) +
+  JSON.stringify(
+    {
+      timeZone,
+      leadSource: String(site.leadSource || '').trim(),
+      leadTag: String(site.leadTag || '').trim(),
+    },
+    null,
+    2,
+  ) +
   ';\n';
 
 writeFileSync(OUT, body);

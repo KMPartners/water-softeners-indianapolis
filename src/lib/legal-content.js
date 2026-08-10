@@ -30,8 +30,9 @@ import { NAP, LEGAL } from './site.js';
 import { NO_SHARE_SENTENCE, PRIVACY_ROUTE, TERMS_ROUTE } from './legal.js';
 
 /** Effective date is a hardcoded config string (never computed). Blank until the
-    client sets it; the renderer shows a placeholder rather than a wrong date. */
-export const EFFECTIVE = LEGAL.effectiveDate || '—';
+    client sets it; the renderer shows a neutral placeholder rather than a wrong
+    date (punctuation-neutral so it stays portable across a brand's voice rules). */
+export const EFFECTIVE = LEGAL.effectiveDate || '(effective date pending)';
 
 const addressLine = `${NAP.streetAddress}, ${NAP.addressLocality}, ${NAP.addressRegion} ${NAP.postalCode}`;
 const stateClause = LEGAL.governingState || 'the state where we operate';

@@ -1,36 +1,37 @@
 /* ============================================================================
-   Meridian · Color tokens (LOCKED)
+   Color tokens (starter default)
    The only colors any page may use. Components reference var(--…) only,
-   never a literal hex. Amber nods to the Generac yellow LED without copying
-   Generac's brand color: Meridian stands alone.
+   never a literal hex. This is a neutral starter palette: a near-white paper,
+   near-black ink, and one calm blue accent. Reskin a client by overriding
+   these values only — never rename or drop a token.
    ============================================================================ */
 :root {
   /* --- base surfaces (light) --- */
-  --bg:        #F6F7F9;   /* page background */
-  --bg2:       #ECEFF3;   /* alternate section background */
+  --bg:        #FFFFFF;   /* page background */
+  --bg2:       #F4F5F7;   /* alternate section background */
 
   /* --- ink (text) --- */
-  --ink:       #161D29;   /* headings + body */
-  --ink2:      #4A5663;   /* lede + secondary */
-  --ink3:      #828D9B;   /* mono labels + muted */
+  --ink:       #14181F;   /* headings + body */
+  --ink2:      #4B5563;   /* lede + secondary */
+  --ink3:      #6B7280;   /* mono labels + muted */
 
   /* --- rules / borders --- */
-  --rule:      #DCE1E8;   /* hairline divider */
-  --rule2:     #C4CCD6;   /* stronger border (inputs, pills) */
+  --rule:      #E4E7EB;   /* hairline divider */
+  --rule2:     #CBD2DA;   /* stronger border (inputs, pills) */
 
   /* --- dark slab surfaces --- */
-  --slab:      #111824;   /* hero + footer + CTA */
-  --slab2:     #1B2433;   /* raised dark card */
-  --slab-rule: #2C3849;   /* divider on dark */
+  --slab:      #1F2933;   /* hero + footer + CTA */
+  --slab2:     #2A3541;   /* raised dark card */
+  --slab-rule: #3D4A57;   /* divider on dark */
 
-  /* --- accent (amber, the workhorse) --- */
-  --accent:      #F2A40C; /* links · bullets · CTA */
-  --accent-deep: #B87808; /* underline · hover fill · shadow */
-  --accent-ink:  #1A1206; /* text on amber */
+  /* --- accent (the workhorse) --- */
+  --accent:      #2563EB; /* links · bullets · CTA */
+  --accent-deep: #1D4ED8; /* underline · hover fill · shadow */
+  --accent-ink:  #FFFFFF; /* text on accent */
 
   /* --- signal + status --- */
-  --signal:       #F2541B; /* urgency / alt accent */
-  --status-green: #3FB47C; /* open / confirmed */
+  --signal:       #DC2626; /* urgency / alt accent */
+  --status-green: #16A34A; /* open / confirmed */
 
   /* --- semantic aliases (prefer these in new work) --- */
   --text-strong:  var(--ink);
@@ -51,30 +52,28 @@
   --success:    var(--status-green);
 
   /* --- text ON dark slab surfaces -----------------------------------------
-     Meridian's archetypes hard-coded these on-dark greys inline; tokenized in
-     Phase 6 so the chrome + dark sections stay tokens-only and reskin with the
+     Light text scaled for legibility over the dark slab surfaces. Kept as
+     tokens so the chrome + dark sections stay tokens-only and reskin with the
      palette. Ordered lightest → lowest-contrast. */
-  --on-slab:          #ffffff; /* headings / strong text on --slab */
-  --on-slab-body:     #DCE2EA; /* body · checklist text on dark */
-  --on-slab-muted:    #B9C2CE; /* lede · secondary on dark */
-  --on-slab-dim:      #9BA6B4; /* mono labels · sublines on dark */
-  --on-slab-dimmer:   #8A95A4; /* fine print on dark */
-  --on-slab-faint:    #6E7A89; /* section labels · footer headings on dark */
-  --on-slab-faintest: #566273; /* lowest-contrast (trademark line) */
+  --on-slab:          #FFFFFF; /* headings / strong text on --slab */
+  --on-slab-body:     #E2E6EB; /* body · checklist text on dark */
+  --on-slab-muted:    #C3CAD3; /* lede · secondary on dark */
+  --on-slab-dim:      #A6AEB9; /* mono labels · sublines on dark */
+  --on-slab-dimmer:   #949CA8; /* fine print on dark */
+  --on-slab-faint:    #79828F; /* section labels · footer headings on dark */
+  --on-slab-faintest: #616B78; /* lowest-contrast (trademark line) */
 
-  /* --- elevation (Phase 1 reconcile) --------------------------------------
-     Meridian's design is flat and border-led, so these are deliberately
-     subtle — just enough lift for a raised card (the LeadForm quote card and
-     its success state). Tinted with the slab ink (#111824) so the shadow reads
-     as the same cool family as the palette, never a neutral grey drop. Prefer a
-     border; reach for a shadow only when a surface genuinely needs to lift. */
-  --shadow-sm: 0 1px 2px rgba(17, 24, 36, 0.06);
-  --shadow-md: 0 6px 20px rgba(17, 24, 36, 0.10);
-  --shadow-lg: 0 18px 48px rgba(17, 24, 36, 0.14);
+  /* --- elevation ----------------------------------------------------------
+     Deliberately subtle — just enough lift for a raised card. Tinted with the
+     slab ink so the shadow reads as the same cool family as the palette, never
+     a neutral grey drop. Prefer a border; reach for a shadow only when a
+     surface genuinely needs to lift. */
+  --shadow-sm: 0 1px 2px rgba(31, 41, 51, 0.06);
+  --shadow-md: 0 6px 20px rgba(31, 41, 51, 0.10);
+  --shadow-lg: 0 18px 48px rgba(31, 41, 51, 0.14);
 
-  /* --- focus ring (Phase 1 reconcile) -------------------------------------
-     One tokenized focus treatment so every focusable control matches the
-     inline `.ks-field:focus` look in base.css. Consumers pair it with
-     `border-color: var(--accent)`. */
+  /* --- focus ring ---------------------------------------------------------
+     One tokenized focus treatment so every focusable control matches. Consumers
+     pair it with `border-color: var(--accent)`. */
   --focus-ring: 0 0 0 3px color-mix(in srgb, var(--accent) 30%, transparent);
 }

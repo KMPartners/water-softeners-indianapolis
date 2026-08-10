@@ -33,12 +33,12 @@ import { OPTIONAL_FORWARD_KEYS } from './_lead-fields.js';
 // `npm run config:gen` if your editor flags it missing.
 import { SITE } from './_config.generated.js';
 
-// Sourced from config via the generated module so it can't drift from
-// site.config.leadSource. Tag stays a literal for now (one intent).
+// Both sourced from config via the generated module (scripts/gen-function-config.mjs)
+// so they can't drift from site.config. leadTag is the CRM tag applied to every
+// lead from this site's single quote form — per-client / per-vertical, not a
+// hardcoded literal.
 const LEAD_SOURCE = SITE.leadSource || 'example-website-lead';
-// Single-intent tag for this vertical's one quote form. (Starter improvement:
-// this + the intent label should be preset/config-driven — see STARTER-IMPROVEMENTS.)
-const LEAD_TAG = 'web-quote';
+const LEAD_TAG = SITE.leadTag || 'web-lead';
 
 const str = (v) => (v == null ? '' : String(v).trim());
 
