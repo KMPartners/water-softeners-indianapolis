@@ -330,6 +330,80 @@ function checkFieldManifest() {
   }
 }
 
+/* ── C2: no undefined CSS custom properties ────────────────────────────────
+   A `var(--x)` with NO fallback whose `--x` is never defined resolves to
+   nothing and silently breaks a page — `astro build` never validates it, so a
+   dropped/renamed token ships a visually-broken page on a green build. This is
+   the entire class the port kept hitting by hand.
+
+   Collect every DEFINED `--name` from the token sheets, every component
+   `<style>` block, `@property` rules, and inline `style="--x:…"` — then flag any
+   `var(--x)` used WITHOUT a fallback whose name is undefined anywhere. A
+   `var(--x, fallback)` is intentional degradation and is never flagged, and a
+   name defined ANYWHERE counts as defined (union scope), so the check errs
+   toward silence — zero false positives, per the lint's design principle. */
+function checkCssVars() {
+  const files = [
+    ...walk(join(ROOT, 'src'), '.css'),
+    ...walk(join(ROOT, 'src'), '.astro'),
+    ...walk(join(ROOT, 'presets'), '.astro'),
+  ];
+  const defined = new Set();
+  const uses = []; // { name, hasFallback, file }
+
+  const collectCss = (css, f) => {
+    for (const m of css.matchAll(/(--[\w-]+)\s*:/g)) defined.add(m[1]);         // declarations
+    for (const m of css.matchAll(/@property\s+(--[\w-]+)/g)) defined.add(m[1]); // @property
+    for (const m of css.matchAll(/var\(\s*(--[\w-]+)\s*(,)?/g)) {
+      uses.push({ name: m[1], hasFallback: Boolean(m[2]), file: f });
+    }
+  };
+
+  for (const file of files) {
+    const text = readFileSync(file, 'utf8');
+    const f = rel(file);
+    if (file.endsWith('.css')) {
+      collectCss(text, f);
+    } else {
+      // .astro: CSS lives only in <style> blocks; also honor inline custom props.
+      for (const sm of text.matchAll(/<style[^>]*>([\s\S]*?)<\/style>/gi)) collectCss(sm[1], f);
+      for (const im of text.matchAll(/style=(?:"|'|\{`)([^"'`]*)/g)) {
+        for (const dm of im[1].matchAll(/(--[\w-]+)\s*:/g)) defined.add(dm[1]);
+      }
+    }
+  }
+
+  const reported = new Set();
+  for (const u of uses) {
+    if (u.hasFallback || defined.has(u.name)) continue;
+    const key = `${u.file}::${u.name}`;
+    if (reported.has(key)) continue;
+    reported.add(key);
+    err('C2', u.file, `var(${u.name}) has no fallback but ${u.name} is defined nowhere — it resolves to nothing (dropped/renamed token?)`);
+  }
+}
+
+/* ── C6: 320-safe auto-fit grids ───────────────────────────────────────────
+   `minmax(<Npx>, 1fr)` overflows a 320px viewport whenever the container's
+   inner width is under N — a silent trap that passes `astro build` and lint's
+   page checks (only a headless 320px render catches the overflow itself). The
+   safe idiom is `minmax(min(Npx, 100%), 1fr)`, which never matches the pattern
+   below (a `min(` follows `minmax(`, not a digit). WARN, not ERROR: an explicit
+   fixed-width grid inside a guaranteed-wide container is a legitimate use. */
+function checkGridIdiom() {
+  const files = [
+    ...walk(join(ROOT, 'src'), '.css'),
+    ...walk(join(ROOT, 'src'), '.astro'),
+    ...walk(join(ROOT, 'presets'), '.astro'),
+  ];
+  for (const file of files) {
+    const text = readFileSync(file, 'utf8');
+    for (const m of text.matchAll(/minmax\(\s*\d+(?:\.\d+)?px\s*,\s*1fr\s*\)/g)) {
+      warn('GRID', rel(file), `${m[0]} can overflow a 320px viewport — prefer minmax(min(Npx, 100%), 1fr)`);
+    }
+  }
+}
+
 /* ── run ────────────────────────────────────────────────────────────────── */
 scanSecrets();
 checkPages();
@@ -337,10 +411,12 @@ checkSitemap();
 checkLeadPipeline();
 checkFieldManifest();
 checkConsentAndLegal();
+checkCssVars();
+checkGridIdiom();
 
 const tag = {
   C6: 'secrets', 1: 'trinity', '5a': 'faq', '5b': 'ext-link', 6: 'ext-link', 7: 'schema', 9: 'canonical',
-  LP: 'lead-pipeline', LM: 'field-manifest',
+  LP: 'lead-pipeline', LM: 'field-manifest', C2: 'css-var', GRID: 'grid',
   'A2P-0': 'legal-gate', 'A2P-1': 'no-share', 'A2P-2': 'sms-precheck', 'A2P-3': 'sms-link',
   'A2P-6': 'legal-index', 'A2P-7': 'legal-rating',
 };

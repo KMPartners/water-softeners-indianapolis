@@ -9,6 +9,7 @@
     "build": "npm run config:gen && astro build && npm run lint",
     "lint": "node scripts/core30-lint.mjs",
     "test": "node --test \"scripts/**/*.test.mjs\"",
+    "prepare": "node scripts/setup-hooks.mjs",
     "config:gen": "node scripts/gen-function-config.mjs",
     "replay:payload": "node scripts/replay-payload.mjs",
     "build:cf": "npm run config:gen && astro build && node scripts/stamp-noindex-if-preview.mjs && npm run lint",
@@ -20,8 +21,8 @@
     "ghl:test": "node --env-file-if-exists=.env scripts/ghl-test.mjs",
     "ghl:provision": "node --env-file-if-exists=.env scripts/ghl-provision-fields.js",
     "ghl:provision:dry": "node --env-file-if-exists=.env scripts/ghl-provision-fields.js --dry-run",
-    "deploy:staging": "npm run config:gen && astro build && node scripts/stamp-staging-noindex.mjs && npm run lint && npx wrangler pages deploy dist --project-name=$CF_PAGES_PROJECT --branch=staging --commit-dirty=true",
-    "deploy:prod": "npm run build && npx wrangler pages deploy dist --project-name=$CF_PAGES_PROJECT --branch=main --commit-dirty=true"
+    "deploy:staging": "npm run config:gen && astro build && node scripts/stamp-staging-noindex.mjs && npm run lint && node --env-file-if-exists=.env scripts/deploy.mjs staging",
+    "deploy:prod": "npm run build && node --env-file-if-exists=.env scripts/deploy.mjs prod"
   },
   "dependencies": {
     "astro": "^5.6.1"

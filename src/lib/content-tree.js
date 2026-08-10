@@ -116,3 +116,37 @@ export function interpolateDeep(v, extra = {}) {
   }
   return v;
 }
+
+/* ── Flat-URL slug safety (Core30 flat-URL rule) ────────────────────────────
+   Category and service pages live at `/<slug>/` at the ROOT. Two failure modes
+   are silent and this catches both at BUILD:
+     · a duplicate slug — Astro's native duplicate-param error is cryptic;
+     · a slug that matches a RESERVED static route (privacy-policy, …) — the
+       static page wins and the content page NEVER emits, with NO error at all.
+   The flat dispatch route ([slug].astro) calls assertUniqueSlugs(PAGES) in
+   getStaticPaths, so every vertical inherits the guard for free. */
+export const RESERVED_SLUGS = new Set([
+  '', 'privacy-policy', 'terms-of-service', '404', 'sitemap.xml', 'robots.txt',
+]);
+
+/** Throw if any content slug is empty, duplicated, or shadows a reserved route. */
+export function assertUniqueSlugs(pages = []) {
+  const seen = new Set();
+  for (const p of pages) {
+    const slug = String(p && p.slug != null ? p.slug : '').replace(/^\/|\/$/g, '');
+    if (!slug) {
+      throw new Error('[content-tree] a page row has no slug — every flat page needs a unique, non-empty slug.');
+    }
+    if (RESERVED_SLUGS.has(slug)) {
+      throw new Error(
+        `[content-tree] content slug "${slug}" collides with a reserved static route. ` +
+          'The static page wins silently and this content page would never render — rename the slug.',
+      );
+    }
+    if (seen.has(slug)) {
+      throw new Error(`[content-tree] duplicate content slug "${slug}" — flat URLs must be unique across the whole tree.`);
+    }
+    seen.add(slug);
+  }
+  return pages;
+}

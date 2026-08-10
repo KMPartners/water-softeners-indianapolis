@@ -37,28 +37,37 @@ Steps 1–2 are the "Claude Designer" part. Steps 3–5 are the
 > working compliance gating. The detailed steps below incorporate what that
 > shakedown surfaced.
 
-## Step 0 — clone and confirm it's green
+## Step 0 — clone safely and confirm it's green
 
-1. **Make your own copy of the repo.** Create a new repo for the client from this
-   starter (GitHub "Use this template", or clone then re-point the remote):
+1. **Make your own client repo — safely.** Create an empty repo for the client on
+   GitHub first, then clone the starter and hand it off to the bootstrap:
    ```bash
    git clone https://github.com/KMPartners/core30-starter.git my-client-site
    cd my-client-site
-   git remote set-url origin <your-new-client-repo-url>
+   npm install                                  # activates the pre-push guard
+   node scripts/new-site.mjs <your-new-client-repo-url>
+   git push -u origin main
    ```
-2. **Install and build:**
-   ```bash
-   npm install
-   npm run build
-   ```
-3. **Confirm the result.** You should see `24 page(s) built` and
-   `core30-lint: clean`. Two console messages are expected and fine: an inventory
-   fixture notice and a `[LAUNCH BLOCKER]` about the lead form having no
-   destination yet (that's demo mode; you wire it before launch).
+   `scripts/new-site.mjs` re-points the remotes so your work goes to **your** repo
+   (`origin`) and core30-starter becomes a **fetch-only** `upstream`. A tracked
+   **pre-push hook** (`.githooks/pre-push`, wired up by `npm install`) then refuses
+   any push to core30-starter from a client site — so you can never accidentally
+   push client commits onto the shared engine. Pull engine updates later with
+   `git fetch upstream && git merge upstream/main`.
 
-A green build means the engine is intact. It renders the **auto reference preset**
-so you always have a working site on screen while you build yours — not a blank
-page. You delete that reference in Step 4.
+   > **Why not just `git remote set-url origin …`?** Because that leaves `main`
+   > tracking the engine's remote, and a bare `git push` then lands on
+   > core30-starter. That is a real accident this repo has seen; the bootstrap +
+   > hook exist specifically to make it impossible.
+2. **Build:** `npm run build`.
+3. **Confirm the result.** You should see a green `core30-lint: clean` line. A
+   `[LAUNCH BLOCKER]` console notice about the lead form having no destination yet
+   is expected (demo mode; you wire it before launch).
+
+A green build means the engine is intact. It renders the **example reference
+preset** (`presets/example/` + `src/content/example.js`) so you always have a
+working site on screen while you build yours — not a blank page. You replace that
+reference with your own content in Step 4.
 
 > **Prereqs:** Node 18+ and npm (that's it to build). Python 3 + Pillow only if
 > you'll use the image optimizer. See [SETUP.md](SETUP.md).
