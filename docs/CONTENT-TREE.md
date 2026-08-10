@@ -70,8 +70,9 @@ export const CITY_PAGE = {
 A content row references an archetype; the row supplies the copy, the archetype
 supplies the shape, the engine renders it. Want two different category layouts?
 That is two archetypes (`CATEGORY_PAGE`, `CATEGORY_PAGE_WIDE`), still zero new
-templates. The auto preset's repair pages are effectively the `SERVICE_PAGE`
-archetype already, driven from `presets/auto/repair-services.js`.
+templates. The example content tree's service pages
+([`src/content/example.js`](../src/content/example.js)) are effectively the
+`SERVICE_PAGE` shape already.
 
 ## What is per-project vs. reusable
 
@@ -95,12 +96,15 @@ site or what industry it is for.
 
 ## Adding a vertical — the short version
 
-1. Copy `presets/auto/schema.js` → `presets/<vertical>/schema.js`; swap the
+1. Copy `presets/example/schema.js` → `presets/<vertical>/schema.js`; swap the
    `@type` strings (the Engine primitives don't change).
-2. Define `presets/<vertical>/archetypes.js` — the block sequences per page type.
+2. Define your block sequences per page type (inline in the content rows, or as a
+   `presets/<vertical>/archetypes.js` if you want named, reusable shapes).
 3. Run the [intake pipeline](intake/README.md) to produce the content rows.
 4. `astro build` → every page generates, schema + sitemap + canonical emitted,
    `core30-lint` gates it.
 
-Start from the neutral [`example-entity`](../src/pages/example-entity.astro)
-demo — it shows every block, interpolation, and gating in one deletable page.
+Start from the neutral example content tree
+([`src/content/example.js`](../src/content/example.js)), rendered at flat
+`/<slug>/` URLs by [`src/pages/[slug].astro`](../src/pages/[slug].astro) — one
+hub + two service pages that show every block, interpolation, and gating.

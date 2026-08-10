@@ -150,19 +150,24 @@ Require the output to conform to
   `geoScope`. Every claim gate defaults to **suppress**; flip one only when you've
   confirmed it. `geo` and `rating` stay empty until real. This is your entire
   per-client fact surface.
-- **Content tree** — each approved entity becomes a content-tree row + a thin
-  page route. One template (`EntityPage`) renders them all; page types are
-  **archetypes** (block sequences), not new files. See
-  [`docs/CONTENT-TREE.md`](CONTENT-TREE.md). Two files per page:
+- **Content tree** — each approved entity becomes a content-tree **row**. One
+  template (`EntityPage`) renders them all; page types are **archetypes** (block
+  sequences), not new files. See [`docs/CONTENT-TREE.md`](CONTENT-TREE.md). The
+  default flow — the one the shipped example uses:
 
-  1. **The row** — `src/content/<slug>.js`, exporting the page data. Copy the
-     neutral [`example-entity.js`](../src/content/example-entity.js) — it shows
-     every block type (`prose`, `steps`, `list`, `figure`, `faq`, `external`, and
-     `form` for an embedded lead form), `{{...}}` interpolation, and compliance
-     gating (a `{ requires, fallback }` item renders only when its `site.config`
-     claim gate is confirmed).
-  2. **The route** — `src/pages/<slug>.astro`, which feeds the row to
-     `EntityPage` and supplies the schema + breadcrumbs. Copyable stub:
+  1. **Add rows to a content module** — copy a row in
+     [`src/content/example.js`](../src/content/example.js) (or replace that file).
+     It shows every block type (`prose`, `steps`, `list`, `figure`, `faq`,
+     `external`, `links`, and `form` for an embedded lead form), `{{...}}`
+     interpolation, and compliance gating (a `{ requires, fallback }` item renders
+     only when its `site.config` claim gate is confirmed).
+  2. **The flat route renders them** — [`src/pages/[slug].astro`](../src/pages/[slug].astro)
+     dispatches every row to `EntityPage` at a flat `/<slug>/` URL, supplying the
+     schema + breadcrumbs, with a build-time unique/non-shadowing slug guard. You
+     rarely add a route file; you add rows.
+
+  For a genuinely bespoke one-off page, a dedicated `src/pages/<slug>.astro` that
+  feeds a single row to `EntityPage` also works. Copyable stub:
 
      ```astro
      ---
@@ -191,12 +196,15 @@ Require the output to conform to
      Swap `serviceType` and the `localBusiness` `type` for your vertical's
      schema.org type (e.g. `Plumber`, `Electrician`, `HousePainter`). A lead form
      lives inside the row as a `form` block — no separate component to wire.
-- **Delete the auto reference** once your own content exists, so nothing
-  auto-flavored ships. That means removing: `presets/auto/`, the auto example
-  pages (`src/pages/index.astro`, `buy-here-pay-here-anderson.astro`,
-  `used-cars/`, `auto-repair/`), and their helpers if unused (`src/lib/nav.js`,
-  `inventory.js`, `airtable-schema.mjs`, `src/data/`). Rebuild after — the linter
-  will flag anything you left dangling.
+- **Replace the example reference** with your own. The starter ships neutral
+  placeholder content, not a real-vertical demo, so there's nothing "donor-
+  flavored" to delete — you edit it in place: replace the rows in
+  [`src/content/example.js`](../src/content/example.js), update the nav in
+  [`src/content/nav.js`](../src/content/nav.js), rewrite the neutral homepage
+  [`src/pages/index.astro`](../src/pages/index.astro), and adapt (or replace) the
+  example preset in [`presets/example/`](../presets/example/). Rebuild after —
+  `core30-lint` flags anything left dangling (including undefined CSS tokens and
+  reserved-route slug collisions).
 
 ## Step 5 — build, lint, ship
 
@@ -224,7 +232,7 @@ and flip the project's `posture` to `existing-gbp` for future changes.
 | The look (color, type) | `src/styles/tokens/colors.css`, `fonts.css` |
 | A business fact (NAP, hours, a claim) | `site.config.json` |
 | Page copy / a new page | a content-tree row |
-| A whole new industry | a new `presets/<vertical>/` (copy `presets/auto/`) |
+| A whole new industry | a new `presets/<vertical>/` (copy `presets/example/`) |
 | The layout, components, schema, rules | **nothing — that's the engine** |
 
 If you find yourself wanting to edit the engine, the value you're after almost
