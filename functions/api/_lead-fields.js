@@ -23,6 +23,11 @@
  *   summary  — show it in the human-readable block
  *   contact  — a core contact field (fixed leading row in the summary); the rest
  *              are "detail" rows rendered in manifest order
+ *   crmField — { name, dataType } for a GHL custom field to provision. Only the
+ *              NON-standard fields need one (name/phone/email are standard GHL
+ *              fields with nowhere to land otherwise). scripts/ghl-provision-
+ *              fields.js reads these via LEAD_CRM_FIELDS, so adding a crmField
+ *              here is the single edit that makes a new client auto-provision it.
  *
  * The cross-cutting fields a form never types — the consent package, UTMs,
  * name-split, source_page, spam_signal — are NOT here; they are appended by
@@ -37,7 +42,7 @@ export const LEAD_FIELDS = [
   { key: 'name', label: 'Name', forward: true, summary: true, contact: true },
   { key: 'phone', label: 'Phone', forward: true, summary: true, contact: true },
   { key: 'email', label: 'Email', forward: true, summary: true, contact: true },
-  { key: 'message', label: 'Message', forward: true, summary: true },
+  { key: 'message', label: 'Message', forward: true, summary: true, crmField: { name: 'Message', dataType: 'LARGE_TEXT' } },
 ];
 
 /** Every known form-field key — the lint checks preset fields against this. */
@@ -62,3 +67,14 @@ export const OPTIONAL_FORWARD_KEYS = LEAD_FIELDS
 export const DETAIL_FIELDS = LEAD_FIELDS
   .filter((f) => f.summary && !f.contact)
   .map((f) => [f.key, f.label]);
+
+/**
+ * GHL custom fields to provision for the non-standard lead fields — those that
+ * have nowhere to land on a contact otherwise (name/phone/email are standard GHL
+ * fields). Derived from the manifest's `crmField` markers, so a new client that
+ * declares one gets it auto-provisioned. Consumed by scripts/ghl-provision-
+ * fields.js alongside CONSENT_CRM_FIELDS + SUMMARY_CRM_FIELDS. Dependency-free.
+ */
+export const LEAD_CRM_FIELDS = LEAD_FIELDS
+  .filter((f) => f.crmField)
+  .map((f) => ({ name: f.crmField.name, dataType: f.crmField.dataType }));

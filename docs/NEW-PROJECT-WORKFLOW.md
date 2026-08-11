@@ -11,6 +11,11 @@ single spine; it links to the detailed docs at each step.
 > engine renders and the linter guards. You never redesign the layout, and you
 > never edit the engine.
 
+> **Before you start:** settle the per-client decisions in
+> [KICKOFF-DECISIONS.md](KICKOFF-DECISIONS.md) first — the ones the engine throws
+> on (e.g. `legal.smsConsentRequired`), gates a claim on, or withholds by default.
+> Deciding them up front beats discovering them mid-build.
+
 ---
 
 ## The pipeline at a glance

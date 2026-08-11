@@ -20,7 +20,9 @@ non-shadowing slug assertion · **C2** undefined-`var(--*)` lint (ERROR) · **C3
 `EntityPage` self-contained (scoped spine + `links` block) · **C6** static
 unsafe-grid lint (WARN) · **D2/D4** stale-comment + em-dash cleanup · repo
 guardrails (pre-push hook + `new-site.mjs`) · post-scrub doc-accuracy pass · first
-CI (`.github/workflows/ci.yml`).
+CI (`.github/workflows/ci.yml`) · **A5** GHL custom-field provisioning from the
+manifest's `crmField` marker · **D3** kickoff-decisions checklist
+(`docs/KICKOFF-DECISIONS.md`).
 
 ---
 
