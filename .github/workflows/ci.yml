@@ -1,0 +1,49 @@
+name: CI
+
+# Two guarantees, enforced on every push to main and every PR:
+#   1. build   — the repo builds green and the tests pass.
+#   2. demo-removed — the ENGINE still builds green the moment the example demo
+#      is deleted. This is the charter's "builds green from a fresh clone" taken
+#      one step further: a new site deletes the example and adds its own content,
+#      so the engine must never hard-depend on the demo (presets/example, the
+#      example content tree, or the demo routes). It catches the class of bug
+#      where an Engine route hard-imports demo content and reds the whole build.
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 20
+          cache: npm
+      - run: npm ci
+      - run: npm run build
+      - run: npm test
+
+  demo-removed:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 20
+          cache: npm
+      - run: npm ci
+      - name: Remove the example demo (preset + content tree + demo routes)
+        run: |
+          rm -rf presets/example \
+                 src/content/example.js \
+                 src/pages/index.astro \
+                 "src/pages/[slug].astro"
+      - name: Build must stay green with the demo removed
+        # Only the fixed Engine routes remain (privacy, terms, 404, sitemap,
+        # robots). If this fails, an Engine file is hard-depending on the demo —
+        # fix the Engine (e.g. discover content, don't hard-import it), not here.
+        run: npm run build

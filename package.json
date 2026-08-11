@@ -8,7 +8,7 @@
     "dev": "npm run config:gen && astro dev",
     "build": "npm run config:gen && astro build && npm run lint",
     "lint": "node scripts/core30-lint.mjs",
-    "test": "node --test \"scripts/**/*.test.mjs\"",
+    "test": "node --test scripts/*.test.mjs",
     "prepare": "node scripts/setup-hooks.mjs",
     "config:gen": "node scripts/gen-function-config.mjs",
     "replay:payload": "node scripts/replay-payload.mjs",
