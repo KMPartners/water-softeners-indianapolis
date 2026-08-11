@@ -8,15 +8,21 @@
  * truncates the consent record and the lead summary. So the field list — names
  * AND `dataType` — is read from code, not remembered:
  *
+ *   · LEAD_CRM_FIELDS      (functions/api/_lead-fields.js) — the non-standard
+ *     lead fields (e.g. Message, or a preset's Service), derived from the
+ *     manifest's `crmField` markers. name/phone/email are standard GHL fields
+ *     and need none. Without this, a preset's custom form field reaches the CRM
+ *     via the allow-list but has no home on the contact — visible only inside
+ *     the lead-summary Note, never as its own filterable/reportable field.
  *   · CONSENT_CRM_FIELDS   (src/lib/legal-constants.js) — the 5 SMS consent
  *     defense fields; `SMS Consent Text` is LARGE_TEXT.
  *   · SUMMARY_CRM_FIELDS   (functions/api/_lead-summary.js) — Lead Summary and
  *     Lead Summary HTML, both LARGE_TEXT.
  *
- * Both are imported from dependency-free modules, so this runs under plain node
+ * All are imported from dependency-free modules, so this runs under plain node
  * without pulling in site.js → the JSON config import. The forwarded general
  * consent_* / utm_* fields map to standard or hand-added fields; the ones that
- * MUST be a specific type to work are the ones provisioned here.
+ * MUST be a specific type (or that a preset declares) are the ones provisioned here.
  *
  * Idempotent: matches existing fields by NAME (case-insensitive), leaves them
  * untouched, and only creates what is missing — safe to re-run.
@@ -30,6 +36,7 @@
  *   GHL_LOCATION_ID  the sub-account location id
  */
 
+import { LEAD_CRM_FIELDS } from '../functions/api/_lead-fields.js';
 import { CONSENT_CRM_FIELDS } from '../src/lib/legal-constants.js';
 import { SUMMARY_CRM_FIELDS } from '../functions/api/_lead-summary.js';
 
@@ -40,7 +47,7 @@ const VERSION = '2021-07-28';
 const DRY_RUN = process.argv.includes('--dry-run') || process.argv.includes('--dry');
 
 // Single source: the field families the lead pipeline actually declares.
-const DESIRED = [...CONSENT_CRM_FIELDS, ...SUMMARY_CRM_FIELDS];
+const DESIRED = [...LEAD_CRM_FIELDS, ...CONSENT_CRM_FIELDS, ...SUMMARY_CRM_FIELDS];
 
 function die(msg) {
   console.error(`\n[ghl-provision] ERROR: ${msg}\n`);
