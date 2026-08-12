@@ -18,6 +18,8 @@
  * build, so a row never re-types a client fact and it cannot drift.
  */
 
+import { trinityTitle } from '../lib/trinity.js';
+
 const CITY = 'Anytown';
 
 /** Wikipedia authorities — real, neutral external links (Core30 rule 5). */
@@ -33,11 +35,13 @@ const HUB = {
   kind: 'category',
   parentSlug: null,
   serviceType: 'Home repair',
-  trinity: `Home Repair Services in ${CITY}`,
+  // Trinity (rule 1): title + H1 from ONE source. hero.h1 renders the city as an
+  // accent span; trinityTitle joins the same parts so <title> === stripTags(<h1>).
+  trinity: trinityTitle({ service: 'Home Repair Services', city: CITY }),
   description: 'Placeholder hub page for the example home-repair services. Replace this copy before launch.',
   eyebrow: 'Example Content · Replace Before Launch',
   hero: {
-    h1: { text: `Home Repair Services in ${CITY}` },
+    h1: { text: 'Home Repair Services', accent: CITY },
     lede: {
       strong: `Placeholder overview of home-repair services in {{business.city}}, {{business.state}}.`,
       rest: 'Every word on this page is example copy — swap it for real, researched content. Reach the business at {{business.phoneDisplay}}.',
@@ -100,11 +104,12 @@ function service({ slug, name, serviceType, authority, blurb }) {
     kind: 'service',
     parentSlug: HUB.slug,
     serviceType,
-    trinity: `${name} in ${CITY}`,
+    // Trinity (rule 1): title + H1 from ONE source (service + city). See HUB above.
+    trinity: trinityTitle({ service: name, city: CITY }),
     description: `Placeholder service page for ${name.toLowerCase()}. Replace this copy before launch.`,
     eyebrow: 'Example Content · Replace Before Launch',
     hero: {
-      h1: { text: `${name} in ${CITY}` },
+      h1: { text: name, accent: CITY },
       lede: {
         strong: `Placeholder description of ${name.toLowerCase()} in {{business.city}}, {{business.state}}.`,
         rest: 'This first sentence states the offer concretely (Core30 rule 2). Replace it with real copy. Call {{business.phoneDisplay}}.',

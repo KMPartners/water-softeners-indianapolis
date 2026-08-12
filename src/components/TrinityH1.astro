@@ -1,0 +1,43 @@
+---
+/**
+ * <TrinityH1> — the Core30 Trinity `<h1>` (rule 1), ENGINE.
+ *
+ * Renders the service lead + the city as an accent span. The rendered TEXT (tags
+ * stripped, whitespace collapsed) equals `trinityTitle({ service, city })` — the
+ * string the page passes to `<title>` — so rule 1 holds by construction and the
+ * pair cannot drift. Self-styled (tokens only) so it works on any page:
+ *
+ *   import { trinityTitle } from '../lib/trinity.js';
+ *   const TITLE = trinityTitle({ service, city });
+ *   <BaseLayout title={TITLE}><TrinityH1 service={service} city={city} size="hero" /></BaseLayout>
+ */
+import { normalizeTrinity } from '../lib/trinity.js';
+
+interface Props {
+  service: string;
+  /** Optional locality; rendered as the accent span. */
+  city?: string;
+  /** Fluid size: 'hero' (homepage) or 'page' (content page). */
+  size?: 'hero' | 'page';
+  class?: string;
+}
+const { service, city, size = 'page', class: className } = Astro.props;
+const svc = normalizeTrinity(service);
+const cty = city ? normalizeTrinity(city) : '';
+---
+
+<h1 class:list={['trinity-h1', `trinity-${size}`, className]}>{svc}{cty && <> <span class="trinity-city">{cty}</span></>}</h1>
+
+<style>
+  .trinity-h1 {
+    font-family: var(--font-display);
+    font-weight: 800;
+    line-height: var(--lh-head);
+    letter-spacing: var(--ls-tight);
+    color: var(--text-strong);
+    margin: 0 0 16px;
+  }
+  .trinity-hero { font-size: var(--fs-hero); }
+  .trinity-page { font-size: var(--fs-h1); }
+  .trinity-city { color: var(--accent-deep); }
+</style>
