@@ -16,9 +16,13 @@ import { NAP, AREA_SERVED, CTA_STATUS } from '../lib/site.js';
 import { homepageSchema } from '../../presets/example/schema.js';
 import { CATEGORIES, PAGES } from '../content/example.js';
 import { QUOTE_FORM } from '../../presets/example/lead-forms.js';
+import TrinityH1 from '../components/TrinityH1.astro';
+import { trinityTitle } from '../lib/trinity.js';
 
-// Core30 rule 1 (Trinity): this string is BYTE-IDENTICAL to the <h1> lead below.
-const TRINITY = 'Handyman & Home Repair in Anytown, CA';
+// Core30 rule 1 (Trinity): the <title> and the <h1> are generated from ONE source
+// (service + city) via trinityTitle / <TrinityH1>, so they cannot drift.
+const HERO = { service: 'Handyman & Home Repair', city: 'Anytown, CA' };
+const TITLE = trinityTitle(HERO);
 
 const schemas = [homepageSchema(CATEGORIES)];
 
@@ -27,12 +31,12 @@ const schemas = [homepageSchema(CATEGORIES)];
 const links = PAGES.map((p) => ({ href: `/${p.slug}/`, label: p.trinity }));
 ---
 
-<BaseLayout title={TRINITY} description={`Placeholder homepage for ${NAP.name}. Replace this copy before launch.`} canonical="/" schemas={schemas}>
+<BaseLayout title={TITLE} description={`Placeholder homepage for ${NAP.name}. Replace this copy before launch.`} canonical="/" schemas={schemas}>
   <section class="home-hero">
     <div class="container home-hero-grid">
       <div class="home-hero-copy">
         <span class="eyebrow">Example Content · Replace Before Launch</span>
-        <h1>{TRINITY}</h1>
+        <TrinityH1 service={HERO.service} city={HERO.city} size="hero" />
         <p class="lede">
           <strong>Placeholder hero for {NAP.addressLocality}, {NAP.addressRegion}.</strong>
           This is a neutral starter homepage — swap every word for real copy. {CTA_STATUS}.
@@ -93,15 +97,7 @@ const links = PAGES.map((p) => ({ href: `/${p.slug}/`, label: p.trinity }));
     color: var(--accent-deep);
     margin-bottom: 12px;
   }
-  .home-hero h1 {
-    font-family: var(--font-display);
-    font-weight: 800;
-    font-size: var(--fs-hero);
-    line-height: var(--lh-head);
-    letter-spacing: var(--ls-tight);
-    color: var(--text-strong);
-    margin: 0 0 16px;
-  }
+  /* the hero <h1> is <TrinityH1 size="hero" /> — self-styled (tokens only). */
   .lede { font-size: var(--fs-lede); line-height: var(--lh-body); color: var(--text-body); margin: 0 0 24px; max-width: 46ch; }
   .lede strong { color: var(--ink); }
   .home-hero-cta { display: flex; flex-wrap: wrap; gap: 14px; align-items: center; }

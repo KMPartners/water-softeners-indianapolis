@@ -22,7 +22,11 @@ unsafe-grid lint (WARN) · **D2/D4** stale-comment + em-dash cleanup · repo
 guardrails (pre-push hook + `new-site.mjs`) · post-scrub doc-accuracy pass · first
 CI (`.github/workflows/ci.yml`) · **A5** GHL custom-field provisioning from the
 manifest's `crmField` marker · **D3** kickoff-decisions checklist
-(`docs/KICKOFF-DECISIONS.md`).
+(`docs/KICKOFF-DECISIONS.md`) · **C4** `trinityTitle()` + `<TrinityH1>` (the
+`<title>` and `<h1>` from one source).
+
+> Speculative integration ideas (not scheduled) live in
+> [`EXPLORATIONS.md`](EXPLORATIONS.md).
 
 ---
 
@@ -58,15 +62,6 @@ manifest's `crmField` marker · **D3** kickoff-decisions checklist
   manifest — this just moves the manifest next to the form it describes.
 - **Where:** `functions/api/_lead-fields.js`, `lead.js`, `_lead-summary.js`,
   `scripts/core30-lint.mjs`.
-
-### C4 — `trinityTitle()` helper + `<TrinityH1>` · *small/medium*
-- **What:** an engine helper that generates the `<title>` keyphrase and the `<h1>`
-  from ONE source (service + city), normalizing spacing / `&nbsp;` so the Trinity
-  lint comparison is stable.
-- **Why:** templates compose `title = ${trinity} ${city}` by hand — easy to drift
-  (an extra "in", nbsp vs space, a comma) and only caught after build by the lint.
-- **Where:** `src/lib/`, `src/components/`; consumed by `index.astro` and
-  `EntityPage` / `[slug].astro`.
 
 ### C6 (full) — Real headless 320px overflow check · *medium*
 - **What:** a headless-browser (Playwright/Puppeteer) CI step that loads each built
