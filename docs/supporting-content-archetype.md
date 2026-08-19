@@ -76,14 +76,14 @@ failure (once stable), not a ranking mystery discovered months later in GSC.
 | [`src/pages/[slug].astro`](../src/pages/[slug].astro) | Flag-gated `supporting` dispatch + the build-time guard that every `supports:` resolves to a real money route + unique-slug across the whole flat set. |
 | `src/content/*` → `ALL_ROUTES` (sitemap) | Supporting routes fold into the sitemap only when the flag is on (the content module leaves `SUPPORTING` empty otherwise). |
 | [`src/lib/site.js`](../src/lib/site.js) → `EXPERIMENTAL` | The reusable `experimental.<feature>` config seam (see below). |
-| [`scripts/core30-lint.mjs`](../scripts/core30-lint.mjs) | `checkSupporting()` + `collectTypes` + the reusable `sev(stability)` severity switch. Rules SC-2, SC-3, SC-4, SC-5, SC-7 read dist HTML + config only — zero client facts. |
+| [`scripts/core30-lint.mjs`](../scripts/core30-lint.mjs) | `checkSupporting()` + `collectTypes` + the reusable `sev(stability)` severity switch. Rules SC-2, SC-3, SC-4, SC-5, SC-7, SC-8 read dist HTML + config only — zero client facts. |
 
 **Preset** (`presets/<vertical>/`):
 
 | Artifact | Role |
 |---|---|
 | `exampleArticle()` in [`presets/example/schema.js`](../presets/example/schema.js) | Wraps the Engine `articleSchema()` and injects the preset's business node as `publisher` — built **without a rating** (a spoke must never carry review stars). |
-| `sup()` row factory + the example spoke in [`../src/content/example.js`](../src/content/example.js) | The preset's spoke factory (schemaType/authority defaults) + **one neutral placeholder spoke** that demonstrates SC-2…SC-7. Never real client content. |
+| `sup()` row factory + the example spoke in [`../src/content/example.js`](../src/content/example.js) | The preset's spoke factory (schemaType/authority defaults) + **one neutral placeholder spoke** that demonstrates SC-2…SC-8. Never real client content. |
 
 **Client config** (per site — never Engine, never preset):
 
@@ -102,7 +102,7 @@ The gate is a **general starter primitive**, not a one-off for supporting conten
 "experimental": {
   // default OFF → the feature ships DARK (zero routes, excluded from sitemap)
   "supportingContent": false,
-  // "experimental" → SC-3/SC-5/SC-7 WARN; "stable" → they become ERROR
+  // "experimental" → SC-3/SC-5/SC-7/SC-8 WARN; "stable" → they become ERROR
   "supportingContentStability": "experimental"
 }
 ```
@@ -115,7 +115,7 @@ experimental and `err` once stable, so a soft rule's body serves both phases.
 **Do not flip `supportingContentStability` to `stable` in the starter.** Promotion
 (WARN→ERROR) is a separate, later decision gated on a live experiment proving lift.
 
-## The lint ruleset (SC-1 … SC-7)
+## The lint ruleset (SC-1 … SC-8)
 
 | Rule | Tag | Check | Severity |
 |---|---|---|---|
@@ -126,17 +126,24 @@ experimental and `err` once stable, so a soft rule's body serves both phases.
 | **SC-5** goal-completion | `sc-goal` | spoke's opening `<p>` answers (number/range or answer token) | soft |
 | **SC-6** external authority | `ext-link` | ≥1 authority; no `href="#"` / `EXTERNAL-LINK-TODO` (reuses rule 5b/6) | ERROR |
 | **SC-7** reciprocity | `sc-reciprocal` | the money page links **back** to the spoke (auto for category/service via `RelatedGuides`; a homepage-supported spoke WARNs to add it by hand) | soft (WARN → ERROR at `stable`) |
+| **SC-8** local grounding | `sc-local` | the spoke's **authored copy** (between the `data-core30-content-*` markers) carries ≥1 local signal — a configured city/county or the governing state (read from `site.config`) | soft (WARN → ERROR at `stable`) |
 
 `checkSupporting()` runs **only when the flag is on** (otherwise there are no supporting
 pages and firing would be the "lint that cries wolf" failure mode). Supporting pages
-self-identify via the machine tags:
+self-identify via the machine tags, and wrap their authored copy in marker divs:
 
 ```html
 <meta name="core30:archetype" content="supporting">
 <meta name="core30:supports" content="/money-page/">
+<div data-core30-content-start hidden></div> … editorial copy … <div data-core30-content-end hidden></div>
 ```
 
-The lint keys off these; GSC/GA segment the experiment off `core30:archetype`.
+The lint keys off the meta tags (GSC/GA segment the experiment off `core30:archetype`).
+**SC-8** reads only the copy *between the marker divs* so the page chrome — the `FinalCta`
+close, and on a full site the footer service-area column, which always names the city —
+can't make local-grounding a no-op. The markers are empty hidden `<div>`s, not HTML
+comments (Astro strips comments; the divs survive to the built HTML). `SupportingPage.astro`
+emits them around the hero + body automatically, so an author never touches them.
 
 ## Authoring a spoke
 
@@ -150,7 +157,7 @@ The lint keys off these; GSC/GA segment the experiment off `core30:archetype`.
    authority (SC-6). Keep the copy compliance-safe — qualitative ranges, no fabricated
    numbers, no `aggregateRating`, no unconfirmed claim.
 4. `npm run build`. The spoke renders, the money page auto-surfaces it under "Guides &
-   resources", the sitemap includes it, and SC-2…SC-7 gate it.
+   resources", the sitemap includes it, and SC-2…SC-8 gate it.
 
 ## What is NOT in scope
 

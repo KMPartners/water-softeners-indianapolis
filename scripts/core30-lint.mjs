@@ -357,11 +357,11 @@ function checkFieldManifest() {
    with `<meta name="core30:supports" content="/…/">`.
 
    Severity follows the archetype's stability via the reusable sev() switch: the
-   SOFT checks (SC-3 spoke→money link, SC-5 goal-completion, SC-7 reciprocity) WARN
-   while experimental and ERROR once promoted to 'stable'; the HARD invariants that
-   protect the already-enforced core (SC-2 anti-cannibalization, SC-4 schema) ERROR
-   regardless. SC-1 (Trinity) and SC-6 (external authority) are already enforced for
-   every page by rules 1 and 5b/6. */
+   SOFT checks (SC-3 spoke→money link, SC-5 goal-completion, SC-7 reciprocity, SC-8
+   local grounding) WARN while experimental and ERROR once promoted to 'stable'; the
+   HARD invariants that protect the already-enforced core (SC-2 anti-cannibalization,
+   SC-4 schema) ERROR regardless. SC-1 (Trinity) and SC-6 (external authority) are
+   already enforced for every page by rules 1 and 5b/6. */
 function checkSupporting() {
   let cfg;
   try { cfg = JSON.parse(readFileSync(join(ROOT, 'site.config.json'), 'utf8')); } catch { return; }
@@ -369,6 +369,22 @@ function checkSupporting() {
   if (exp.supportingContent !== true) return; // feature dark → no supporting pages
   const stability = exp.supportingContentStability === 'stable' ? 'stable' : 'experimental';
   const soft = sev(stability); // WARN while experimental → ERROR once stable
+
+  /* Local-signal tokens, read from config (never hardcoded) so this ports to any
+     client: the business city + county, every configured service-area city/county,
+     and the governing state's full name. SC-8 requires a spoke's authored copy to
+     contain at least one, so it grounds locally instead of reading as generic
+     national content. */
+  const addr = (cfg.business && cfg.business.address) || {};
+  const geo = cfg.geoScope || {};
+  const cityOf = (s) => String(s).split(',')[0].trim();
+  const localTokens = [
+    addr.city, addr.county,
+    ...(geo.primaryCities || []).map(cityOf),
+    ...(geo.extendedAreas || []).map(cityOf),
+    ...(geo.counties || []),
+    (cfg.legal && cfg.legal.governingState) || '',
+  ].filter(Boolean).map((t) => String(t).toLowerCase());
 
   const pages = walk(DIST, '.html');
   if (!pages.length) return;
@@ -450,6 +466,23 @@ function checkSupporting() {
         soft('SC-7', f, `the declared money page (${supports}) was not found among built pages — cannot confirm the reciprocal back-link`);
       } else if (!new RegExp(`href="${escRe(spokePath)}"`).test(moneyHtml)) {
         soft('SC-7', f, `the money page ${supports} does not link back to this spoke (${spokePath}) — reciprocal hub↔spoke linking is missing (category/service pages auto-render it; a homepage-supported spoke needs the link added manually)`);
+      }
+    }
+
+    /* SC-8 (soft) — local grounding: a spoke must carry at least one local signal
+       (a configured city/county or the governing state), so it ties to the local
+       money pages and the GBP rather than reading as generic national content —
+       the whole reason a local site can out-rank national pages on these queries.
+       Scoped to the AUTHORED copy between the data-core30-content-* markers: the
+       page chrome (footer service-area column, NAP) always names the city, so
+       checking the whole body would make this a no-op. */
+    if (localTokens.length) {
+      const cs = body.indexOf('data-core30-content-start');
+      const ce = body.indexOf('data-core30-content-end');
+      const region = cs >= 0 && ce > cs ? body.slice(cs, ce) : body;
+      const plain = norm(stripTags(region)).toLowerCase();
+      if (!localTokens.some((t) => plain.includes(t))) {
+        soft('SC-8', f, 'no local signal in the authored copy (none of the configured cities / county / state appear) — every supporting spoke must be grounded locally, not read as generic national content');
       }
     }
   }
@@ -545,7 +578,7 @@ const tag = {
   LP: 'lead-pipeline', LM: 'field-manifest', C2: 'css-var', GRID: 'grid',
   'A2P-0': 'legal-gate', 'A2P-1': 'no-share', 'A2P-2': 'sms-precheck', 'A2P-3': 'sms-link',
   'A2P-6': 'legal-index', 'A2P-7': 'legal-rating',
-  'SC-2': 'sc-intent', 'SC-3': 'sc-link', 'SC-4': 'sc-schema', 'SC-5': 'sc-goal', 'SC-7': 'sc-reciprocal',
+  'SC-2': 'sc-intent', 'SC-3': 'sc-link', 'SC-4': 'sc-schema', 'SC-5': 'sc-goal', 'SC-7': 'sc-reciprocal', 'SC-8': 'sc-local',
 };
 for (const w of warnings) console.log(`\x1b[33mWARN\x1b[0m  [${tag[w.rule] || w.rule}] ${w.file}: ${w.msg}`);
 for (const e of errors) console.log(`\x1b[31mERROR\x1b[0m [${tag[e.rule] || e.rule}] ${e.file}: ${e.msg}`);

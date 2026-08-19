@@ -114,9 +114,10 @@ downstream site, via the `experimental.<feature>` config convention (`src/lib/si
 **The `supporting` archetype** (first consumer) is a topic-cluster **spoke**: an
 informational `Article`/`FAQPage` page (cost guide, comparison, tax/ROI answer) that links
 UP to one money page (`supports:`) without cannibalizing its Trinity keyphrase, and that
-the money page links back to via a derived "Guides & resources" block. It is gated on
-`experimental.supportingContent` (default false, stays `experimental`), enforced by lint
-rules SC-2…SC-7, and documented in
+the money page links back to via a derived "Guides & resources" block, and that stays
+grounded to the client's locale. It is gated on `experimental.supportingContent` (default
+false, stays `experimental`), enforced by lint rules SC-2…SC-8 (including SC-8 local
+grounding, read from `site.config`), and documented in
 [docs/supporting-content-archetype.md](docs/supporting-content-archetype.md) +
 [docs/internal-linking-authority.md](docs/internal-linking-authority.md). A supporting
 page is **never** a `Service`, **never** carries a price or `aggregateRating`, and the

@@ -75,6 +75,13 @@ const ext = interpolateDeep(sup.external, ctx);
 >
   {crumbs.length > 0 && <Breadcrumbs crumbs={crumbs} />}
 
+  {/* data-core30-content markers bound the spoke's AUTHORED copy (hero + body) so
+      core30-lint SC-8 (local grounding) checks the editorial text, not the chrome —
+      the FinalCta close and (on the full site) the footer service-area column always
+      name the city, which would make SC-8 a no-op if it read the whole page. Empty
+      hidden divs, not HTML comments (Astro strips those), so the markers survive to
+      the built HTML. */}
+  <div data-core30-content-start hidden></div>
   {/* ===== HERO ===== */}
   <section class="sup-hero">
     <div class="container sup-hero-inner">
@@ -163,6 +170,7 @@ const ext = interpolateDeep(sup.external, ctx);
       )}
     </div>
   </section>
+  <div data-core30-content-end hidden></div>
 
   <FinalCta
     heading={t(sup.finalCta?.heading || 'Have a question we did not cover?')}
