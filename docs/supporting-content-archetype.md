@@ -113,7 +113,8 @@ config key + one line. The lint's `sev(stability)` helper returns `warn` while
 experimental and `err` once stable, so a soft rule's body serves both phases.
 
 **Do not flip `supportingContentStability` to `stable` in the starter.** Promotion
-(WARN→ERROR) is a separate, later decision gated on a live experiment proving lift.
+(WARN→ERROR) is a separate, later decision gated on a live experiment proving lift — see
+the [Stabilization checklist](#stabilization-checklist) below.
 
 ## The lint ruleset (SC-1 … SC-8)
 
@@ -144,6 +145,52 @@ close, and on a full site the footer service-area column, which always names the
 can't make local-grounding a no-op. The markers are empty hidden `<div>`s, not HTML
 comments (Astro strips comments; the divs survive to the built HTML). `SupportingPage.astro`
 emits them around the hero + body automatically, so an author never touches them.
+
+## Stabilization checklist
+
+Promoting the archetype from `experimental` to `stable` is a **one-line config change**
+(`supportingContentStability: "experimental" → "stable"`) with a large blast radius: it
+hardens the soft rules from WARN to build-failing ERROR **for every site that has opted
+into the feature**. Treat it as a deliberate, gated decision — not a routine cleanup.
+
+**What the flip actually changes.** Only the four *soft* rules — **SC-3** (spoke→money
+link), **SC-5** (goal-completion), **SC-7** (reciprocity), **SC-8** (local grounding) —
+move from WARN to ERROR (via the `sev()` switch). **SC-2** (anti-cannibalization) and
+**SC-4** (schema / no `aggregateRating`) are *already* hard ERRORs regardless of stability
+— they guard the already-enforced core (money-page cannibalization and the rule-7 rating
+invariant), not the experiment's editorial bar — so stabilization does **not** touch them.
+SC-1 and SC-6 are the reused core rules and are unaffected.
+
+**Gate — do not flip until all of these hold:**
+
+- [ ] **Live lift proven.** A downstream site (Meridian first) has run an indexed spoke
+      set for ~4–8 weeks and GSC/GA (segmented off `core30:archetype`) shows the money
+      pages gained ranking/traffic — the experiment paid off, not just "it built".
+- [ ] **The soft rules are ones a real spoke can always satisfy.** Across the live spokes,
+      SC-3/SC-5/SC-7/SC-8 have been clean (or every WARN was a genuine authoring miss, not
+      a false positive) — a rule that would ERROR on legitimate content must be fixed
+      *before* it becomes build-failing, per the lint's "never cry wolf" design principle.
+- [ ] **Every opted-in site is ready.** Grep for `supportingContent: true` across the
+      sites that would inherit the change and confirm each builds clean under `stable`
+      (flip locally, `npm run build`) — stabilizing must not red a site that is mid-spoke.
+- [ ] **SC-7's homepage edge is understood.** A spoke that supports the homepage (`/`)
+      WARNs today because the bespoke homepage has no auto `RelatedGuides`; under `stable`
+      that becomes an ERROR. Confirm such spokes carry a hand-added back-link, or keep them
+      off the homepage, before flipping.
+
+**To flip (once the gate is met):**
+
+1. Set `experimental.supportingContentStability: "stable"` in the site(s) being promoted
+   (it is per-client config — the starter default stays `experimental`).
+2. `npm run build` — SC-3/SC-5/SC-7/SC-8 now fail the build on violation; fix any that surface.
+3. `npm test` and confirm green.
+4. Log the promotion in the downstream site and in
+   [`_kickoff/STARTER-IMPROVEMENTS-R2.md`](https://github.com/KMPartners/meridian-generator-electric/blob/main/_kickoff/STARTER-IMPROVEMENTS-R2.md)
+   (the R2 feedback log tracks the experiment's lifecycle).
+
+**Reversible.** Flip back to `experimental` (the soft rules return to WARN) or turn the
+feature off entirely (`supportingContent: false` → the archetype ships dark again). No
+content is lost either way.
 
 ## Authoring a spoke
 
