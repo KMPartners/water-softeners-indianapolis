@@ -32,6 +32,11 @@ interface Props {
   /** Optional short page label (last breadcrumb crumb). Accepted for callers
       that pass it; not rendered by the base chrome. */
   pageLabel?: string;
+  /** Extra <meta name/content> tags emitted in <head>. Generic passthrough for
+      machine tags an archetype needs (e.g. the EXPERIMENTAL supporting archetype
+      stamps core30:archetype + core30:supports so core30-lint and GSC can segment
+      the experiment). Empty by default → zero footprint for every other page. */
+  meta?: { name: string; content: string }[];
 }
 
 const {
@@ -43,6 +48,7 @@ const {
   noindex = false,
   pageLabel,
   image = OG_IMAGE,
+  meta = [],
 } = Astro.props;
 
 const canonicalUrl = new URL(canonical, SITE_URL).href;
@@ -71,6 +77,7 @@ const gtmId = import.meta.env.PUBLIC_GTM_ID;
     <meta name="description" content={description} />
     <link rel="canonical" href={canonicalUrl} />
     {noindex && <meta name="robots" content="noindex,nofollow" />}
+    {meta.map((m) => <meta name={m.name} content={m.content} />)}
 
     <meta property="og:type" content="website" />
     <meta property="og:site_name" content={NAP.name} />

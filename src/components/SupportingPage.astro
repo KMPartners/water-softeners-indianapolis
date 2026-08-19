@@ -1,0 +1,231 @@
+---
+/**
+ * SupportingPage — the EXPERIMENTAL `supporting` archetype body (topic-cluster
+ * spoke), ENGINE. See docs/supporting-content-archetype.md.
+ *
+ * A supporting page is INFORMATIONAL, not an offering: @type Article (or FAQPage
+ * for a pure-Q&A spoke), NEVER Service, and it never carries a price or an
+ * aggregateRating. Its one structural duty is to link UP to the money page it
+ * declares in `supports:` (the spoke→money edge core30-lint SC-3 enforces) without
+ * cannibalizing that page's Trinity keyphrase (SC-2).
+ *
+ * Like EntityPage, this is a generic Engine template driven by one data ROW; the
+ * route (src/pages/[slug].astro) composes the preset-specific `schemas[]` and the
+ * breadcrumbs and passes them in, so this file imports NO preset. It stamps two
+ * machine tags — core30:archetype + core30:supports — via BaseLayout's generic
+ * meta[] passthrough, so the lint and GSC can segment the experiment.
+ *
+ * Trinity holds by construction: title == h1 == the informational keyphrase
+ * (no city suffix appended; put the city inside `trinity` if the keyphrase needs
+ * it). Every string flows through {{...}} interpolation, same as EntityPage.
+ *
+ * Row shape (see the `sup()` factory in the content tree):
+ *   { slug, trinity, description, supports, supportsLabel?, schemaType?,
+ *     eyebrow?, lede?, blocks:[ prose | list | table | faq ], handoff?, external? }
+ *
+ * Block types:
+ *   { type:'prose', h?, paras:[…] }
+ *   { type:'list',  h?, items:[…] }
+ *   { type:'table', h?, cols:[…], rows:[[…]], caption? }   // the one new primitive
+ *   { type:'faq',   h?, items:[{q,a}] }
+ */
+import BaseLayout from '../layouts/BaseLayout.astro';
+import Breadcrumbs from './Breadcrumbs.astro';
+import FinalCta from './FinalCta.astro';
+import Icon from './Icon.astro';
+import { NAP } from '../lib/site.js';
+import { interpolate, interpolateDeep } from '../lib/content-tree.js';
+
+interface Props {
+  sup: any;
+  crumbs?: { label: string; href?: string }[];
+  schemas?: unknown[];
+  ctx?: Record<string, string>;
+}
+const { sup, crumbs = [], schemas = [], ctx = {} } = Astro.props;
+
+const t = (s: unknown) => interpolate(s as string, ctx);
+const url = `/${sup.slug}/`;
+const title = t(sup.trinity); // Trinity: title == h1 == the informational keyphrase
+
+const moneyHref = sup.supports;
+const moneyLabel = sup.supportsLabel || 'the main page';
+
+const blocks = interpolateDeep(sup.blocks || [], ctx);
+
+// The hand-off callout: the enforced spoke→money in-content link (SC-3). Defaults
+// to the declared money page.
+const handoff = interpolateDeep(sup.handoff || {}, ctx);
+const handoffHref = handoff.href || moneyHref;
+const handoffCta = handoff.cta || `Go to ${moneyLabel} →`;
+
+const ext = interpolateDeep(sup.external, ctx);
+---
+
+<BaseLayout
+  title={title}
+  description={t(sup.description)}
+  canonical={url}
+  pageLabel={title}
+  meta={[
+    { name: 'core30:archetype', content: 'supporting' },
+    { name: 'core30:supports', content: moneyHref },
+  ]}
+  schemas={schemas}
+>
+  {crumbs.length > 0 && <Breadcrumbs crumbs={crumbs} />}
+
+  {/* ===== HERO ===== */}
+  <section class="sup-hero">
+    <div class="container sup-hero-inner">
+      {sup.eyebrow && <span class="eyebrow">{t(sup.eyebrow)}</span>}
+      {/* Core30 rule 1: this H1 is byte-identical to the <title> keyphrase. */}
+      <h1 class="sup-h1">{title}</h1>
+      {sup.lede && <p class="sup-lede"><strong>{t(sup.lede)}</strong></p>}
+      <div class="sup-cta">
+        <a href={NAP.phoneTel} class="click-to-call"><Icon name="phone" size={16} />{NAP.phoneDisplay}</a>
+        <a href={moneyHref} class="btn-primary">{handoffCta}<Icon name="arrow-right" size={16} /></a>
+      </div>
+    </div>
+  </section>
+
+  {/* ===== BODY BLOCKS ===== */}
+  <section class="sup-body">
+    <div class="container sup-body-inner">
+      {blocks.map((b: any) => (
+        <div class="sup-block">
+          {b.type === 'prose' && (
+            <>
+              {b.h && <h2>{b.h}</h2>}
+              {(b.paras || []).map((p: string) => <p>{p}</p>)}
+            </>
+          )}
+
+          {b.type === 'list' && (
+            <>
+              {b.h && <h2>{b.h}</h2>}
+              <ul class="sup-list">
+                {(b.items || []).map((it: string) => <li>{it}</li>)}
+              </ul>
+            </>
+          )}
+
+          {b.type === 'table' && (
+            <>
+              {b.h && <h2>{b.h}</h2>}
+              <div class="sup-table-wrap">
+                <table class="sup-table">
+                  {b.cols && (
+                    <thead>
+                      <tr>{b.cols.map((c: string) => <th>{c}</th>)}</tr>
+                    </thead>
+                  )}
+                  <tbody>
+                    {(b.rows || []).map((r: string[]) => (
+                      <tr>{r.map((cell) => <td>{cell}</td>)}</tr>
+                    ))}
+                  </tbody>
+                </table>
+              </div>
+              {b.caption && <p class="sup-table-caption">{b.caption}</p>}
+            </>
+          )}
+
+          {b.type === 'faq' && (
+            <>
+              {b.h && <h2>{b.h}</h2>}
+              <div class="faq-list">
+                {(b.items || []).map((f: any) => (
+                  <details class="faq-item" open>
+                    <summary>{f.q}</summary>
+                    <p>{f.a}</p>
+                  </details>
+                ))}
+              </div>
+            </>
+          )}
+        </div>
+      ))}
+
+      {/* ===== SPOKE → MONEY HAND-OFF (the enforced in-content link, SC-3) ===== */}
+      <div class="sup-handoff">
+        <div class="sup-handoff-t">{handoff.h || 'Ready for the next step?'}</div>
+        <p class="sup-handoff-p">{handoff.p || `See ${moneyLabel} for the full details and to get started.`}</p>
+        <a href={handoffHref} class="sup-handoff-link">{moneyLabel} <span aria-hidden="true">→</span></a>
+      </div>
+
+      {/* ===== EXTERNAL AUTHORITY (Core30 rule 6 / SC-6) ===== */}
+      {ext && (
+        <div class="sup-ext">
+          {ext.blurb && <p class="ext-p">{ext.blurb}</p>}
+          <a href={ext.href} target="_blank" rel="noopener" class="backlink">{ext.label}</a>
+        </div>
+      )}
+    </div>
+  </section>
+
+  <FinalCta
+    heading={t(sup.finalCta?.heading || 'Have a question we did not cover?')}
+    body={t(sup.finalCta?.body || 'Call {{business.phoneDisplay}} and we will walk you through it.')}
+  />
+</BaseLayout>
+
+<style>
+  /* hero */
+  .sup-hero { padding: clamp(32px, 6vw, 64px) 0 clamp(8px, 2vw, 16px); border-bottom: 1px solid var(--border); }
+  .sup-hero-inner { max-width: none; }
+  .eyebrow {
+    display: inline-block; font-family: var(--font-mono); font-size: 11px;
+    letter-spacing: 0.14em; text-transform: uppercase; color: var(--accent-deep); margin-bottom: 12px;
+  }
+  .sup-h1 {
+    font-family: var(--font-display); font-weight: 800; font-size: var(--fs-h1);
+    line-height: var(--lh-head); letter-spacing: var(--ls-tight); color: var(--text-strong); margin: 0 0 16px; max-width: 24ch;
+  }
+  .sup-lede { font-size: var(--fs-lede); line-height: var(--lh-body); color: var(--text-body); margin: 0 0 22px; max-width: 60ch; }
+  .sup-lede strong { color: var(--ink); font-weight: 600; }
+  .sup-cta { display: flex; gap: 14px; flex-wrap: wrap; align-items: center; }
+  .click-to-call {
+    display: inline-flex; align-items: center; gap: 8px; font-family: var(--font-display);
+    font-weight: 700; font-size: 16px; color: var(--text-strong); text-decoration: none; min-height: 44px;
+  }
+  .click-to-call:hover { color: var(--accent-deep); }
+
+  /* body */
+  .sup-body { padding: clamp(20px, 3vw, 32px) 0 clamp(32px, 5vw, 56px); }
+  .sup-body-inner { max-width: 74ch; }
+  .sup-block { margin-bottom: clamp(24px, 3vw, 36px); }
+  .sup-block h2 { font-family: var(--font-display); font-weight: 800; font-size: var(--fs-h3); letter-spacing: var(--ls-tight); margin: 0 0 14px; color: var(--text-strong); }
+  .sup-block p { font-size: var(--fs-body); color: var(--text-body); line-height: var(--lh-body); margin: 0 0 12px; }
+  .sup-block strong { color: var(--ink); }
+
+  .sup-list { margin: 0; padding-left: 1.2em; }
+  .sup-list li { font-size: var(--fs-body); color: var(--text-body); line-height: 1.6; margin-bottom: 8px; }
+
+  /* table (the one new primitive: cost / comparison grids) */
+  .sup-table-wrap { overflow-x: auto; border: 1px solid var(--rule); border-radius: var(--radius); }
+  .sup-table { width: 100%; border-collapse: collapse; font-size: 14px; }
+  .sup-table th, .sup-table td { text-align: left; padding: 12px 16px; border-bottom: 1px solid var(--rule); }
+  .sup-table thead th { font-family: var(--font-mono); font-size: 11px; letter-spacing: 0.06em; text-transform: uppercase; color: var(--text-muted); background: var(--surface-alt); }
+  .sup-table tbody tr:last-child td { border-bottom: none; }
+  .sup-table td:first-child { color: var(--ink); font-weight: 600; }
+  .sup-table-caption { font-family: var(--font-mono); font-size: 11px; color: var(--text-muted); margin-top: 10px; }
+
+  /* faq — reuses the .faq-item / .faq-list convention from EntityPage (rule 5a) */
+  .faq-list { display: grid; gap: 12px; }
+  .faq-item { border: 1px solid var(--border); border-radius: var(--radius); padding: 14px 16px; background: var(--surface-card); }
+  .faq-item summary { font-family: var(--font-display); font-weight: 700; font-size: 16px; color: var(--text-strong); cursor: pointer; }
+  .faq-item p { margin: 10px 0 0; font-size: 14.5px; line-height: 1.6; color: var(--text-body); }
+
+  /* hand-off callout (the spoke→money link) */
+  .sup-handoff { background: var(--slab); border-radius: var(--radius); padding: clamp(22px, 3vw, 30px); margin: clamp(24px, 3vw, 36px) 0; }
+  .sup-handoff-t { font-family: var(--font-display); font-weight: 800; font-size: var(--fs-h3); color: var(--on-slab); margin-bottom: 10px; }
+  .sup-handoff-p { font-size: 15px; line-height: 1.6; color: var(--on-slab-muted); margin: 0 0 18px; max-width: 60ch; }
+  .sup-handoff-link { display: inline-flex; align-items: center; gap: 10px; font-family: var(--font-display); font-weight: 700; font-size: 14px; color: var(--accent-ink); background: var(--accent); border-radius: var(--radius); padding: 13px 20px; text-decoration: none; }
+  .sup-handoff-link:hover { background: var(--accent-deep); color: var(--accent-ink); }
+
+  /* external authority */
+  .sup-ext { margin-top: clamp(24px, 3vw, 36px); }
+  .ext-p { max-width: 60ch; font-size: 15px; color: var(--text-body); line-height: 1.6; margin: 0 0 12px; }
+  .backlink { color: var(--accent-deep); text-decoration: underline; text-underline-offset: 2px; font-weight: 600; }
+</style>

@@ -19,6 +19,7 @@
  */
 
 import { trinityTitle } from '../lib/trinity.js';
+import { EXPERIMENTAL } from '../lib/site.js';
 
 const CITY = 'Anytown';
 
@@ -184,5 +185,121 @@ export const CATEGORIES = [HUB];
 /** Look up a page row by slug (for breadcrumb parent resolution). */
 export const pageBySlug = (slug) => PAGES.find((p) => p.slug === slug) || null;
 
-/** Absolute-from-root paths for the sitemap: the homepage + every content page. */
-export const ALL_ROUTES = ['/', ...PAGES.map((p) => `/${p.slug}/`)];
+/* ══════════════════════════════════════════════════════════════════════════════
+   SUPPORTING SPOKES — the EXPERIMENTAL topic-cluster archetype (see
+   docs/supporting-content-archetype.md).
+   ══════════════════════════════════════════════════════════════════════════════
+   Gated behind site.config → experimental.supportingContent (default FALSE). With
+   the flag off this set is inert: the dispatch (src/pages/[slug].astro) emits no
+   routes for it and the sitemap excludes it, so a default build is byte-identical
+   to a build with no spokes at all.
+
+   A supporting page is INFORMATIONAL (schemaType 'Article' or 'FAQPage', NEVER
+   'Service') — a cost guide, a comparison, a tax/ROI/longevity answer — whose job
+   is to help ONE money page rank. It answers up top, then hands OFF to that money
+   page via an in-content link (SC-3), without cannibalizing its Trinity keyphrase
+   (SC-2). Everything below is FAKE-ON-PURPOSE placeholder copy — no real number,
+   claim, or authority. Replace it (or delete this file) for a real site. */
+
+/**
+ * Supporting-content row factory — the preset's spoke factory. Fills safe
+ * defaults so a row states only what is unique:
+ *   · schemaType defaults to 'Article'
+ *   · external authority defaults to the home-repair Wikipedia link (like service())
+ * REQUIRED per row: `slug`, `trinity` (the INFORMATIONAL keyphrase — must NOT
+ * collide with any money page's Trinity, SC-2), and `supports` (the money-page
+ * path the spoke links up to; the dispatch asserts it resolves to a real page).
+ */
+function sup(row) {
+  return {
+    schemaType: 'Article',
+    intent: 'informational',
+    external: WIKI.homeRepair,
+    ...row,
+  };
+}
+
+/** One NEUTRAL example spoke, purely to prove the machinery builds and to
+    demonstrate SC-2…SC-7. It supports the drywall-repair service page (a money
+    page that auto-renders the reverse "Guides & resources" block, so SC-7 passes
+    by construction). Emits nothing until experimental.supportingContent is on. */
+const SUPPORTING_ROWS = [
+  sup({
+    slug: 'drywall-repair-cost',
+    // Informational keyphrase — deliberately distinct from "Drywall Repair {{city}}"
+    // (the money page's Trinity) so the two never fight for one query (SC-2).
+    trinity: 'How Much Does Drywall Repair Cost?',
+    schemaType: 'Article',
+    supports: '/drywall-repair/',
+    supportsLabel: 'Drywall Repair',
+    description: 'Placeholder cost guide for drywall repair — example supporting-content spoke. Replace this copy before launch.',
+    eyebrow: 'Example Guide · Replace Before Launch',
+    // Goal-completion for a spoke (SC-5): the opening line ANSWERS up top — it
+    // carries a range/answer token before it hands off.
+    lede: 'Most small drywall repairs land in a modest, predictable range — typically a few hundred dollars for a single patch, and more once water damage or a full wall is involved.',
+    blocks: [
+      {
+        type: 'prose',
+        h: 'What drives the price',
+        paras: [
+          'Placeholder overview of what moves a drywall-repair quote up or down: the size of the damaged area, whether it is a simple patch or a full re-hang, texture matching, and paint. This is example copy — replace it with a real, researched explanation for {{business.city}} homeowners.',
+          'Do not ship placeholder text or invented prices to a live site. Give qualitative ranges, and let the money page carry the real, current number.',
+        ],
+      },
+      {
+        type: 'table',
+        h: 'Where a typical repair lands',
+        // The `table` block is the archetype's one new primitive (cost / comparison grids).
+        cols: ['Job', 'Scope', 'Typical range (placeholder)'],
+        rows: [
+          ['Small patch', 'A single hole or crack, sanded and painted', '$ (placeholder)'],
+          ['Large patch', 'Multiple areas or a section of a wall', '$$ (placeholder)'],
+          ['Full re-hang', 'A whole wall or ceiling replaced', '$$$ (placeholder)'],
+        ],
+        caption: 'Placeholder ranges — for illustration only. Replace with real, current figures.',
+      },
+      {
+        type: 'faq',
+        h: 'Common questions',
+        items: [
+          { q: 'Is this a real price guide?', a: 'No — this is placeholder starter content that demonstrates the supporting-content archetype. Replace it with a real, researched guide before launch.' },
+          { q: 'Do you match texture and paint?', a: 'Placeholder answer. Replace with the real scope, then link readers to the {{business.city}} drywall-repair page to get a quote.' },
+        ],
+      },
+    ],
+    handoff: {
+      h: 'Ready for a real number?',
+      p: 'Every wall is different. See the drywall-repair page and request a quote sized to your job.',
+      cta: 'Get a drywall repair quote →',
+    },
+    external: WIKI.drywall,
+    finalCta: {
+      heading: 'Have a repair we did not cover?',
+      body: 'Call {{business.phoneDisplay}} and we will walk you through it.',
+    },
+  }),
+];
+
+/** Published spokes — empty unless the experimental flag is on, so nothing
+    downstream (routes, sitemap, reverse links) ever references an ungenerated
+    page. This is the archetype's dark-by-default guarantee, expressed as data. */
+export const SUPPORTING = EXPERIMENTAL.supportingContent ? SUPPORTING_ROWS : [];
+
+/** Look up a published spoke by slug. */
+export const getSupporting = (slug) => SUPPORTING.find((s) => s.slug === slug) || null;
+
+/* Reverse map for hub-and-spoke interlinking (docs/internal-linking-authority.md):
+   the published spokes that declare they support a given money-page path, capped
+   so a busy pillar never clutters. Returns [] when the feature is off (SUPPORTING
+   is already empty then) — a money page must never link to a spoke route that was
+   not generated. The EntityPage money pages render these as a "Guides & resources"
+   block, making the cluster reciprocal (pillar ⇄ spoke) with no hand-maintained
+   back-links. */
+const GUIDES_CAP = 6;
+export const getGuidesFor = (moneyPath) =>
+  SUPPORTING.filter((s) => s.supports === moneyPath).slice(0, GUIDES_CAP);
+
+/** Absolute-from-root paths for the sitemap: the homepage + every content page,
+    plus the supporting spokes ONLY when the experimental flag is on (with it off
+    SUPPORTING is empty, so this appends nothing and the sitemap is unchanged). */
+export const ALL_ROUTES = ['/', ...PAGES.map((p) => `/${p.slug}/`), ...SUPPORTING.map((s) => `/${s.slug}/`)];

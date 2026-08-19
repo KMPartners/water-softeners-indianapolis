@@ -33,6 +33,7 @@ import Icon from './Icon.astro';
 import Breadcrumbs from './Breadcrumbs.astro';
 import FinalCta from './FinalCta.astro';
 import LeadForm from './LeadForm.astro';
+import RelatedGuides from './RelatedGuides.astro';
 import { NAP } from '../lib/site.js';
 import { interpolate, interpolateDeep, resolveItems } from '../lib/content-tree.js';
 
@@ -42,8 +43,13 @@ interface Props {
   schemas?: unknown[];
   /** Row-local interpolation values, e.g. { city: 'Springfield' }. */
   ctx?: Record<string, string>;
+  /** Reverse hub-and-spoke links: the EXPERIMENTAL supporting spokes that declare
+      they support THIS money page (docs/internal-linking-authority.md). Passed by
+      the route from getGuidesFor(url); always [] while the flag is off, so the
+      RelatedGuides block renders nothing and this page is byte-identical then. */
+  guides?: { href: string; label: string; blurb?: string }[];
 }
-const { page, crumbs = [], schemas = [], ctx = {} } = Astro.props;
+const { page, crumbs = [], schemas = [], ctx = {}, guides = [] } = Astro.props;
 
 const t = (s: unknown) => interpolate(s as string, ctx);
 const hero = interpolateDeep(page.hero, ctx);
@@ -176,6 +182,10 @@ const blocks = (page.blocks || []).map((b: any, i: number) => ({ ...b, n: String
     </section>
   ))}
 
+  {/* Reverse hub→spoke links (SC-7 reciprocity). Guarded as an expression (like
+      finalCta below) so that when there are no guides NO element node is emitted,
+      leaving a flag-off money page's HTML byte-identical to pre-port. */}
+  {guides.length > 0 && <RelatedGuides guides={guides} />}
   {finalCta && <FinalCta heading={finalCta.heading} body={finalCta.body} />}
 </BaseLayout>
 

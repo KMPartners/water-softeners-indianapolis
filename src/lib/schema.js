@@ -214,6 +214,36 @@ export function serviceSchema({ type = 'Service', name, serviceType, description
 }
 
 /**
+ * articleSchema — the Engine's generic `Article` node for an EXPERIMENTAL
+ * supporting-content spoke (docs/supporting-content-archetype.md). An informational
+ * topic-cluster page is an `Article`, NEVER a Service/Offer, so it never enters the
+ * offer catalog and never carries a price or an aggregateRating — the exact mirror
+ * of the HARD RULE at the top of this file, from the other side.
+ *
+ * `publisher` is injected by the active preset (mirrors `serviceSchema`'s `provider`
+ * and `legalPageSchema`'s `publisher`): the preset passes its own business node so
+ * the publisher @id reconciles with the homepage entity. Pass a publisher built with
+ * `withRating: false` — a supporting page must never carry review stars (lint SC-4),
+ * and the publisher node is the only place a rating could sneak onto the page.
+ *
+ * NO date is emitted — never fabricate a publish date. `isPartOf` reconciles the
+ * spoke with the primary homepage entity. A pure-Q&A spoke (schemaType 'FAQPage')
+ * does NOT use this — its page emits the Engine `faqSchema()` as the primary node.
+ */
+export function articleSchema({ name, description, url, publisher } = {}) {
+  return {
+    '@context': 'https://schema.org',
+    '@type': 'Article',
+    headline: name,
+    ...(description ? { description } : {}),
+    url: abs(url),
+    mainEntityOfPage: { '@type': 'WebPage', '@id': abs(url) },
+    ...(publisher ? { publisher } : {}),
+    isPartOf: { '@id': `${abs('/')}#business` },
+  };
+}
+
+/**
  * itemListSchema — generic ItemList of `{ url, name }` rows. Vertical-agnostic:
  * serves an inventory listing, a city×service index, a resource hub — anything
  * that is an ordered list of internal links. Presets map their rows to

@@ -94,6 +94,35 @@ Each is a brand-review rejection encoded as a build failure:
 - Legal pages carry **no `aggregateRating`**, are indexable, and stay drafts
   (`legalReviewedBy: null` → a banner + lint warning) until counsel signs off.
 
+## Experimental archetypes — ship dark, WARN until proven
+
+The starter can trial a new archetype or lint rule without red-building every
+downstream site, via the `experimental.<feature>` config convention (`src/lib/site.js`
+→ `EXPERIMENTAL`, lint → `sev(stability)`). The rules:
+
+- **Dark by default.** An experimental feature's flag defaults **false** → zero routes,
+  zero schema, nothing in the sitemap, and none of its lint checks fire. A fresh clone
+  builds **byte-identical** (same pages, same lint output). Flag off must mean zero new
+  behavior. (The archetype's inert scoped CSS may merge into a shared route stylesheet —
+  an Astro bundling artifact; the rendered HTML, routes, sitemap, and lint are unchanged.)
+- **Soft while experimental.** A rule owned by an experimental feature goes through
+  `sev(stability)`: it **WARNs** while `<feature>Stability` is `experimental` and
+  **ERRORs** once it is `stable`. HARD invariants that protect the already-enforced core
+  stay ERROR regardless. **Do not flip a feature to `stable`** without a live experiment
+  proving it — that is a separate, later decision, not something to inherit.
+
+**The `supporting` archetype** (first consumer) is a topic-cluster **spoke**: an
+informational `Article`/`FAQPage` page (cost guide, comparison, tax/ROI answer) that links
+UP to one money page (`supports:`) without cannibalizing its Trinity keyphrase, and that
+the money page links back to via a derived "Guides & resources" block. It is gated on
+`experimental.supportingContent` (default false, stays `experimental`), enforced by lint
+rules SC-2…SC-7, and documented in
+[docs/supporting-content-archetype.md](docs/supporting-content-archetype.md) +
+[docs/internal-linking-authority.md](docs/internal-linking-authority.md). A supporting
+page is **never** a `Service`, **never** carries a price or `aggregateRating`, and the
+`about`/`mentions` entity registry is **client-curated verified data, never an Engine or
+preset default**.
+
 ## Two standing rules (they generalize past the lead work)
 
 1. **Swapping out a vendor component? Enumerate what it was doing for you.**

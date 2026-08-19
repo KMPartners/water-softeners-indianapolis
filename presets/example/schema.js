@@ -11,7 +11,7 @@
  * The Engine primitives do not change.
  */
 
-import { localBusiness, serviceSchema, abs } from '../../src/lib/schema.js';
+import { localBusiness, serviceSchema, articleSchema, abs } from '../../src/lib/schema.js';
 
 /** The business @type for this vertical. A generic local service business. */
 const BUSINESS_TYPE = 'HomeAndConstructionBusiness';
@@ -21,12 +21,12 @@ const BUSINESS_TYPE = 'HomeAndConstructionBusiness';
  * (homepage); omit it to nest the node as a `provider` on a Service. `withIdentity`
  * attaches sameAs/naics/etc. — TRUE only for the primary listing.
  */
-function businessNode({ withContext = false, withIdentity = false } = {}) {
+function businessNode({ withContext = false, withIdentity = false, withRating = true } = {}) {
   const node = localBusiness({
     type: BUSINESS_TYPE,
     idFragment: 'business',
     path: '/',
-    withRating: true, // self-gates: emits aggregateRating only when RATING_CONFIRMED
+    withRating, // self-gates: emits aggregateRating only when RATING_CONFIRMED
     withIdentity,
   });
   return withContext ? { '@context': 'https://schema.org', ...node } : node;
@@ -70,4 +70,17 @@ export function exampleService({ name, serviceType, description, url, about, men
     about,
     mentions,
   });
+}
+
+/**
+ * Supporting-content spoke (EXPERIMENTAL archetype) = an `Article` node built from
+ * the Engine `articleSchema` primitive. NEVER a Service/Offer, so it never enters
+ * the offer catalog and never carries a price. `publisher` is the business node
+ * built WITHOUT a rating: a supporting page must never carry review stars (lint
+ * SC-4), and the publisher is the only node that could otherwise sneak one on when
+ * a client has RATING_CONFIRMED. A pure-Q&A spoke (schemaType 'FAQPage') does not
+ * use this — the route emits faqSchema() as the primary node instead.
+ */
+export function exampleArticle({ name, description, url }) {
+  return articleSchema({ name, description, url, publisher: businessNode({ withRating: false }) });
 }

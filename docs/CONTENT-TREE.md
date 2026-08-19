@@ -74,6 +74,18 @@ templates. The example content tree's service pages
 ([`src/content/example.js`](../src/content/example.js)) are effectively the
 `SERVICE_PAGE` shape already.
 
+### The `supporting` archetype (EXPERIMENTAL)
+
+A fourth archetype — `supporting` — exists behind the `experimental.supportingContent`
+flag (default off). It is **not** a commercial-taxonomy entity: it is an informational
+topic-cluster **spoke** (`@type` `Article`/`FAQPage`, never `Service`) that links UP to a
+money page. It has its own template
+([`SupportingPage.astro`](../src/components/SupportingPage.astro), which adds a `table`
+block for cost/comparison grids) and its own lint rules (SC-2…SC-7). Because it ships dark,
+a default build never sees it. Full model:
+[`supporting-content-archetype.md`](supporting-content-archetype.md) +
+[`internal-linking-authority.md`](internal-linking-authority.md).
+
 ## What is per-project vs. reusable
 
 - **Reusable (Engine):** the template, the block vocabulary, interpolation,

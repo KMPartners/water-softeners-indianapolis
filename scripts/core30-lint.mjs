@@ -35,6 +35,15 @@ const warnings = [];
 const err = (rule, file, msg) => errors.push({ rule, file, msg });
 const warn = (rule, file, msg) => warnings.push({ rule, file, msg });
 
+/* Reusable experimental-severity switch (R2 item E2). A lint rule OWNED by an
+   experimental feature should not red the build while that feature is unproven, but
+   must harden once it is promoted. `sev(stability)` returns `warn` while the
+   feature's stability is 'experimental' and `err` once it is 'stable' — so the same
+   rule body serves both phases and the next experimental archetype reuses the
+   pattern verbatim. (HARD invariants that protect the already-enforced core stay
+   `err` regardless of stability — they do not go through `sev`.) */
+const sev = (stability) => (stability === 'stable' ? err : warn);
+
 /* ── helpers ────────────────────────────────────────────────────────────── */
 const rel = (p) => relative(ROOT, p).split(sep).join('/');
 const norm = (s) =>
@@ -78,6 +87,16 @@ function hasAggregateRatingAnywhere(node) {
     return Object.values(node).some(hasAggregateRatingAnywhere);
   }
   return false;
+}
+
+/* Collect every @type string anywhere in a JSON-LD value. */
+function collectTypes(node, out = new Set()) {
+  if (Array.isArray(node)) { node.forEach((n) => collectTypes(n, out)); return out; }
+  if (node && typeof node === 'object') {
+    for (const t of [].concat(node['@type'] || [])) out.add(t);
+    for (const v of Object.values(node)) collectTypes(v, out);
+  }
+  return out;
 }
 
 /* ── 1. Source scan: no committed secrets (audit rule C6) ──────────────────
@@ -330,6 +349,112 @@ function checkFieldManifest() {
   }
 }
 
+/* ── Supporting archetype (EXPERIMENTAL) — docs/supporting-content-archetype.md ─
+   Runs ONLY when experimental.supportingContent is on (otherwise there are no
+   supporting pages, and firing here would be the "lint that cries wolf" failure
+   mode). Supporting pages self-identify with
+   `<meta name="core30:archetype" content="supporting">` and name their money page
+   with `<meta name="core30:supports" content="/…/">`.
+
+   Severity follows the archetype's stability via the reusable sev() switch: the
+   SOFT checks (SC-3 spoke→money link, SC-5 goal-completion, SC-7 reciprocity) WARN
+   while experimental and ERROR once promoted to 'stable'; the HARD invariants that
+   protect the already-enforced core (SC-2 anti-cannibalization, SC-4 schema) ERROR
+   regardless. SC-1 (Trinity) and SC-6 (external authority) are already enforced for
+   every page by rules 1 and 5b/6. */
+function checkSupporting() {
+  let cfg;
+  try { cfg = JSON.parse(readFileSync(join(ROOT, 'site.config.json'), 'utf8')); } catch { return; }
+  const exp = (cfg && cfg.experimental) || {};
+  if (exp.supportingContent !== true) return; // feature dark → no supporting pages
+  const stability = exp.supportingContentStability === 'stable' ? 'stable' : 'experimental';
+  const soft = sev(stability); // WARN while experimental → ERROR once stable
+
+  const pages = walk(DIST, '.html');
+  if (!pages.length) return;
+
+  // Canonical pathname of a page from its <link rel="canonical">.
+  const canonPathOf = (html) => {
+    const c = (html.match(/<link\s+rel="canonical"\s+href="([^"]*)"/i) || [])[1] || '';
+    try { return new URL(c).pathname; } catch { return c; }
+  };
+  const escRe = (s) => s.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
+
+  // Money-page keyphrase set = the <title> lead of every NON-supporting page;
+  // pagesByPath maps every page's canonical path → its HTML (for SC-7 reciprocity,
+  // which reads the money page a spoke declares).
+  const moneyKeyphrases = new Set();
+  const pagesByPath = {};
+  const supportingPages = [];
+  for (const file of pages) {
+    const html = readFileSync(file, 'utf8');
+    const isSupporting = /<meta\s+name="core30:archetype"\s+content="supporting"/i.test(html);
+    const tm = html.match(/<title>([^<]*)<\/title>/i);
+    const keyphrase = tm ? norm(tm[1]).split('|')[0].trim() : '';
+    const path = canonPathOf(html);
+    pagesByPath[path] = html;
+    if (isSupporting) supportingPages.push({ file, html, keyphrase, path });
+    else if (keyphrase) moneyKeyphrases.add(keyphrase.toLowerCase());
+  }
+
+  for (const { file, html, keyphrase, path: spokePath } of supportingPages) {
+    const f = rel(file);
+
+    /* SC-2 (hard) — anti-cannibalization: a spoke's Trinity keyphrase must not be
+       byte-identical to any money page's, or the two compete for one query. */
+    if (keyphrase && moneyKeyphrases.has(keyphrase.toLowerCase())) {
+      err('SC-2', f, `supporting keyphrase "${keyphrase}" collides with a money page's Trinity keyphrase (cannibalization) — target an informational long-tail instead`);
+    }
+
+    /* SC-4 (hard) — schema: an Article or FAQPage node is present, and NO
+       aggregateRating appears anywhere (a supporting page is not a business node). */
+    let hasArticleOrFaq = false;
+    let ratingSeen = false;
+    for (const m of html.matchAll(/<script type="application\/ld\+json">([\s\S]*?)<\/script>/gi)) {
+      let data;
+      try { data = JSON.parse(m[1]); } catch { continue; } // rule 7 reports the parse error
+      const types = collectTypes(data);
+      if (types.has('Article') || types.has('FAQPage')) hasArticleOrFaq = true;
+      if (hasAggregateRatingAnywhere(data)) ratingSeen = true;
+    }
+    if (!hasArticleOrFaq) err('SC-4', f, 'no Article/FAQPage JSON-LD — a supporting page must be @type Article or FAQPage, never Service');
+    if (ratingSeen) err('SC-4', f, 'aggregateRating on a supporting page — it is not a business node and must never carry review stars');
+
+    /* SC-3 (soft) — spoke→money link: the body must contain an in-content link to
+       the money page declared in core30:supports (the archetype's whole purpose). */
+    const supports = (html.match(/<meta\s+name="core30:supports"\s+content="([^"]*)"/i) || [])[1] || '';
+    const body = html.slice(html.indexOf('</head>') + 1);
+    if (!supports) {
+      soft('SC-3', f, 'no core30:supports meta — a supporting page must declare the money page it supports');
+    } else if (!new RegExp(`href="${escRe(supports)}"`).test(body)) {
+      soft('SC-3', f, `no in-content link to the declared money page (${supports}) — the spoke→money link is the archetype's core relevance signal`);
+    }
+
+    /* SC-5 (soft) — goal-completion for a spoke: the opening paragraph should answer
+       (a number/range or a direct-answer token) before it hands off. Heuristic. */
+    const firstP = (body.match(/<p[^>]*>([\s\S]*?)<\/p>/i) || [])[1] || '';
+    const firstPlain = norm(stripTags(firstP));
+    if (firstPlain && !/\d|\byes\b|\bno\b|\bit depends\b|\bmost\b|\btypically\b|\busually\b/i.test(firstPlain)) {
+      soft('SC-5', f, 'opening paragraph may not directly answer the question (no number/range or answer token) — a spoke should answer up top, then hand off');
+    }
+
+    /* SC-7 (soft) — reciprocity: the money page a spoke supports must link BACK to
+       the spoke, so the topic cluster is bidirectional (pillar ⇄ spoke) and the
+       spoke earns real inbound equity instead of being a sitemap-only orphan.
+       Category/service pages auto-render this via the RelatedGuides block; a spoke
+       that supports the homepage ('/') needs the link added there by hand, and this
+       check is what surfaces that gap. */
+    if (supports && spokePath) {
+      const moneyHtml = pagesByPath[supports];
+      if (!moneyHtml) {
+        soft('SC-7', f, `the declared money page (${supports}) was not found among built pages — cannot confirm the reciprocal back-link`);
+      } else if (!new RegExp(`href="${escRe(spokePath)}"`).test(moneyHtml)) {
+        soft('SC-7', f, `the money page ${supports} does not link back to this spoke (${spokePath}) — reciprocal hub↔spoke linking is missing (category/service pages auto-render it; a homepage-supported spoke needs the link added manually)`);
+      }
+    }
+  }
+}
+
 /* ── C2: no undefined CSS custom properties ────────────────────────────────
    A `var(--x)` with NO fallback whose `--x` is never defined resolves to
    nothing and silently breaks a page — `astro build` never validates it, so a
@@ -411,6 +536,7 @@ checkSitemap();
 checkLeadPipeline();
 checkFieldManifest();
 checkConsentAndLegal();
+checkSupporting();
 checkCssVars();
 checkGridIdiom();
 
@@ -419,6 +545,7 @@ const tag = {
   LP: 'lead-pipeline', LM: 'field-manifest', C2: 'css-var', GRID: 'grid',
   'A2P-0': 'legal-gate', 'A2P-1': 'no-share', 'A2P-2': 'sms-precheck', 'A2P-3': 'sms-link',
   'A2P-6': 'legal-index', 'A2P-7': 'legal-rating',
+  'SC-2': 'sc-intent', 'SC-3': 'sc-link', 'SC-4': 'sc-schema', 'SC-5': 'sc-goal', 'SC-7': 'sc-reciprocal',
 };
 for (const w of warnings) console.log(`\x1b[33mWARN\x1b[0m  [${tag[w.rule] || w.rule}] ${w.file}: ${w.msg}`);
 for (const e of errors) console.log(`\x1b[31mERROR\x1b[0m [${tag[e.rule] || e.rule}] ${e.file}: ${e.msg}`);

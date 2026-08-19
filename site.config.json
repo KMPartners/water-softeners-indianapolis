@@ -122,6 +122,30 @@
     "timeZone": "America/Los_Angeles"
   },
 
+  "experimental": {
+    "$comment": [
+      "EXPERIMENTAL feature gates (R2 item E2). Each feature ships DARK by",
+      "default: the flag is false → zero routes, zero schema, nothing added to the",
+      "sitemap, and none of its lint checks fire. A fresh clone therefore builds",
+      "byte-identical whether or not these keys are present.",
+      "",
+      "supportingContent — the topic-cluster `supporting` archetype",
+      "(docs/supporting-content-archetype.md): informational spokes (cost guides,",
+      "comparisons, tax/ROI answers) that link UP to a money page. Turn it on only",
+      "when you have authored real spokes; the example spoke in src/content/",
+      "example.js is placeholder copy that proves the machinery builds.",
+      "",
+      "supportingContentStability — 'experimental' (default) keeps the archetype's",
+      "SOFT lint checks (SC-3 spoke→money link, SC-5 goal-completion, SC-7",
+      "reciprocity) as WARN so a mid-experiment spoke never reds the build. Do NOT",
+      "flip this to 'stable' (which hardens them to ERROR) until the live",
+      "experiment on a downstream site proves lift — it is a separate later",
+      "decision, not something to inherit."
+    ],
+    "supportingContent": false,
+    "supportingContentStability": "experimental"
+  },
+
   "brand": {
     "tokensFile": "src/styles/tokens/colors.css",
     "logos": {},

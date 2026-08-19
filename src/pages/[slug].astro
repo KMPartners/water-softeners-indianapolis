@@ -11,43 +11,114 @@
  * precedence over this dynamic route, and their paths are never emitted here, so
  * there is no collision. Slugs are unique across the content tree (Astro's build
  * fails on a duplicate `slug` param, so the flat set can never collide silently).
+ *
+ * EXPERIMENTAL supporting archetype (docs/supporting-content-archetype.md): the
+ * `supporting` spokes are folded in ONLY when experimental.supportingContent is on
+ * (SUPPORTING is empty otherwise), so with the flag off the feature ships dark —
+ * zero routes, zero footprint, byte-identical to a build with no spokes. A spoke is
+ * rendered by SupportingPage; a money page is rendered by EntityPage.
  */
 import EntityPage from '../components/EntityPage.astro';
-import { PAGES, pageBySlug } from '../content/example.js';
-import { exampleService } from '../../presets/example/schema.js';
+import SupportingPage from '../components/SupportingPage.astro';
+import { PAGES, SUPPORTING, pageBySlug, getGuidesFor } from '../content/example.js';
+import { exampleService, exampleArticle } from '../../presets/example/schema.js';
 import { breadcrumbSchema, faqSchema } from '../lib/schema.js';
 import { interpolate, assertUniqueSlugs } from '../lib/content-tree.js';
 
 export function getStaticPaths() {
-  // Build-time guard: unique, non-empty, non-reserved slugs (Core30 flat URLs).
-  return assertUniqueSlugs(PAGES).map((page) => ({ params: { slug: page.slug }, props: { page } }));
+  // Build-time guard: unique, non-empty, non-reserved slugs across the WHOLE flat
+  // set — money pages ∪ supporting spokes — so a spoke can never silently shadow a
+  // money page (or vice-versa). SUPPORTING is empty when the flag is off.
+  assertUniqueSlugs([...PAGES, ...SUPPORTING]);
+
+  // Guard: every spoke's `supports` must resolve to the homepage or an existing
+  // category/service route, or the build fails here — a dangling spoke would pass
+  // topical relevance to nothing (and its reverse-link would 404).
+  if (SUPPORTING.length) {
+    const moneyRoutes = new Set(['/', ...PAGES.map((p) => `/${p.slug}/`)]);
+    for (const s of SUPPORTING) {
+      if (!s.supports || !moneyRoutes.has(s.supports)) {
+        throw new Error(
+          `[supporting] "${s.slug}" declares supports:"${s.supports}", which is not the ` +
+            'homepage or an existing category/service route. A supporting spoke must link up to a real money page.',
+        );
+      }
+    }
+  }
+
+  return [
+    ...PAGES.map((page) => ({ params: { slug: page.slug }, props: { page } })),
+    ...SUPPORTING.map((sup) => ({ params: { slug: sup.slug }, props: { sup } })),
+  ];
 }
 
-const { page } = Astro.props;
+const { page, sup } = Astro.props;
 
+// ── Supporting spoke ────────────────────────────────────────────────────────
+// The route composes the preset-specific schema and passes it in (SupportingPage
+// imports no preset), mirroring how the money page resolves exampleService().
+// Breadcrumb: Home › [money page] › this spoke, so the crawler sees the hierarchy.
+let supCrumbs, supSchemas;
+if (sup) {
+  const url = `/${sup.slug}/`;
+  supCrumbs = [
+    { label: 'Home', href: '/' },
+    ...(sup.supportsLabel ? [{ label: sup.supportsLabel, href: sup.supports }] : []),
+    { label: interpolate(sup.trinity) },
+  ];
+  const faqItems = (sup.blocks || [])
+    .filter((b) => b.type === 'faq')
+    .flatMap((b) => (b.items || []).map((f) => ({ q: interpolate(f.q), a: interpolate(f.a) })));
+  const isFaqPage = sup.schemaType === 'FAQPage';
+  // Article spoke → Article node (+ FAQPage when it also carries Q&A). Pure-Q&A
+  // spoke → the FAQPage node is the primary node instead.
+  const primary = isFaqPage
+    ? faqSchema(faqItems)
+    : exampleArticle({ name: interpolate(sup.trinity), description: interpolate(sup.description), url });
+  supSchemas = [
+    primary,
+    ...(!isFaqPage && faqItems.length ? [faqSchema(faqItems)] : []),
+    breadcrumbSchema(supCrumbs),
+  ];
+}
+
+// ── Money page (category / service) ───────────────────────────────────────────
 // Breadcrumbs: Home › [parent hub] › this page. A child links UP to its parent
 // (Core30 rule 3, mirror-linking); the footer carries the parent set every page.
-const parent = page.parentSlug ? pageBySlug(page.parentSlug) : null;
-const crumbs = [
-  { label: 'Home', href: '/' },
-  ...(parent ? [{ label: parent.trinity, href: `/${parent.slug}/` }] : []),
-  { label: page.trinity },
-];
+let crumbs, schemas, guides;
+if (page) {
+  const parent = page.parentSlug ? pageBySlug(page.parentSlug) : null;
+  crumbs = [
+    { label: 'Home', href: '/' },
+    ...(parent ? [{ label: parent.trinity, href: `/${parent.slug}/` }] : []),
+    { label: page.trinity },
+  ];
 
-const faqBlock = (page.blocks || []).find((b) => b.type === 'faq');
+  const faqBlock = (page.blocks || []).find((b) => b.type === 'faq');
 
-const schemas = [
-  exampleService({
-    name: interpolate(page.trinity),
-    serviceType: page.serviceType,
-    description: interpolate(page.description),
-    url: `/${page.slug}/`,
-  }),
-  breadcrumbSchema(crumbs),
-  ...(faqBlock
-    ? [faqSchema(faqBlock.items.map((f) => ({ q: interpolate(f.q), a: interpolate(f.a) })))]
-    : []),
-];
+  schemas = [
+    exampleService({
+      name: interpolate(page.trinity),
+      serviceType: page.serviceType,
+      description: interpolate(page.description),
+      url: `/${page.slug}/`,
+    }),
+    breadcrumbSchema(crumbs),
+    ...(faqBlock
+      ? [faqSchema(faqBlock.items.map((f) => ({ q: interpolate(f.q), a: interpolate(f.a) })))]
+      : []),
+  ];
+
+  // Reverse hub→spoke links: the EXPERIMENTAL spokes that support THIS money page,
+  // surfaced as a "Guides & resources" block (empty while the flag is off).
+  guides = getGuidesFor(`/${page.slug}/`).map((s) => ({
+    href: `/${s.slug}/`,
+    label: interpolate(s.trinity),
+    blurb: interpolate(s.description),
+  }));
+}
 ---
 
-<EntityPage page={{ ...page, canonical: `/${page.slug}/` }} crumbs={crumbs} schemas={schemas} />
+{sup
+  ? <SupportingPage sup={sup} crumbs={supCrumbs} schemas={supSchemas} />
+  : <EntityPage page={{ ...page, canonical: `/${page.slug}/` }} crumbs={crumbs} schemas={schemas} guides={guides} />}

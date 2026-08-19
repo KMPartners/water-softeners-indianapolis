@@ -1,0 +1,63 @@
+---
+/**
+ * RelatedGuides — the reverse half of hub-and-spoke interlinking (ENGINE).
+ * See docs/internal-linking-authority.md.
+ *
+ * A money page (category or service) renders this to link DOWN to the EXPERIMENTAL
+ * supporting spokes that declare they support it, making the topic cluster
+ * reciprocal (pillar ⇄ spoke) so the spokes earn real inbound equity and the
+ * pillar shows topical depth.
+ *
+ * Derived, not hand-maintained: the caller passes `getGuidesFor(url)` output, so
+ * adding a spoke auto-surfaces it on its money page with no manual back-link and
+ * no drift. Renders NOTHING when there are no guides — which is always the case
+ * while the experimental flag is off, so this component has zero footprint on a
+ * default build (the DoD's byte-identical guarantee).
+ *
+ * Anchors are the spoke's own descriptive title (never an exact-match money
+ * keyphrase), which is the contextual-relevance signal boilerplate links lack.
+ */
+const { guides = [] } = Astro.props;
+---
+
+{guides.length > 0 && (
+  <section class="guides">
+    <div class="container">
+      <div class="guides-head">
+        <span class="guides-kicker">Guides &amp; resources</span>
+        <div class="rule" aria-hidden="true"></div>
+      </div>
+      <div class="guides-grid">
+        {guides.map((g) => (
+          <a href={g.href} class="guide-card">
+            <span class="guide-h">{g.label}</span>
+            {g.blurb && <span class="guide-p">{g.blurb}</span>}
+            <span class="guide-arrow" aria-hidden="true">→</span>
+          </a>
+        ))}
+      </div>
+    </div>
+  </section>
+)}
+
+<style>
+  .guides { padding: clamp(24px, 4vw, 44px) 0; }
+  .guides-head { display: flex; align-items: center; gap: 14px; margin-bottom: 20px; }
+  .guides-kicker { font-family: var(--font-mono); font-size: 11px; letter-spacing: 0.18em; text-transform: uppercase; color: var(--accent-deep); white-space: nowrap; }
+  .guides-head .rule { flex: 1; height: 1px; background: var(--rule); }
+
+  .guides-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(min(280px, 100%), 1fr)); gap: 14px; }
+  .guide-card {
+    position: relative;
+    display: block;
+    background: var(--surface-alt);
+    border: 1px solid var(--rule);
+    border-radius: var(--radius);
+    padding: 22px 44px 22px 22px;
+    text-decoration: none;
+  }
+  .guide-card:hover { border-color: var(--border-strong); }
+  .guide-h { display: block; font-family: var(--font-display); font-weight: 700; font-size: 16px; color: var(--ink); line-height: 1.25; }
+  .guide-p { display: block; font-size: 13.5px; color: var(--text-body); line-height: 1.55; margin-top: 8px; }
+  .guide-arrow { position: absolute; top: 22px; right: 20px; color: var(--accent); font-weight: 800; }
+</style>

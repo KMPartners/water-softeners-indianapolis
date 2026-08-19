@@ -21,7 +21,7 @@
 
 import config from '../../site.config.json';
 
-const { business, compliance, geoScope, site, brand, legal } = config;
+const { business, compliance, geoScope, site, brand, legal, experimental } = config;
 
 /* ── Phone ──────────────────────────────────────────────────────────────────
    Single E.164 source -> every rendered form. US/NANP numbers get a formatted
@@ -243,3 +243,28 @@ export const PRIMARY_CTA =
 /** Lead-tagging source + og fallback image, both per-client. */
 export const LEAD_SOURCE = site.leadSource;
 export const OG_IMAGE = site.ogImage;
+
+/* ── Experimental feature gates (R2 item E2 — the reusable convention) ────────
+   The starter's mechanism for trialling a new archetype or lint rule without
+   red-building every downstream site. An `experimental.<feature>` config block
+   holds two things per feature: an on/off flag (default OFF → the feature ships
+   DARK, zero footprint, matching the "blank → nothing renders" safe default) and
+   an optional `<feature>Stability` tag ('experimental' → the feature's own SOFT
+   lint checks WARN; 'stable' → they harden to ERROR). Reading is centralized here
+   so a page/route/lint asks `EXPERIMENTAL.<feature>` and never re-parses config.
+
+   `flag(name)` / `stability(name)` generalize the pattern for the NEXT experiment;
+   `supportingContent` + `supportingContentStability` are the first consumer
+   (docs/supporting-content-archetype.md). Adding another experimental feature is
+   one config key + one line here — the archetype itself decides what OFF means. */
+const experimentalCfg = experimental || {};
+const expFlag = (name) => experimentalCfg[name] === true;
+const expStability = (name) =>
+  experimentalCfg[`${name}Stability`] === 'stable' ? 'stable' : 'experimental';
+
+export const EXPERIMENTAL = {
+  flag: expFlag,
+  stability: expStability,
+  supportingContent: expFlag('supportingContent'),
+  supportingContentStability: expStability('supportingContent'),
+};
