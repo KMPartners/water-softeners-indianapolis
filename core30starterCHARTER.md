@@ -140,6 +140,12 @@ The concrete repo is the battle-tested rulebook. These become the starter's
 - **The React-mount / prerender hazard** (concrete rule 7) — an Astro-static
   engine sidesteps it entirely; documented so no one reintroduces a client-only
   mount.
+- **Depth at scale** — Core30 is blueprint-first, which is right for getting found
+  but has a built-in depth ceiling: the GBP blueprint is a dozen pages, and a hot
+  SERP is won with hundreds. The depth layer is the `supporting` archetype
+  (`docs/supporting-content-archetype.md`); the strategy for *when and which*
+  depth pages to build — with the guardrails that keep breadth off the thin-spoke
+  line — is [`docs/depth-at-scale.md`](docs/depth-at-scale.md).
 
 ---
 
