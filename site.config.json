@@ -1,48 +1,51 @@
 {
   "$comment": [
-    "CLIENT CONFIG — the only file (besides brand tokens and the content tree)",
-    "a new site edits. Charter §5. Filled with NEUTRAL PLACEHOLDER values for the",
-    "'Example Home Services' demo. Replace every value with the real client's facts.",
+    "CLIENT CONFIG — CrystalClear Water Solutions (watersoftenersindianapolis.com).",
+    "Charter §5: the only file (besides brand tokens and the content tree) this site edits.",
     "",
     "GOLDEN RULE (charter §1): if a value is true for ONE client only, it lives",
     "here — never hardcoded in an Engine file.",
     "",
-    "NEVER FABRICATE. `geo`, `rating`, and every *Confirmed flag default to",
-    "null/false, and the Engine omits the corresponding output entirely rather",
-    "than inventing it. A confirmed-false flag is a real answer; leaving it",
-    "unconfirmed is what keeps an unverified claim off the page.",
+    "NEVER FABRICATE. `geo`, `rating`, hours, and every *Confirmed gate default to",
+    "null/false/empty, and the Engine omits the corresponding output entirely",
+    "rather than inventing it.",
     "",
-    "OPEN VERIFY items a new site fills before launch (do not fabricate):",
-    "  · site.domain (provisional example.com until the real domain is chosen).",
-    "  · business.hoursSpec / hoursConfirmed.",
-    "  · compliance.licenseNumber / licensedClaimAllowed (if the vertical is licensed).",
-    "  · business.geo / rating (never fabricated).",
+    "OPEN BLOCKERS before launch (do not fabricate — see publishGate below):",
+    "  · business.phone — NO number supplied yet. The Engine renders the phone in",
+    "    the header, footer, 404, lead form, FinalCta, and BOTH legal pages. Until",
+    "    a real (or tracking) number is set, those render empty. HARD launch blocker.",
+    "  · business.address.street / .zip — service-area business, no public address",
+    "    confirmed. Schema omits what is blank; the Privacy Policy address line is",
+    "    incomplete until these land.",
+    "  · business.geo / rating / hoursSpec — never fabricated; empty until confirmed.",
+    "  · compliance.claimGates — every certification stays false until the client",
+    "    produces proof (dossier §4: WQA/NSF/BBB/chamber all [UNVERIFIED]).",
     "  · GHL endpoint + GTM id are Cloudflare secrets / build vars, not here."
   ],
 
   "business": {
-    "name": "Example Home Services",
-    "primaryCategory": "Handyman service",
-    "legalDisclaimerName": "Example Home Services LLC",
+    "name": "CrystalClear Water Solutions",
+    "primaryCategory": "Water softening equipment supplier",
+    "legalDisclaimerName": "CrystalClear Water Solutions",
 
-    "phone": "+15555550100",
+    "$comment_phone": "EMPTY ON PURPOSE — no number confirmed. Set the real E.164 number (+1XXXXXXXXXX) before launch; every rendered form (tel:, sms:, schema, display) derives from this one value.",
+    "phone": "",
     "phoneDisplayOverride": null,
 
+    "$comment_address": "Service-area business: the market city/county/state are real and known (the domain, the GSC property, and the whole content tree target Indianapolis/Marion County). street + zip stay EMPTY until a real address is confirmed — the Engine omits blank schema fields.",
     "address": {
-      "street": "100 Example Plaza, Suite 200",
-      "city": "Anytown",
-      "state": "CA",
-      "zip": "90001",
-      "county": "Example County",
+      "street": "",
+      "city": "Indianapolis",
+      "state": "IN",
+      "zip": "",
+      "county": "Marion County",
       "country": "US"
     },
 
     "geo": null,
 
-    "$comment_hours": "Placeholder Mon–Fri 8–5; hoursConfirmed stays false until real hours are confirmed, so nothing claims confirmed hours in schema.",
-    "hoursSpec": [
-      { "days": ["Monday", "Tuesday", "Wednesday", "Thursday", "Friday"], "opens": "08:00", "closes": "17:00" }
-    ],
+    "$comment_hours": "EMPTY — no hours confirmed. hoursConfirmed false keeps openingHoursSpecification out of schema, and an empty hoursSpec keeps any hours string off the page.",
+    "hoursSpec": [],
     "hoursConfirmed": false,
     "hoursDisplayOverride": null,
 
@@ -50,31 +53,76 @@
     "ratingConfirmed": false,
 
     "$comment_identity": [
-      "Entity-identity fields for the business JSON-LD node. Each is OMITTED",
-      "from the schema when blank/null. `sameAs` cites the business's own",
-      "authoritative profiles (GBP, Facebook, BBB) so Google can reconcile this",
-      "site with a known entity. Empty until the real profiles land."
+      "Entity-identity fields. Each is OMITTED from schema when blank.",
+      "`sameAs` stays EMPTY until the real Google Business Profile and any other",
+      "authoritative profile exist — a wrong sameAs points Google at the wrong",
+      "business (dossier §2 flags exactly this trap with Citizens Energy Group:",
+      "Q5122690 is an unrelated Boston nonprofit, NOT the Indianapolis utility)."
     ],
     "foundingYear": null,
     "naics": "",
     "priceRange": "",
     "sameAs": [],
     "knowsAbout": [
-      "Home repairs",
-      "Drywall repair",
-      "Fixture installation"
+      "Water softening",
+      "Hard water",
+      "Ion exchange",
+      "Water softener installation",
+      "Water softener repair",
+      "Whole-house water filtration",
+      "Reverse osmosis",
+      "Water quality testing",
+      "Limescale",
+      "Total dissolved solids"
     ]
   },
 
   "compliance": {
-    "$comment_licensed": "licensedClaimAllowed stays false until a real license # is confirmed. Flip both together for a licensed vertical.",
+    "$comment_licensed": [
+      "NOT LICENSED — and deliberately silent about licensing. Indiana Code",
+      "25-28.5-1-2 expressly EXCLUDES 'the sale or installation of water softening",
+      "equipment' from the statutory definition of plumbing, so no state plumbing",
+      "license is what authorizes softener work. The site therefore makes NO",
+      "licensing claim of any kind, and licenseNumber stays null.",
+      "CONSEQUENCE: do not add a 'licensed' badge later without a real Indiana PLA",
+      "license number that verifies on the PLA Search & Verify portal."
+    ],
     "licensedClaimAllowed": false,
-    "bannedPhrases": [],
+    "$comment_bannedPhrases": "NOTE: the current Engine exports BANNED_PHRASES from src/lib/site.js but NOTHING consumes it (no component, no lint rule). It is declarative intent only today — the real enforcement is that no licensing copy is authored. Promoting this to a real core30-lint check belongs upstream in core30-starter.",
+    "bannedPhrases": [
+      "licensed",
+      "licensed plumber",
+      "state-licensed",
+      "licensed technicians",
+      "fully licensed",
+      "licensed and insured",
+      "guaranteed",
+      "certified company",
+      "WQA-certified company"
+    ],
     "chamberMember": false,
-    "publishGate": [],
+    "$comment_publishGate": "The real open items blocking launch. Documentation today (the Engine exports PUBLISH_GATE but no rule reads it yet).",
+    "publishGate": [
+      "business.phone is empty — header, footer, 404, lead form, FinalCta and both legal pages render an empty phone",
+      "business.address.street / .zip unconfirmed — Privacy Policy address line incomplete",
+      "legal.legalReviewedBy is null — both legal pages ship as drafts with a banner",
+      "legal.a2pBrandRegistered is false — do not enable SMS actions in the CRM yet",
+      "site.leadSecretName GHL_WEBHOOK_URL not yet bound — form submissions are discarded",
+      "every compliance.claimGates entry is unproven — no certification may be claimed"
+    ],
 
     "claimGates": {
-      "$comment": "Per-client claim gates. Each defaults false; the Engine withholds the claim until confirmed. A preset adds vertical-specific gates as its lead-form assurances need them."
+      "$comment": "Per-client claim gates, consumed by content rows via { requires: '<gate>', fallback }. EVERY one defaults false, so the claim structurally cannot render. Dossier §4 lists each as [UNVERIFIED] pending client proof.",
+      "wqaCertifiedStaffConfirmed": false,
+      "wqaGoldSealEquipmentConfirmed": false,
+      "nsfListedEquipmentConfirmed": false,
+      "bbbAccreditedConfirmed": false,
+      "manufacturerDealerConfirmed": false,
+      "financingOfferedConfirmed": false,
+      "saltDeliveryConfirmed": false,
+      "warrantyConfirmed": false,
+      "emergencyServiceConfirmed": false,
+      "freeWaterTestConfirmed": false
     },
 
     "licenseNumber": null
@@ -85,64 +133,67 @@
       "Legal-doc + TCPA/A2P posture. Every value is a per-client fact.",
       "`effectiveDate` is a HARDCODED string, never a computed date.",
       "",
-      "smsConsentRequired has NO Engine default — the build throws if it is unset.",
-      "It is a real business decision: required = a lead implies SMS consent but",
-      "adds submit friction; optional = no friction but the CRM MUST filter on",
-      "sms_consent === 'yes' before any SMS action. Set here to false (optional).",
+      "smsConsentRequired = TRUE (client decision): the SMS opt-in box is REQUIRED",
+      "to submit, so every lead carries an explicit SMS consent record. This adds",
+      "submit friction in exchange for an unambiguous A2P evidence trail.",
+      "CONSEQUENCE: a visitor who will not tick the SMS box cannot submit the form",
+      "at all — if lead volume matters more than SMS reach, flip this to false and",
+      "make the CRM filter on sms_consent === 'yes' before any SMS action.",
       "",
       "legalReviewedBy stays null until counsel signs off — both legal pages show a",
-      "draft banner and core30-lint warns (publish gate) until then. Do not set it",
-      "to drop the banner without a real review.",
+      "draft banner and core30-lint warns (publish gate) until then.",
       "a2pBrandRegistered gates turning SMS actions ON in the CRM."
     ],
-    "effectiveDate": "January 1, 2026",
-    "governingState": "California",
-    "venueCounty": "Example County, California",
-    "smsConsentRequired": false,
+    "effectiveDate": "October 28, 2026",
+    "governingState": "Indiana",
+    "venueCounty": "Marion County, Indiana",
+    "smsConsentRequired": true,
     "legalReviewedBy": null,
     "a2pBrandRegistered": false
   },
 
   "geoScope": {
-    "primaryCities": ["Anytown, CA"],
-    "extendedAreas": ["Springvale, CA", "Rivertown, CA", "Lake Haven, CA"],
-    "counties": ["Example County"]
+    "$comment": [
+      "Launch service area = only the suburbs where BOTH population and water-utility",
+      "data are verified (dossier §1b recommendation). Brownsburg, Avon, Plainfield,",
+      "Zionsville and Franklin are deliberately EXCLUDED until the client confirms it",
+      "actually dispatches there and the utility data is verified.",
+      "",
+      "CARMEL CAVEAT: Carmel Utilities softens city water to ~8 grains at the plant,",
+      "so blanket 'very hard water' copy is inaccurate for Carmel customers. Any",
+      "Carmel-specific page must say 'moderately hard; softened to ~8 grains at the",
+      "plant; a home softener is still needed for 0 grains.'"
+    ],
+    "primaryCities": ["Indianapolis, IN"],
+    "extendedAreas": ["Carmel, IN", "Fishers, IN", "Noblesville, IN", "Westfield, IN", "Greenwood, IN"],
+    "counties": ["Marion County", "Hamilton County", "Johnson County"]
   },
 
   "site": {
-    "$comment_domain": "PROVISIONAL placeholder. Canonical <link>s, JSON-LD url, and the sitemap all derive from this. Set the real domain before launch (find/replace + sitemap regen).",
-    "domain": "example.com",
+    "domain": "watersoftenersindianapolis.com",
     "canonicalHost": "www",
     "leadSecretName": "GHL_WEBHOOK_URL",
-    "leadSource": "example-website-lead",
-    "$comment_leadTag": "CRM tag applied to every lead from this site's single quote form. Per-client / per-vertical; read by functions/api/lead.js via the generated config.",
-    "leadTag": "web-lead",
+    "leadSource": "watersoftenersindianapolis-website-lead",
+    "$comment_leadTag": "CRM tag applied to every lead from this site's quote form.",
+    "leadTag": "water-treatment-lead",
     "ogImage": "/og-image.png",
-    "$comment_timeZone": "IANA zone for lead-summary local times. Anytown, CA → US Pacific.",
-    "timeZone": "America/Los_Angeles"
+    "$comment_timeZone": "IANA zone for lead-summary local times. Indianapolis observes US Eastern with its own zone id.",
+    "timeZone": "America/Indiana/Indianapolis"
   },
 
   "experimental": {
     "$comment": [
-      "EXPERIMENTAL feature gates (R2 item E2). Each feature ships DARK by",
-      "default: the flag is false → zero routes, zero schema, nothing added to the",
-      "sitemap, and none of its lint checks fire. A fresh clone therefore builds",
-      "byte-identical whether or not these keys are present.",
+      "supportingContent is ON for this site: the topic cluster is the whole point",
+      "of the rebuild. The GSC audit found 19 of 28 URLs unknown to Google and a",
+      "/blog/ soft-404 — the old content cluster was invisible. The supporting",
+      "archetype replaces it with spokes that are in the sitemap, mirror-linked,",
+      "and each tied to exactly one money page.",
       "",
-      "supportingContent — the topic-cluster `supporting` archetype",
-      "(docs/supporting-content-archetype.md): informational spokes (cost guides,",
-      "comparisons, tax/ROI answers) that link UP to a money page. Turn it on only",
-      "when you have authored real spokes; the example spoke in src/content/",
-      "example.js is placeholder copy that proves the machinery builds.",
-      "",
-      "supportingContentStability — 'experimental' (default) keeps the archetype's",
-      "SOFT lint checks (SC-3 spoke→money link, SC-5 goal-completion, SC-7",
-      "reciprocity) as WARN so a mid-experiment spoke never reds the build. Do NOT",
-      "flip this to 'stable' (which hardens them to ERROR) until the live",
-      "experiment on a downstream site proves lift — it is a separate later",
-      "decision, not something to inherit."
+      "supportingContentStability stays 'experimental' (SC-3/5/7/8 WARN, not ERROR).",
+      "Promotion to 'stable' is a separate later decision gated on proven lift —",
+      "see docs/supporting-content-archetype.md 'Stabilization checklist'."
     ],
-    "supportingContent": false,
+    "supportingContent": true,
     "supportingContentStability": "experimental"
   },
 
@@ -151,16 +202,16 @@
     "logos": {},
 
     "wordmark": {
-      "$comment": "Two-line lockup used by the starter chrome. line1 is the identity word; line2 the subline.",
-      "line1": "Example Home Services",
-      "line2": "Anytown, CA"
+      "$comment": "Two-line lockup used by the starter chrome.",
+      "line1": "CrystalClear Water Solutions",
+      "line2": "Indianapolis, IN"
     },
 
-    "ctaStatus": "Serving Anytown & Example County",
+    "ctaStatus": "Serving Indianapolis & Marion County",
 
-    "$comment_footer": "logoMark/footerBlurb/footerLegal/favicon each fall back to a sensible derived default when blank (see src/lib/site.js). primaryCta is the mobile bar's main button.",
-    "logoMark": "",
-    "footerBlurb": "",
+    "$comment_footer": "logoMark/footerBlurb/footerLegal/favicon each fall back to a derived default when blank (src/lib/site.js). primaryCta is the mobile bar's main button.",
+    "logoMark": "CWS",
+    "footerBlurb": "Water softener installation, repair, and whole-house water treatment for Indianapolis and the surrounding Marion, Hamilton, and Johnson County communities.",
     "footerLegal": "",
     "favicon": "/favicon.svg",
     "primaryCta": { "label": "Get a Free Quote", "href": "#lead-form" }

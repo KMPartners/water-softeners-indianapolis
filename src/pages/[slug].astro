@@ -20,8 +20,8 @@
  */
 import EntityPage from '../components/EntityPage.astro';
 import SupportingPage from '../components/SupportingPage.astro';
-import { PAGES, SUPPORTING, pageBySlug, getGuidesFor } from '../content/example.js';
-import { exampleService, exampleArticle } from '../../presets/example/schema.js';
+import { PAGES, SUPPORTING, pageBySlug, getGuidesFor } from '../content/water-treatment.js';
+import { waterTreatmentService, waterTreatmentArticle } from '../../presets/water-treatment/schema.js';
 import { breadcrumbSchema, faqSchema } from '../lib/schema.js';
 import { interpolate, assertUniqueSlugs } from '../lib/content-tree.js';
 
@@ -56,7 +56,7 @@ const { page, sup } = Astro.props;
 
 // ── Supporting spoke ────────────────────────────────────────────────────────
 // The route composes the preset-specific schema and passes it in (SupportingPage
-// imports no preset), mirroring how the money page resolves exampleService().
+// imports no preset), mirroring how the money page resolves waterTreatmentService().
 // Breadcrumb: Home › [money page] › this spoke, so the crawler sees the hierarchy.
 let supCrumbs, supSchemas;
 if (sup) {
@@ -74,7 +74,7 @@ if (sup) {
   // spoke → the FAQPage node is the primary node instead.
   const primary = isFaqPage
     ? faqSchema(faqItems)
-    : exampleArticle({ name: interpolate(sup.trinity), description: interpolate(sup.description), url });
+    : waterTreatmentArticle({ name: interpolate(sup.trinity), description: interpolate(sup.description), url });
   supSchemas = [
     primary,
     ...(!isFaqPage && faqItems.length ? [faqSchema(faqItems)] : []),
@@ -97,11 +97,15 @@ if (page) {
   const faqBlock = (page.blocks || []).find((b) => b.type === 'faq');
 
   schemas = [
-    exampleService({
+    waterTreatmentService({
       name: interpolate(page.trinity),
       serviceType: page.serviceType,
       description: interpolate(page.description),
       url: `/${page.slug}/`,
+      // Curated entity links from the content row's registry (verified Wikipedia +
+      // Wikidata only). Omitted from the node entirely when a row supplies none.
+      about: page.about,
+      mentions: page.mentions,
     }),
     breadcrumbSchema(crumbs),
     ...(faqBlock

@@ -2,50 +2,62 @@
 /**
  * Homepage — the one legitimately BESPOKE page (charter note).
  *
- * Category and service pages are row-driven (src/content/example.js → [slug].astro);
- * the homepage is hand-authored, pulling config + the preset schema. That is
- * correct and intended — do not try to force the homepage into the content tree.
+ * Category and service pages are row-driven (src/content/water-treatment.js →
+ * [slug].astro); the homepage is hand-authored, pulling config + the preset
+ * schema. That is correct and intended — do not force the homepage into the
+ * content tree.
  *
- * Everything here is NEUTRAL placeholder copy for the "Example Home Services"
- * demo. Replace it with the real business's homepage.
+ * Trinity: the <title> and <h1> come from ONE source (service + city) and match
+ * the domain's head term, "Water Softeners Indianapolis".
+ *
+ * NOTE: there is deliberately NO click-to-call in this hero. site.config →
+ * business.phone is empty (no number confirmed), so a tel: link here would be an
+ * empty, broken link on the site's most important page. Every CTA routes to the
+ * lead form instead. When a real number lands in config, a click-to-call can be
+ * restored here — the rest of the chrome picks it up automatically.
  */
 import BaseLayout from '../layouts/BaseLayout.astro';
 import LeadForm from '../components/LeadForm.astro';
 import Icon from '../components/Icon.astro';
 import { NAP, AREA_SERVED, CTA_STATUS } from '../lib/site.js';
-import { homepageSchema } from '../../presets/example/schema.js';
-import { CATEGORIES, PAGES } from '../content/example.js';
-import { QUOTE_FORM } from '../../presets/example/lead-forms.js';
+import { homepageSchema } from '../../presets/water-treatment/schema.js';
+import { CATEGORIES, PAGES, SUPPORTING } from '../content/water-treatment.js';
+import { QUOTE_FORM } from '../../presets/water-treatment/lead-forms.js';
 import TrinityH1 from '../components/TrinityH1.astro';
 import { trinityTitle } from '../lib/trinity.js';
 
 // Core30 rule 1 (Trinity): the <title> and the <h1> are generated from ONE source
 // (service + city) via trinityTitle / <TrinityH1>, so they cannot drift.
-const HERO = { service: 'Handyman & Home Repair', city: 'Anytown, CA' };
+const HERO = { service: 'Water Softeners', city: 'Indianapolis' };
 const TITLE = trinityTitle(HERO);
+
+const DESCRIPTION =
+  'Water softener installation, repair, and whole-house water treatment in Indianapolis. Local tap water averages 19 grains per gallon — we size equipment to your measured hardness.';
 
 const schemas = [homepageSchema(CATEGORIES)];
 
 // Link every content page from the homepage (mirror-linking + a real internal
 // link graph). The hub first, then its services.
 const links = PAGES.map((p) => ({ href: `/${p.slug}/`, label: p.trinity }));
+
+// The supporting-content cluster, surfaced from the homepage so the spokes have
+// an internal entry point beyond their money page. Empty when the flag is off.
+const guides = SUPPORTING.map((s) => ({ href: `/${s.slug}/`, label: s.trinity }));
 ---
 
-<BaseLayout title={TITLE} description={`Placeholder homepage for ${NAP.name}. Replace this copy before launch.`} canonical="/" schemas={schemas}>
+<BaseLayout title={TITLE} description={DESCRIPTION} canonical="/" schemas={schemas}>
   <section class="home-hero">
     <div class="container home-hero-grid">
       <div class="home-hero-copy">
-        <span class="eyebrow">Example Content · Replace Before Launch</span>
+        <span class="eyebrow">{CTA_STATUS}</span>
         <TrinityH1 service={HERO.service} city={HERO.city} size="hero" />
         <p class="lede">
-          <strong>Placeholder hero for {NAP.addressLocality}, {NAP.addressRegion}.</strong>
-          This is a neutral starter homepage — swap every word for real copy. {CTA_STATUS}.
+          <strong>We install, repair, and service water softeners and whole-house water treatment for homes across {NAP.addressLocality} and the surrounding counties.</strong>
+          Indianapolis tap water averages 19 grains per gallon — "very hard" on the USGS scale. We measure what is actually coming out of your tap, then size the fix to that number instead of a catalog default.
         </p>
         <div class="home-hero-cta">
-          <a href={NAP.phoneTel} class="click-to-call">
-            <Icon name="phone" size={16} /> {NAP.phoneDisplay}
-          </a>
           <a href="#lead-form" class="btn-primary">Get a free quote <Icon name="arrow-right" size={16} /></a>
+          <a href="/water-treatment-services-indianapolis/" class="hero-secondary">See all services</a>
         </div>
       </div>
 
@@ -58,7 +70,7 @@ const links = PAGES.map((p) => ({ href: `/${p.slug}/`, label: p.trinity }));
   <section class="home-services">
     <div class="container">
       <h2>What we do</h2>
-      <p class="section-sub">Placeholder service list. These link to the example content tree.</p>
+      <p class="section-sub">Softening, filtration, drinking water, and the testing that tells you which one you actually need.</p>
       <ul class="service-grid">
         {links.map((l) => (
           <li><a href={l.href}>{l.label} <Icon name="arrow-right" size={15} /></a></li>
@@ -67,10 +79,41 @@ const links = PAGES.map((p) => ({ href: `/${p.slug}/`, label: p.trinity }));
     </div>
   </section>
 
+  <section class="home-hardness">
+    <div class="container">
+      <h2>Indianapolis water, by the numbers</h2>
+      <p class="section-sub">
+        Citizens Energy Group reported a 2025 system average of 317 ppm — 19 grains per gallon — for Indianapolis and
+        Morgan County, ranging from 8.7 to 27 gpg depending on which of its ten treatment plants serves your address.
+        That is why we measure before we quote.
+      </p>
+      <p class="source-line">
+        Source:
+        <a href="https://info.citizensenergygroup.com/water/quality/indianapolis-and-morgan-county" target="_blank" rel="noopener">
+          Indianapolis &amp; Morgan County water quality data — Citizens Energy Group
+        </a>
+      </p>
+    </div>
+  </section>
+
+  {guides.length > 0 && (
+    <section class="home-guides">
+      <div class="container">
+        <h2>Guides</h2>
+        <p class="section-sub">Straight answers about Indianapolis water, with the utility data behind them.</p>
+        <ul class="guide-list">
+          {guides.map((g) => (
+            <li><a href={g.href}>{g.label} <Icon name="arrow-right" size={15} /></a></li>
+          ))}
+        </ul>
+      </div>
+    </section>
+  )}
+
   <section class="home-areas" id="service-area">
     <div class="container">
       <h2>Service area</h2>
-      <p class="section-sub">Placeholder — {NAP.name} serves {NAP.addressLocality} and nearby.</p>
+      <p class="section-sub">{NAP.name} serves {NAP.addressLocality} and the surrounding communities.</p>
       <ul class="area-pills">
         {AREA_SERVED.map((a) => <li>{a}</li>)}
       </ul>
@@ -101,29 +144,32 @@ const links = PAGES.map((p) => ({ href: `/${p.slug}/`, label: p.trinity }));
   .lede { font-size: var(--fs-lede); line-height: var(--lh-body); color: var(--text-body); margin: 0 0 24px; max-width: 46ch; }
   .lede strong { color: var(--ink); }
   .home-hero-cta { display: flex; flex-wrap: wrap; gap: 14px; align-items: center; }
-  .click-to-call {
-    display: inline-flex; align-items: center; gap: 8px;
+  .hero-secondary {
+    display: inline-flex; align-items: center; min-height: 44px;
     font-family: var(--font-display); font-weight: 700; font-size: 16px;
-    color: var(--text-strong); text-decoration: none; min-height: 44px;
+    color: var(--text-strong); text-decoration: none;
+    border-bottom: 2px solid var(--accent);
   }
-  .click-to-call:hover { color: var(--accent-deep); }
+  .hero-secondary:hover { color: var(--accent-deep); }
 
-  .home-services, .home-areas { padding: clamp(32px, 5vw, 56px) 0; }
-  .home-areas { background: var(--surface-alt); border-top: 1px solid var(--border); }
-  .home-services h2, .home-areas h2 {
+  .home-services, .home-areas, .home-hardness, .home-guides { padding: clamp(32px, 5vw, 56px) 0; }
+  .home-areas, .home-hardness { background: var(--surface-alt); border-top: 1px solid var(--border); }
+  .home-services h2, .home-areas h2, .home-hardness h2, .home-guides h2 {
     font-family: var(--font-display); font-weight: 800; font-size: var(--fs-h2);
     letter-spacing: var(--ls-tight); color: var(--text-strong); margin: 0 0 8px;
   }
-  .section-sub { color: var(--text-muted); margin: 0 0 24px; }
+  .section-sub { color: var(--text-muted); margin: 0 0 24px; max-width: 72ch; }
+  .source-line { font-family: var(--font-mono); font-size: 13px; color: var(--text-muted); margin: 0; }
+  .source-line a { color: var(--accent-deep); }
 
-  .service-grid { list-style: none; padding: 0; margin: 0; display: grid; gap: 12px; grid-template-columns: repeat(auto-fit, minmax(min(260px, 100%), 1fr)); }
-  .service-grid a {
+  .service-grid, .guide-list { list-style: none; padding: 0; margin: 0; display: grid; gap: 12px; grid-template-columns: repeat(auto-fit, minmax(min(260px, 100%), 1fr)); }
+  .service-grid a, .guide-list a {
     display: flex; align-items: center; justify-content: space-between; gap: 12px;
     padding: 16px 18px; border: 1px solid var(--border-strong); border-radius: var(--radius);
     background: var(--surface-card); color: var(--text-strong); text-decoration: none;
     font-family: var(--font-display); font-weight: 700;
   }
-  .service-grid a:hover { border-color: var(--accent); color: var(--accent-deep); }
+  .service-grid a:hover, .guide-list a:hover { border-color: var(--accent); color: var(--accent-deep); }
 
   .area-pills { list-style: none; padding: 0; margin: 0; display: flex; flex-wrap: wrap; gap: 10px; }
   .area-pills li {

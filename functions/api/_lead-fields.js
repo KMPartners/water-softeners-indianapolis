@@ -34,7 +34,7 @@
  * src/lib/lead-capture.js and handled explicitly in lead.js.
  */
 // Example lead-field set. Matches the fields declared in the active preset form
-// (presets/example/lead-forms.js). `name` and `phone` are the required,
+// (presets/water-treatment/lead-forms.js). `name` and `phone` are the required,
 // separately-validated fields in lead.js; the rest are derived into the
 // allow-list + summary. Keep this in sync with the preset form — core30-lint
 // fails the build if a preset form field is missing here.
@@ -42,6 +42,8 @@ export const LEAD_FIELDS = [
   { key: 'name', label: 'Name', forward: true, summary: true, contact: true },
   { key: 'phone', label: 'Phone', forward: true, summary: true, contact: true },
   { key: 'email', label: 'Email', forward: true, summary: true, contact: true },
+  { key: 'zip', label: 'ZIP', forward: true, summary: true, crmField: { name: 'ZIP', dataType: 'TEXT' } },
+  { key: 'service_interest', label: 'Service interest', forward: true, summary: true, crmField: { name: 'Service Interest', dataType: 'TEXT' } },
   { key: 'message', label: 'Message', forward: true, summary: true, crmField: { name: 'Message', dataType: 'LARGE_TEXT' } },
 ];
 

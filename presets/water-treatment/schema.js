@@ -1,19 +1,28 @@
 /**
- * presets/example/schema.js — JSON-LD builders for the EXAMPLE vertical (PRESET).
+ * presets/water-treatment/schema.js — JSON-LD builders for the WATER-TREATMENT
+ * vertical (PRESET).
  *
  * The vertical-specific half of the schema layer. Everything here is composed
  * from the Engine primitives in src/lib/schema.js; this file only supplies the
- * schema.org @type string for the business and the two genuinely per-vertical
- * builders (the homepage business node and a service node).
+ * schema.org @type string for the business and the per-vertical builders.
  *
- * To build another vertical, copy this file to presets/<vertical>/schema.js and
- * swap the @type (e.g. 'Electrician', 'AutoRepair', 'Dentist') + any offer shape.
- * The Engine primitives do not change.
+ * WHY `HomeAndConstructionBusiness` AND NOT `Plumber`:
+ * schema.org offers a `Plumber` subtype, and most competitors in this vertical
+ * use it. This site deliberately does not. Indiana Code 25-28.5-1-2 expressly
+ * EXCLUDES "the sale or installation of water softening equipment" from the
+ * statutory definition of plumbing, and this client holds no plumbing license.
+ * Typing the business as a `Plumber` would assert a trade identity the client
+ * cannot substantiate — the structured-data equivalent of the "licensed
+ * technicians" claim the rebuild is removing. `HomeAndConstructionBusiness` is
+ * the accurate, non-licensure-implying parent type.
+ * CONSEQUENCE: if the client ever does hold a verifiable Indiana PLA plumbing
+ * license, changing this one string (and flipping compliance.licensedClaimAllowed)
+ * is what unlocks the stronger type — not a content edit.
  */
 
 import { localBusiness, serviceSchema, articleSchema, abs } from '../../src/lib/schema.js';
 
-/** The business @type for this vertical. A generic local service business. */
+/** The business @type for this vertical. See the note above before changing it. */
 const BUSINESS_TYPE = 'HomeAndConstructionBusiness';
 
 /**
@@ -35,15 +44,14 @@ function businessNode({ withContext = false, withIdentity = false, withRating = 
 /**
  * Homepage = the business node, top-level, with identity. Pass the category rows
  * to attach a `hasOfferCatalog` (each category as an Offer → Service with a real
- * internal URL) — an entity-strong signal of what the business offers. Omitted
- * when no categories are supplied.
+ * internal URL) — an entity-strong signal of what the business offers.
  */
 export function homepageSchema(categories = []) {
   const node = businessNode({ withContext: true, withIdentity: true });
   if (categories.length) {
     node.hasOfferCatalog = {
       '@type': 'OfferCatalog',
-      name: 'Services',
+      name: 'Water Treatment Services',
       itemListElement: categories.map((c) => ({
         '@type': 'Offer',
         itemOffered: { '@type': 'Service', name: c.trinity, url: abs(`/${c.slug}/`) },
@@ -56,10 +64,11 @@ export function homepageSchema(categories = []) {
 /**
  * Category + service pages = a Service node whose `provider` is the byte-identical
  * business node (nested: no @context, no identity). `about`/`mentions` are curated
- * entity links from the content row (never fabricated here). aggregateRating never
- * appears on a Service — it lives on the provider business node only.
+ * entity links from the content row — real, verified Wikipedia + Wikidata URLs from
+ * the entity registry, NEVER fabricated here or defaulted by the preset.
+ * aggregateRating never appears on a Service; it lives on the provider node only.
  */
-export function exampleService({ name, serviceType, description, url, about, mentions }) {
+export function waterTreatmentService({ name, serviceType, description, url, about, mentions }) {
   return serviceSchema({
     type: 'Service',
     name,
@@ -75,12 +84,12 @@ export function exampleService({ name, serviceType, description, url, about, men
 /**
  * Supporting-content spoke (EXPERIMENTAL archetype) = an `Article` node built from
  * the Engine `articleSchema` primitive. NEVER a Service/Offer, so it never enters
- * the offer catalog and never carries a price. `publisher` is the business node
- * built WITHOUT a rating: a supporting page must never carry review stars (lint
- * SC-4), and the publisher is the only node that could otherwise sneak one on when
- * a client has RATING_CONFIRMED. A pure-Q&A spoke (schemaType 'FAQPage') does not
- * use this — the route emits faqSchema() as the primary node instead.
+ * the offer catalog and never carries a price. `publisher` is built WITHOUT a
+ * rating: a supporting page must never carry review stars (lint SC-4), and the
+ * publisher node is the only place a rating could otherwise sneak on. A pure-Q&A
+ * spoke (schemaType 'FAQPage') does not use this — the route emits faqSchema()
+ * as the primary node instead.
  */
-export function exampleArticle({ name, description, url }) {
+export function waterTreatmentArticle({ name, description, url }) {
   return articleSchema({ name, description, url, publisher: businessNode({ withRating: false }) });
 }

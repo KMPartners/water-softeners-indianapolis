@@ -1,37 +1,44 @@
 /* ============================================================================
-   Color tokens (starter default)
+   Color tokens — CrystalClear Water Solutions (Indianapolis)
    The only colors any page may use. Components reference var(--…) only,
-   never a literal hex. This is a neutral starter palette: a near-white paper,
-   near-black ink, and one calm blue accent. Reskin a client by overriding
-   these values only — never rename or drop a token.
+   never a literal hex.
+
+   Brand read: clean water. A cool cyan-teal accent over a near-white paper,
+   with a deep marine slab for the hero/footer/CTA. Deliberately NOT the
+   starter's generic blue — this palette is the one per-client visual seam
+   besides the wordmark.
+
+   Reskin rule: override VALUES only — never rename or drop a token. The Engine
+   and every component resolve these names, and core30-lint (C2) fails the build
+   on a var() whose token is defined nowhere.
    ============================================================================ */
 :root {
   /* --- base surfaces (light) --- */
   --bg:        #FFFFFF;   /* page background */
-  --bg2:       #F4F5F7;   /* alternate section background */
+  --bg2:       #F4F9FB;   /* alternate section background — faint aqua tint */
 
   /* --- ink (text) --- */
-  --ink:       #14181F;   /* headings + body */
-  --ink2:      #4B5563;   /* lede + secondary */
-  --ink3:      #6B7280;   /* mono labels + muted */
+  --ink:       #0F1C22;   /* headings + body */
+  --ink2:      #44565F;   /* lede + secondary */
+  --ink3:      #677A84;   /* mono labels + muted */
 
   /* --- rules / borders --- */
-  --rule:      #E4E7EB;   /* hairline divider */
-  --rule2:     #CBD2DA;   /* stronger border (inputs, pills) */
+  --rule:      #DEE8EC;   /* hairline divider */
+  --rule2:     #BFD0D7;   /* stronger border (inputs, pills) */
 
   /* --- dark slab surfaces --- */
-  --slab:      #1F2933;   /* hero + footer + CTA */
-  --slab2:     #2A3541;   /* raised dark card */
-  --slab-rule: #3D4A57;   /* divider on dark */
+  --slab:      #0E2A36;   /* hero + footer + CTA — deep marine */
+  --slab2:     #163A49;   /* raised dark card */
+  --slab-rule: #2A4E5E;   /* divider on dark */
 
   /* --- accent (the workhorse) --- */
-  --accent:      #2563EB; /* links · bullets · CTA */
-  --accent-deep: #1D4ED8; /* underline · hover fill · shadow */
+  --accent:      #0E7490; /* links · bullets · CTA — 5.3:1 with white text */
+  --accent-deep: #155E75; /* underline · hover fill · shadow */
   --accent-ink:  #FFFFFF; /* text on accent */
 
   /* --- signal + status --- */
-  --signal:       #DC2626; /* urgency / alt accent */
-  --status-green: #16A34A; /* open / confirmed */
+  --signal:       #C2410C; /* urgency / alt accent — warm counterpoint to the cyan */
+  --status-green: #15803D; /* open / confirmed */
 
   /* --- semantic aliases (prefer these in new work) --- */
   --text-strong:  var(--ink);
@@ -52,28 +59,25 @@
   --success:    var(--status-green);
 
   /* --- text ON dark slab surfaces -----------------------------------------
-     Light text scaled for legibility over the dark slab surfaces. Kept as
-     tokens so the chrome + dark sections stay tokens-only and reskin with the
-     palette. Ordered lightest → lowest-contrast. */
+     Light text scaled for legibility over the marine slab. Cool-tinted so the
+     chrome reads as one family with the accent. Lightest → lowest-contrast. */
   --on-slab:          #FFFFFF; /* headings / strong text on --slab */
-  --on-slab-body:     #E2E6EB; /* body · checklist text on dark */
-  --on-slab-muted:    #C3CAD3; /* lede · secondary on dark */
-  --on-slab-dim:      #A6AEB9; /* mono labels · sublines on dark */
-  --on-slab-dimmer:   #949CA8; /* fine print on dark */
-  --on-slab-faint:    #79828F; /* section labels · footer headings on dark */
-  --on-slab-faintest: #616B78; /* lowest-contrast (trademark line) */
+  --on-slab-body:     #DFE9ED; /* body · checklist text on dark */
+  --on-slab-muted:    #BDCCD3; /* lede · secondary on dark */
+  --on-slab-dim:      #9FB1BA; /* mono labels · sublines on dark */
+  --on-slab-dimmer:   #8B9EA8; /* fine print on dark */
+  --on-slab-faint:    #6E838E; /* section labels · footer headings on dark */
+  --on-slab-faintest: #566B76; /* lowest-contrast (trademark line) */
 
   /* --- elevation ----------------------------------------------------------
-     Deliberately subtle — just enough lift for a raised card. Tinted with the
-     slab ink so the shadow reads as the same cool family as the palette, never
-     a neutral grey drop. Prefer a border; reach for a shadow only when a
-     surface genuinely needs to lift. */
-  --shadow-sm: 0 1px 2px rgba(31, 41, 51, 0.06);
-  --shadow-md: 0 6px 20px rgba(31, 41, 51, 0.10);
-  --shadow-lg: 0 18px 48px rgba(31, 41, 51, 0.14);
+     Tinted with the marine slab ink so a shadow reads as the same cool family
+     as the palette, never a neutral grey drop. Prefer a border; reach for a
+     shadow only when a surface genuinely needs to lift. */
+  --shadow-sm: 0 1px 2px rgba(14, 42, 54, 0.07);
+  --shadow-md: 0 6px 20px rgba(14, 42, 54, 0.11);
+  --shadow-lg: 0 18px 48px rgba(14, 42, 54, 0.15);
 
   /* --- focus ring ---------------------------------------------------------
-     One tokenized focus treatment so every focusable control matches. Consumers
-     pair it with `border-color: var(--accent)`. */
+     One tokenized focus treatment so every focusable control matches. */
   --focus-ring: 0 0 0 3px color-mix(in srgb, var(--accent) 30%, transparent);
 }
