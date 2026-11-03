@@ -1,17 +1,17 @@
 /**
- * Content tree — CrystalClear Water Solutions (Indianapolis water treatment).
+ * Content tree: CrystalClear Water Solutions (Indianapolis water treatment).
  *
  * A site is modeled as DATA (rows) fed to one template, not a folder of
  * hand-authored pages. Each row is one page, rendered by src/pages/[slug].astro
  * at a FLAT root URL (`/<slug>/`) with schema, canonical, and sitemap emitted.
  *
  * EVERY factual claim here traces to a primary source (the utility, USGS, EPA,
- * NSF, or the Indiana Code) — see AUTHORITY below. Competitor pages in this
+ * NSF, or the Indiana Code). See AUTHORITY below. Competitor pages in this
  * vertical routinely print hardness figures that contradict the utility's own
  * data; none were used. Where the client has not proven a claim (certifications,
  * dealer status, warranties, free testing), the copy is GATED via
  * `{ requires: '<gate>' }` against site.config → compliance.claimGates, every one
- * of which defaults false — so the claim structurally cannot render.
+ * of which defaults false, so the claim structurally cannot render.
  *
  * NO PHONE NUMBER IS REFERENCED IN AUTHORED COPY. site.config → business.phone
  * is intentionally empty (no number confirmed), so every CTA written here routes
@@ -26,48 +26,48 @@ import { QUOTE_FORM } from '../../presets/water-treatment/lead-forms.js';
 const CITY = 'Indianapolis';
 
 /* ── Authoritative external sources (Core30 rule 5/6: ≥1 per content page) ──
-   Primary sources only — the utility, federal agencies, the standards bodies,
+   Primary sources only: the utility, federal agencies, the standards bodies,
    and the Indiana Code. No competitor or vendor pages. */
 const AUTHORITY = {
   usgsHardness: {
     href: 'https://www.usgs.gov/water-science-school/science/hardness-water',
-    label: 'Hardness of Water — USGS Water Science School',
+    label: 'Hardness of Water, USGS Water Science School',
   },
   citizensReport: {
     href: 'https://info.citizensenergygroup.com/water/quality/reports',
-    label: 'Indianapolis Area Drinking Water Report — Citizens Energy Group',
+    label: 'Indianapolis Area Drinking Water Report, Citizens Energy Group',
   },
   citizensData: {
     href: 'https://info.citizensenergygroup.com/water/quality/indianapolis-and-morgan-county',
-    label: 'Indianapolis & Morgan County water quality data — Citizens Energy Group',
+    label: 'Indianapolis & Morgan County water quality data, Citizens Energy Group',
   },
   citizensTesting: {
     href: 'https://info.citizensenergygroup.com/water/treatment/testing',
-    label: 'Comprehensive Testing — Citizens Energy Group',
+    label: 'Comprehensive Testing, Citizens Energy Group',
   },
   nsfStandards: {
     href: 'https://www.nsf.org/consumer-resources/articles/standards-water-treatment-systems',
-    label: 'Standards for Water Treatment Systems — NSF',
+    label: 'Standards for Water Treatment Systems, NSF',
   },
   nsf44: {
     href: 'https://www.nsf.org/knowledge-library/nsf-ansi-44-technical-requirements',
-    label: 'NSF/ANSI 44 Technical Requirements — NSF',
+    label: 'NSF/ANSI 44 Technical Requirements, NSF',
   },
   epaSecondary: {
     href: 'https://www.epa.gov/sdwa/secondary-drinking-water-standards-guidance-nuisance-chemicals',
-    label: 'Secondary Drinking Water Standards — US EPA',
+    label: 'Secondary Drinking Water Standards, US EPA',
   },
   cdcTreatment: {
     href: 'https://www.cdc.gov/drinking-water/about/about-home-water-treatment-systems.html',
-    label: 'About Home Water Treatment Systems — CDC',
+    label: 'About Home Water Treatment Systems, CDC',
   },
   cdcFilters: {
     href: 'https://www.cdc.gov/drinking-water/prevention/about-choosing-home-water-filters.html',
-    label: 'Choosing Home Water Filters — CDC',
+    label: 'Choosing Home Water Filters, CDC',
   },
   mgsConversion: {
     href: 'https://www.mgs.md.gov/groundwater/hardness.html',
-    label: 'Water hardness and grains per gallon — Maryland Geological Survey',
+    label: 'Water hardness and grains per gallon, Maryland Geological Survey',
   },
 };
 
@@ -75,7 +75,7 @@ const AUTHORITY = {
    CLIENT-CURATED VERIFIED DATA, never an Engine or preset default. A Wikidata
    Q-ID appears here ONLY where it was confirmed on the item page; entities whose
    Q-ID is still unverified carry their Wikipedia URL alone rather than a guessed
-   one. A wrong sameAs actively points Google at the wrong thing — the same
+   one. A wrong sameAs actively points Google at the wrong thing, the same
    never-fabricate rule that governs geo and rating. */
 const ENTITY = {
   hardWater: {
@@ -98,7 +98,7 @@ const ENTITY = {
     name: 'Total dissolved solids',
     sameAs: ['https://en.wikipedia.org/wiki/Total_dissolved_solids', 'https://www.wikidata.org/wiki/Q2466917'],
   },
-  // Q-ID not yet verified — Wikipedia only, deliberately.
+  // Q-ID not yet verified. Wikipedia only, deliberately.
   ionExchange: { name: 'Ion exchange', sameAs: ['https://en.wikipedia.org/wiki/Ion_exchange'] },
   reverseOsmosis: { name: 'Reverse osmosis', sameAs: ['https://en.wikipedia.org/wiki/Reverse_osmosis'] },
   waterFilter: { name: 'Water filter', sameAs: ['https://en.wikipedia.org/wiki/Water_filter'] },
@@ -129,7 +129,7 @@ const HUB = {
       strong:
         'We install, repair, and service water softeners, whole-house filters, and reverse osmosis systems for homes across {{business.city}} and {{geoScope.nearbyProse}}.',
       rest:
-        'Indianapolis tap water averages 19 grains per gallon — "very hard" by the USGS scale. Tell us what you are seeing at the tap and we will size the fix to your actual water, not a guess.',
+        'Indianapolis tap water averages 19 grains per gallon, which is "very hard" by the USGS scale. Tell us what you are seeing at the tap and we will size the fix to your actual water, not a guess.',
     },
     cta: { label: 'Get a free quote', href: '#lead-form' },
     card: {
@@ -147,9 +147,9 @@ const HUB = {
       label: 'Overview',
       h2: 'Why Indianapolis homes need water treatment',
       paras: [
-        'Citizens Energy Group, which supplies about 900,000 people across Central Indiana, reported a 2025 system average of 317 parts per million of hardness — 19 grains per gallon — across Indianapolis and Morgan County. The system ranges from 148 to 460 ppm (8.7 to 27 gpg) depending on which plant serves your address.',
+        'Citizens Energy Group, which supplies about 900,000 people across Central Indiana, reported a 2025 system average of 317 parts per million of hardness (19 grains per gallon) across Indianapolis and Morgan County. The system ranges from 148 to 460 ppm (8.7 to 27 gpg) depending on which plant serves your address.',
         'The USGS classifies anything above 180 mg/L as "very hard," so the Indianapolis average sits well inside that band. That is what causes the spotting on glassware, the film on shower doors, the stiff laundry, and the scale that builds inside a water heater.',
-        'Hardness is not one number across the metro, which is why we measure before we quote. Carmel Utilities, for instance, softens its water at the plant to roughly 8 grains before it reaches the house — still enough to want a softener for zero-grain water, but a different starting point than an address on the Citizens system.',
+        'Hardness is not one number across the metro, which is why we measure before we quote. Carmel Utilities, for instance, softens its water at the plant to roughly 8 grains before it reaches the house, still enough to want a softener for zero-grain water, but a different starting point than an address on the Citizens system.',
       ],
     },
     {
@@ -160,7 +160,7 @@ const HUB = {
       value: '19',
       unit: 'grains per gallon',
       qualifier:
-        'Citizens Energy Group 2025 system average for Indianapolis and Morgan County (317 ppm). The system ranges 8.7–27 gpg and varies by address — Citizens publishes a lookup and takes address-specific questions at (317) 924-3311.',
+        'Citizens Energy Group 2025 system average for Indianapolis and Morgan County (317 ppm). The system ranges 8.7–27 gpg and varies by address. Citizens publishes a lookup and takes address-specific questions at (317) 924-3311.',
     },
     {
       type: 'links',
@@ -200,7 +200,7 @@ const HUB = {
       h2: 'How we work',
       items: [
         'We test your water first and size equipment to the result.',
-        'We explain what a softener will and will not fix — it handles hardness, not chlorine taste.',
+        'We explain what a softener will and will not fix: it handles hardness, not chlorine taste.',
         'Straight quotes with the equipment and the install broken out.',
         { requires: 'wqaGoldSealEquipmentConfirmed', value: 'We install WQA Gold Seal certified equipment.' },
         { requires: 'nsfListedEquipmentConfirmed', value: 'Every softener we install is certified to NSF/ANSI 44.' },
@@ -224,11 +224,11 @@ const HUB = {
       items: [
         {
           q: 'How hard is the water in Indianapolis?',
-          a: 'Citizens Energy Group reported a 2025 average of 317 ppm — 19 grains per gallon — for Indianapolis and Morgan County, with a system range of 8.7 to 27 gpg. The USGS calls anything over 180 mg/L "very hard," so Indianapolis is comfortably in that category. Your exact number depends on which treatment plant serves your address.',
+          a: 'Citizens Energy Group reported a 2025 average of 317 ppm (19 grains per gallon) for Indianapolis and Morgan County, with a system range of 8.7 to 27 gpg. The USGS calls anything over 180 mg/L "very hard," so Indianapolis is comfortably in that category. Your exact number depends on which treatment plant serves your address.',
         },
         {
           q: 'Will a water softener fix the chlorine taste in my water?',
-          a: 'No. A softener removes calcium and magnesium — it does not address taste or odor from disinfection. Citizens adds chlorine and a small amount of ammonia so the chlorine persists through the distribution system. If taste is your complaint, carbon filtration or a reverse osmosis system at the sink is the right tool.',
+          a: 'No. A softener removes calcium and magnesium. It does not address taste or odor from disinfection. Citizens adds chlorine and a small amount of ammonia so the chlorine persists through the distribution system. If taste is your complaint, carbon filtration or a reverse osmosis system at the sink is the right tool.',
         },
         {
           q: 'Do you need a plumbing license to install a water softener in Indiana?',
@@ -236,7 +236,7 @@ const HUB = {
         },
         {
           q: 'Which areas do you serve?',
-          a: 'Indianapolis and the surrounding communities — {{geoScope.nearbyProse}}. If you are just outside that list, ask: we will tell you honestly whether we can get to you.',
+          a: 'Indianapolis and the surrounding communities: {{geoScope.nearbyProse}}. If you are just outside that list, ask: we will tell you honestly whether we can get to you.',
         },
       ],
     },
@@ -294,9 +294,9 @@ const SERVICES = [
         label: 'Overview',
         h2: 'Sizing comes before equipment',
         paras: [
-          'A softener is sized by two numbers: how hard your water is, and how much of it your household uses. Get either wrong and the unit either regenerates constantly — wasting salt and water — or lets hard water slip through between cycles.',
+          'A softener is sized by two numbers: how hard your water is, and how much of it your household uses. Get either wrong and the unit either regenerates constantly (wasting salt and water) or lets hard water slip through between cycles.',
           'Because Indianapolis hardness varies by plant, we measure rather than assume. Citizens publishes a 2025 system average of 19 grains per gallon with a range of 8.7 to 27, and tells customers to call for the figure specific to their address. We take our own reading at the tap and size from that.',
-          'Salt-based ion exchange is what actually removes calcium and magnesium. Salt-free "conditioners" use template-assisted crystallization to change how the minerals behave without removing them — they can reduce scale, but they do not lower your grains-per-gallon reading, and we will tell you that before you buy.',
+          'Salt-based ion exchange is what actually removes calcium and magnesium. Salt-free "conditioners" use template-assisted crystallization to change how the minerals behave without removing them. They can reduce scale, but they do not lower your grains-per-gallon reading, and we will tell you that before you buy.',
         ],
       },
       {
@@ -330,7 +330,7 @@ const SERVICES = [
         label: 'Reference',
         h2: 'The softener standard',
         blurb:
-          'NSF/ANSI 44 is the residential cation-exchange softener standard — it covers hardness reduction, material safety, structural integrity, and brine accuracy.',
+          'NSF/ANSI 44 is the residential cation-exchange softener standard. It covers hardness reduction, material safety, structural integrity, and brine accuracy.',
         authority: AUTHORITY.nsf44,
       },
       {
@@ -339,7 +339,7 @@ const SERVICES = [
         items: [
           {
             q: 'What size softener do I need in Indianapolis?',
-            a: 'It depends on your measured hardness and your household’s daily water use. With the Citizens system averaging 19 grains per gallon, a typical household lands in a common capacity range — but an address on the high end of the system (up to 27 gpg) needs meaningfully more capacity than one at the low end (8.7 gpg). That is why we measure first.',
+            a: 'It depends on your measured hardness and your household’s daily water use. With the Citizens system averaging 19 grains per gallon, a typical household lands in a common capacity range, but an address on the high end of the system (up to 27 gpg) needs meaningfully more capacity than one at the low end (8.7 gpg). That is why we measure first.',
           },
           {
             q: 'Where does the softener get installed?',
@@ -347,7 +347,7 @@ const SERVICES = [
           },
           {
             q: 'Do I need a plumber or a permit?',
-            a: 'Indiana Code 25-28.5-1-2 excludes the sale and installation of water softening equipment from the definition of plumbing, so a state plumbing license is not what authorizes this work. We make no licensing claims. Local permit rules are set by your municipality — if your jurisdiction requires one, we will tell you rather than guess.',
+            a: 'Indiana Code 25-28.5-1-2 excludes the sale and installation of water softening equipment from the definition of plumbing, so a state plumbing license is not what authorizes this work. We make no licensing claims. Local permit rules are set by your municipality. If your jurisdiction requires one, we will tell you rather than guess.',
           },
           {
             q: 'Will a softener remove iron?',
@@ -368,14 +368,14 @@ const SERVICES = [
     serviceType: 'Water softener repair',
     trinity: trinityTitle({ service: 'Water Softener Repair', city: CITY }),
     description:
-      'Water softener repair and maintenance in Indianapolis — units that stopped regenerating, salt bridging, or hard water coming back.',
+      'Water softener repair and maintenance in Indianapolis: units that stopped regenerating, salt bridging, or hard water coming back.',
     about: ENTITY.waterSoftening,
     mentions: [ENTITY.hardWater, ENTITY.limescale],
     hero: {
       h1: { text: 'Water Softener Repair', accent: CITY },
       lede: {
         strong:
-          'We repair and service water softeners across {{business.city}} — units that stopped regenerating, bridged salt, or started letting hard water through.',
+          'We repair and service water softeners across {{business.city}}: units that stopped regenerating, bridged salt, or started letting hard water through.',
         rest:
           'Most "dead" softeners are a stuck valve, a bridged brine tank, or a hardness setting that was never matched to the local water. We diagnose before we quote parts.',
       },
@@ -395,7 +395,7 @@ const SERVICES = [
         h2: 'What usually goes wrong',
         paras: [
           'Hard water coming back is the symptom; the cause is usually one of a handful of things. Salt can bridge into a solid crust that keeps the tank from making brine. The control valve can fail to advance through its cycle. Resin can foul over years. Or the hardness setting was simply never programmed to the local number.',
-          'That last one is the most common and the cheapest to fix. If a unit was set to a generic default rather than the 19-grain Indianapolis average — or to the average rather than your address’s actual reading — it will under-treat or over-regenerate from day one.',
+          'That last one is the most common and the cheapest to fix. If a unit was set to a generic default rather than the 19-grain Indianapolis average (or to the average rather than your address’s actual reading) it will under-treat or over-regenerate from day one.',
           'We check the setting and the brine tank before we talk about parts, because a service call that ends in a reprogram should not end in a replacement quote.',
         ],
       },
@@ -407,7 +407,7 @@ const SERVICES = [
           { title: 'Test the water', body: 'We confirm what is actually coming out of the tap now.' },
           { title: 'Check the simple causes', body: 'Salt bridge, bypass left open, hardness setting, power.' },
           { title: 'Test the cycle', body: 'We run a manual regeneration and watch it move through each stage.' },
-          { title: 'Diagnose the part', body: 'Valve, injector, resin, or timer — identified before anything is ordered.' },
+          { title: 'Diagnose the part', body: 'Valve, injector, resin, or timer, identified before anything is ordered.' },
           { title: 'Quote the fix', body: 'Repair or replace, with the reasoning for whichever we recommend.' },
         ],
       },
@@ -429,7 +429,7 @@ const SERVICES = [
         label: 'Reference',
         h2: 'What a softener is built to do',
         blurb:
-          'NSF/ANSI 44 covers brine accuracy and capacity — the two things a failing softener usually stops delivering.',
+          'NSF/ANSI 44 covers brine accuracy and capacity, the two things a failing softener usually stops delivering.',
         authority: AUTHORITY.nsf44,
       },
       {
@@ -438,7 +438,7 @@ const SERVICES = [
         items: [
           {
             q: 'Why is my water hard again when the salt tank is full?',
-            a: 'A full-looking tank can be bridged — a hard crust of salt spanning the tank with empty space underneath, so no brine is made. Push a broom handle through the crust and see if it breaks. If that is not it, the next suspects are the control valve failing to cycle and the hardness setting being wrong.',
+            a: 'A full-looking tank can be bridged, a hard crust of salt spanning the tank with empty space underneath, so no brine is made. Push a broom handle through the crust and see if it breaks. If that is not it, the next suspects are the control valve failing to cycle and the hardness setting being wrong.',
           },
           {
             q: 'What should my hardness setting be in Indianapolis?',
@@ -446,7 +446,7 @@ const SERVICES = [
           },
           {
             q: 'Is it worth repairing an old softener?',
-            a: 'Often, yes — valves, injectors, and timers are serviceable parts. Resin is the component that genuinely wears out over many years. We will tell you when a repair is throwing money at a unit near the end of its life, and when it is a straightforward fix.',
+            a: 'Often, yes. Valves, injectors, and timers are serviceable parts. Resin is the component that genuinely wears out over many years. We will tell you when a repair is throwing money at a unit near the end of its life, and when it is a straightforward fix.',
           },
         ],
       },
@@ -463,14 +463,14 @@ const SERVICES = [
     serviceType: 'Whole-house water filtration',
     trinity: trinityTitle({ service: 'Whole House Water Filtration', city: CITY }),
     description:
-      'Whole-house water filtration in Indianapolis for chlorine taste, odor, and sediment at every tap — separate from softening.',
+      'Whole-house water filtration in Indianapolis for chlorine taste, odor, and sediment at every tap, separate from softening.',
     about: ENTITY.waterFilter,
     mentions: [ENTITY.waterQuality, ENTITY.hardWater],
     hero: {
       h1: { text: 'Whole House Water Filtration', accent: CITY },
       lede: {
         strong:
-          'We install whole-house filtration in {{business.city}} for the problems a softener does not touch — chlorine taste and odor, sediment, and general water quality at every tap.',
+          'We install whole-house filtration in {{business.city}} for the problems a softener does not touch: chlorine taste and odor, sediment, and general water quality at every tap.',
         rest:
           'Citizens adds chlorine and a small amount of ammonia so the disinfectant persists through the distribution system. That is good for safety and hard on taste. Filtration is the tool for that; softening is not.',
       },
@@ -490,7 +490,7 @@ const SERVICES = [
         h2: 'What a whole-house filter actually does',
         paras: [
           'A whole-house filter sits on the main line and treats everything entering the house. Depending on the media, it targets chlorine and its taste and odor, sediment, and other aesthetic water-quality complaints. It is a different job from softening, and the two are frequently installed together.',
-          'Indianapolis water is disinfected with chlorine, and Citizens adds a small amount of ammonia to minimize disinfection byproducts and let the chlorine persist longer in the pipes — an approach commonly described as chloramination. This matters for media selection: chloramine is more stubborn than free chlorine and needs media rated for it, which is a specification question, not a marketing one.',
+          'Indianapolis water is disinfected with chlorine, and Citizens adds a small amount of ammonia to minimize disinfection byproducts and let the chlorine persist longer in the pipes, an approach commonly described as chloramination. This matters for media selection: chloramine is more stubborn than free chlorine and needs media rated for it, which is a specification question, not a marketing one.',
           'One honest caveat, straight from the CDC: a whole-home filter that removes chlorine or other disinfectants can allow more germs to grow in your household plumbing. That is a real trade-off worth understanding before you install one, and we would rather raise it than let you discover it later.',
         ],
       },
@@ -511,7 +511,7 @@ const SERVICES = [
         label: 'Process',
         h2: 'How we scope a filter',
         items: [
-          { title: 'Define the complaint', body: 'Taste, odor, sediment, or a specific contaminant — each points to different media.' },
+          { title: 'Define the complaint', body: 'Taste, odor, sediment, or a specific contaminant. Each points to different media.' },
           { title: 'Test', body: 'We measure what is there rather than installing against a guess.' },
           { title: 'Match the media', body: 'Media is selected for the actual target, including whether chloramine is in play.' },
           { title: 'Install and set service intervals', body: 'Media has a service life; we tell you what it is up front.' },
@@ -531,11 +531,11 @@ const SERVICES = [
         items: [
           {
             q: 'Do I need a filter if I already have a softener?',
-            a: 'They solve different problems. A softener removes the calcium and magnesium that cause scale and spotting. It does nothing for chlorine taste or odor. If your complaint is how the water tastes or smells, a filter — or a reverse osmosis unit at the kitchen sink — is what addresses it.',
+            a: 'They solve different problems. A softener removes the calcium and magnesium that cause scale and spotting. It does nothing for chlorine taste or odor. If your complaint is how the water tastes or smells, a filter (or a reverse osmosis unit at the kitchen sink) is what addresses it.',
           },
           {
             q: 'Is there chloramine in Indianapolis water?',
-            a: 'Citizens states that it adds chlorine plus a small amount of ammonia to minimize disinfection byproducts and help the chlorine persist. That combination is what the industry generally calls chloramination. Citizens’ own report does not use the word "chloramine," so we point you to their report rather than putting words in their mouth — and we select media accordingly.',
+            a: 'Citizens states that it adds chlorine plus a small amount of ammonia to minimize disinfection byproducts and help the chlorine persist. That combination is what the industry generally calls chloramination. Citizens’ own report does not use the word "chloramine," so we point you to their report rather than putting words in their mouth, and we select media accordingly.',
           },
           {
             q: 'How often does the media need replacing?',
@@ -547,7 +547,7 @@ const SERVICES = [
     ],
     finalCta: {
       heading: 'Not sure whether you need a filter or a softener?',
-      body: 'Describe what you are tasting, smelling, or seeing. We will tell you which one actually addresses it — or if you need both.',
+      body: 'Describe what you are tasting, smelling, or seeing. We will tell you which one actually addresses it, or if you need both.',
     },
   }),
 
@@ -556,14 +556,14 @@ const SERVICES = [
     serviceType: 'Reverse osmosis system installation',
     trinity: trinityTitle({ service: 'Reverse Osmosis System', city: CITY }),
     description:
-      'Reverse osmosis drinking water systems installed in Indianapolis — point-of-use filtration at the kitchen sink.',
+      'Reverse osmosis drinking water systems installed in Indianapolis: point-of-use filtration at the kitchen sink.',
     about: ENTITY.reverseOsmosis,
     mentions: [ENTITY.tds, ENTITY.waterQuality],
     hero: {
       h1: { text: 'Reverse Osmosis System', accent: CITY },
       lede: {
         strong:
-          'We install point-of-use reverse osmosis systems in {{business.city}} homes — filtered drinking water at the kitchen sink.',
+          'We install point-of-use reverse osmosis systems in {{business.city}} homes: filtered drinking water at the kitchen sink.',
         rest:
           'RO forces water through a semi-permeable membrane to reduce dissolved solids. It is the right tool when the complaint is drinking-water taste and quality rather than scale.',
       },
@@ -583,7 +583,7 @@ const SERVICES = [
         h2: 'What RO does and does not do',
         paras: [
           'A reverse osmosis system pushes water through a semi-permeable membrane that rejects a large share of dissolved solids. The CDC notes RO systems remove some chemicals including lead, copper, chromium, chloride, and sodium. The result is a noticeable change in drinking-water taste for most households.',
-          'RO is point-of-use by design — it treats the water at one fixture, usually the kitchen sink, not the whole house. It is slower than a tap and stores treated water in a small tank, which is why it suits drinking and cooking rather than showers and laundry.',
+          'RO is point-of-use by design. It treats the water at one fixture, usually the kitchen sink, not the whole house. It is slower than a tap and stores treated water in a small tank, which is why it suits drinking and cooking rather than showers and laundry.',
           'It is also not a softener. RO will not protect your water heater from scale, because it only treats what passes through that one fixture. Homes with very hard water commonly run a softener for the house and an RO unit at the sink.',
         ],
       },
@@ -616,7 +616,7 @@ const SERVICES = [
           },
           {
             q: 'What is TDS and why does it matter?',
-            a: 'Total dissolved solids is the combined measure of dissolved inorganic and organic substances in water. The EPA sets a secondary standard for TDS at 500 mg/L — a non-enforceable guideline aimed at aesthetic effects like taste, rather than a health limit. RO is the common point-of-use method for lowering it.',
+            a: 'Total dissolved solids is the combined measure of dissolved inorganic and organic substances in water. The EPA sets a secondary standard for TDS at 500 mg/L, a non-enforceable guideline aimed at aesthetic effects like taste, rather than a health limit. RO is the common point-of-use method for lowering it.',
           },
           {
             q: 'Where does the system go?',
@@ -637,7 +637,7 @@ const SERVICES = [
     serviceType: 'Water quality testing',
     trinity: trinityTitle({ service: 'Water Testing', city: CITY }),
     description:
-      'In-home water testing in Indianapolis — hardness and TDS measured at your tap before you buy any equipment.',
+      'In-home water testing in Indianapolis: hardness and TDS measured at your tap before you buy any equipment.',
     about: ENTITY.waterQuality,
     mentions: [ENTITY.waterHardness, ENTITY.tds, ENTITY.hardWater],
     hero: {
@@ -663,7 +663,7 @@ const SERVICES = [
         label: 'Overview',
         h2: 'Why your number is not the city average',
         paras: [
-          'Indianapolis is served by ten treatment plants drawing from both surface water — the West Fork of the White River, Fall Creek, and four reservoirs — and groundwater wells. Which plant feeds your address changes what comes out of your tap.',
+          'Indianapolis is served by ten treatment plants drawing from both surface water (the West Fork of the White River, Fall Creek, and four reservoirs) and groundwater wells. Which plant feeds your address changes what comes out of your tap.',
           'That is why Citizens publishes a range alongside the average and tells customers to ask for the figure specific to their address. A 2025 system average of 19 grains per gallon is a useful benchmark and a poor sizing input.',
           'Hardness is reported two ways and they are easy to confuse. Grains per gallon is the softener-industry unit; milligrams per litre (ppm) is what the utility reports. One grain per gallon equals 17.118 mg/L, which is how 317 ppm becomes roughly 19 gpg.',
         ],
@@ -683,7 +683,7 @@ const SERVICES = [
         label: 'Included',
         h2: 'What a test tells you',
         items: [
-          'Your hardness in grains per gallon — the number a softener is actually programmed to.',
+          'Your hardness in grains per gallon, the number a softener is actually programmed to.',
           'Total dissolved solids, which is what RO addresses.',
           'Whether your symptoms point to hardness, to disinfection byproducts, or to something else entirely.',
           { requires: 'freeWaterTestConfirmed', value: 'In-home water testing at no charge.' },
@@ -735,7 +735,7 @@ export const CATEGORIES = [HUB];
 export const pageBySlug = (slug) => PAGES.find((p) => p.slug === slug) || null;
 
 /* ══════════════════════════════════════════════════════════════════════════════
-   SUPPORTING SPOKES — the EXPERIMENTAL topic-cluster archetype.
+   SUPPORTING SPOKES: the EXPERIMENTAL topic-cluster archetype.
    ══════════════════════════════════════════════════════════════════════════════
    Each spoke targets an INFORMATIONAL long-tail, answers it up top, and hands off
    to exactly ONE money page without competing for that page's Trinity keyphrase
@@ -767,14 +767,14 @@ const SUPPORTING_ROWS = [
     description:
       'Indianapolis water averages 19 grains per gallon (317 ppm) per Citizens Energy Group 2025 data, ranging from 8.7 to 27 gpg across the system.',
     lede:
-      'Indianapolis tap water averages 19 grains per gallon — 317 ppm — according to Citizens Energy Group’s 2025 data, and ranges from 8.7 to 27 gpg depending on which plant serves your address. That puts it firmly in the USGS "very hard" category.',
+      'Indianapolis tap water averages 19 grains per gallon (317 ppm) according to Citizens Energy Group’s 2025 data, and ranges from 8.7 to 27 gpg depending on which plant serves your address. That puts it firmly in the USGS "very hard" category.',
     blocks: [
       {
         type: 'prose',
         h: 'The current number, and where it comes from',
         paras: [
-          'Citizens Energy Group supplies water to roughly 900,000 people in Central Indiana. Its 2025 water-quality data reports hardness for Indianapolis and Morgan County averaging 317 ppm, which the utility itself converts to 19 grains per gallon. The reported range across the system runs from 148 to 460 ppm — 8.7 to 27 gpg.',
-          'Older Citizens pages still quote a range of roughly 200 to 350 mg/L, or 12 to 20 grains. That figure is out of date and should not be used as the current number. Plenty of competitor pages in this market also print hardness figures that match neither the current nor the historical utility data — we cite the utility and nothing else.',
+          'Citizens Energy Group supplies water to roughly 900,000 people in Central Indiana. Its 2025 water-quality data reports hardness for Indianapolis and Morgan County averaging 317 ppm, which the utility itself converts to 19 grains per gallon. The reported range across the system runs from 148 to 460 ppm, or 8.7 to 27 gpg.',
+          'Older Citizens pages still quote a range of roughly 200 to 350 mg/L, or 12 to 20 grains. That figure is out of date and should not be used as the current number. Plenty of competitor pages in this market also print hardness figures that match neither the current nor the historical utility data. We cite the utility and nothing else.',
         ],
       },
       {
@@ -782,10 +782,10 @@ const SUPPORTING_ROWS = [
         h: 'Hardness across the metro',
         cols: ['Utility / area', 'Reported hardness', 'Source year'],
         rows: [
-          ['Citizens — Indianapolis & Morgan County', '317 ppm avg / 19 gpg (range 8.7–27 gpg)', '2025'],
-          ['Citizens — Westfield', '360 ppm avg / 22 gpg (range 16–29 gpg)', '2025'],
-          ['Indiana American — Johnson County (Greenwood, Franklin)', 'Typical 260–442 mg/L / 15–26 gpg', 'Typical-quality sheet'],
-          ['Indiana American — Noblesville Operations', '385–467 ppm by treatment facility', '2025'],
+          ['Citizens, Indianapolis & Morgan County', '317 ppm avg / 19 gpg (range 8.7–27 gpg)', '2025'],
+          ['Citizens, Westfield', '360 ppm avg / 22 gpg (range 16–29 gpg)', '2025'],
+          ['Indiana American, Johnson County (Greenwood, Franklin)', 'Typical 260–442 mg/L / 15–26 gpg', 'Typical-quality sheet'],
+          ['Indiana American, Noblesville Operations', '385–467 ppm by treatment facility', '2025'],
           ['Carmel Utilities', 'Softened at the plant to about 8 grains', '2025 report'],
         ],
         caption:
@@ -809,7 +809,7 @@ const SUPPORTING_ROWS = [
           },
           {
             q: 'How do I find the hardness at my specific address?',
-            a: 'Citizens publishes system data and will give you an address-specific figure — the utility directs customers to call (317) 924-3311. Because Indianapolis is fed by ten plants drawing on both surface water and wells, your address can sit anywhere in the 8.7 to 27 gpg band.',
+            a: 'Citizens publishes system data and will give you an address-specific figure. The utility directs customers to call (317) 924-3311. Because Indianapolis is fed by ten plants drawing on both surface water and wells, your address can sit anywhere in the 8.7 to 27 gpg band.',
           },
           {
             q: 'Does hardness change through the year?',
@@ -862,7 +862,7 @@ const SUPPORTING_ROWS = [
           ['Indiana sales tax', 'The Department of Revenue requires tax on softener sales, rentals, and leases', 'Applies to equipment; separately billed labor is treated differently'],
         ],
         caption:
-          'Drivers, not prices. Any specific figure depends on your measured water and your home — we quote after testing, not before.',
+          'Drivers, not prices. Any specific figure depends on your measured water and your home. We quote after testing, not before.',
       },
       {
         type: 'prose',
@@ -910,16 +910,16 @@ const SUPPORTING_ROWS = [
     supports: '/water-softener-installation-indianapolis/',
     supportsLabel: 'Water Softener Installation',
     description:
-      'Whether a water softener is worth it in Indianapolis, where tap water averages 19 grains per gallon — the honest case for and against.',
+      'Whether a water softener is worth it in Indianapolis, where tap water averages 19 grains per gallon, the honest case for and against.',
     lede:
-      'In Indianapolis the case is stronger than in most of the country, because the water genuinely is very hard — a 19-grain average against a USGS "very hard" threshold of about 10.5 grains. Whether it is worth it for you comes down to what you are currently spending on the symptoms.',
+      'In Indianapolis the case is stronger than in most of the country, because the water genuinely is very hard, a 19-grain average against a USGS "very hard" threshold of about 10.5 grains. Whether it is worth it for you comes down to what you are currently spending on the symptoms.',
     blocks: [
       {
         type: 'prose',
         h: 'The argument in favor',
         paras: [
           'Scale is the mechanism behind most of the costs people attribute to hard water. Citizens itself makes the energy point plainly in its customer material: scale is a poor conductor of heat, and energy is wasted heating water through it. A water heater coated in scale works harder for the same hot shower.',
-          'The utility also notes that hardness minerals react with soaps to form insoluble soap curd — which is the film on the shower door, the dullness in laundry, and the reason you use more detergent than the box recommends.',
+          'The utility also notes that hardness minerals react with soaps to form insoluble soap curd, which is the film on the shower door, the dullness in laundry, and the reason you use more detergent than the box recommends.',
           'At 19 grains per gallon, those effects are not marginal. This is water near the top of the USGS classification, not a borderline case where the benefit is debatable.',
         ],
       },
@@ -928,7 +928,7 @@ const SUPPORTING_ROWS = [
         h: 'The honest argument against',
         paras: [
           'A softener is a real purchase with real running costs: salt, water used during regeneration, and eventual service. If you are in a Carmel Utilities address where the city already softens to roughly 8 grains, the marginal benefit is smaller than for an address on the Citizens system at 19 or more.',
-          'A softener also will not fix complaints it was never designed to address. If what actually bothers you is the chlorine taste, softening changes nothing — you want filtration or reverse osmosis. Buying the wrong category of equipment is the most common way people conclude water treatment "was not worth it."',
+          'A softener also will not fix complaints it was never designed to address. If what actually bothers you is the chlorine taste, softening changes nothing. You want filtration or reverse osmosis. Buying the wrong category of equipment is the most common way people conclude water treatment "was not worth it."',
           'You will find pages quoting specific percentage savings on energy bills and appliance lifespans. We do not, because we have not found a source for those figures that we would be willing to stand behind.',
         ],
       },
@@ -937,11 +937,11 @@ const SUPPORTING_ROWS = [
         h: 'Where the value actually sits',
         cols: ['Claim', 'What the evidence supports'],
         rows: [
-          ['Less scale in the water heater', 'Supported in principle — the utility states scale impedes heat transfer and wastes energy'],
-          ['Less soap and detergent', 'Supported — the utility describes hardness reacting with soaps to form insoluble curd'],
+          ['Less scale in the water heater', 'Supported in principle, the utility states scale impedes heat transfer and wastes energy'],
+          ['Less soap and detergent', 'Supported, the utility describes hardness reacting with soaps to form insoluble curd'],
           ['Fewer spots on glassware and fixtures', 'Directly follows from removing calcium and magnesium'],
           ['A specific percentage off your energy bill', 'Not substantiated by any source we are prepared to cite'],
-          ['Better taste', 'Not what a softener does — that is a filtration or RO question'],
+          ['Better taste', 'Not what a softener does, that is a filtration or RO question'],
         ],
         caption: 'We separate what the utility and standards bodies actually say from what the industry tends to claim.',
       },
@@ -966,7 +966,7 @@ const SUPPORTING_ROWS = [
     ],
     handoff: {
       h: 'Decide with your own numbers',
-      p: 'The sensible first step is knowing your actual hardness and what a properly sized system would cost for your home — then the value question answers itself.',
+      p: 'The sensible first step is knowing your actual hardness and what a properly sized system would cost for your home, then the value question answers itself.',
       cta: 'See softener installation →',
     },
     external: AUTHORITY.citizensTesting,
@@ -985,13 +985,13 @@ const SUPPORTING_ROWS = [
     description:
       'How hard water affects pipes and fixtures in Indianapolis homes, where tap water averages 19 grains per gallon, and what limescale actually does.',
     lede:
-      'Hard water does not corrode pipes the way acidic water does — it narrows them. Dissolved calcium and magnesium precipitate out as limescale, which builds on interior pipe walls and around fixtures, and in Indianapolis’s 19-grain water that accumulation is steady.',
+      'Hard water does not corrode pipes the way acidic water does. It narrows them. Dissolved calcium and magnesium precipitate out as limescale, which builds on interior pipe walls and around fixtures, and in Indianapolis’s 19-grain water that accumulation is steady.',
     blocks: [
       {
         type: 'prose',
         h: 'Scale, not corrosion',
         paras: [
-          'The damage mechanism people worry about with hard water is deposition rather than corrosion. Calcium carbonate comes out of solution — particularly where water is heated or where it sits — and deposits as limescale on interior surfaces. Over time that reduces the effective diameter of a pipe and roughens its walls.',
+          'The damage mechanism people worry about with hard water is deposition rather than corrosion. Calcium carbonate comes out of solution (particularly where water is heated or where it sits) and deposits as limescale on interior surfaces. Over time that reduces the effective diameter of a pipe and roughens its walls.',
           'Fixtures show it first because you can see them: the crust around an aerator, the mineral ring in a toilet, the shower head with half its jets blocked. Those are the visible edge of the same process happening where you cannot see it.',
           'Worth noting on the corrosion side: Citizens feeds orthophosphate specifically to reduce the chance of corrosion in customer plumbing, and sampled homes in 2025 after adding the corrosion inhibitor. Corrosion control is the utility’s job; scale control inside your house is not.',
         ],
@@ -1001,7 +1001,7 @@ const SUPPORTING_ROWS = [
         h: 'Where it matters most',
         paras: [
           'Heat accelerates scale formation, so the water heater and anything downstream of it see the most accumulation. That is why water heaters are the component most often cited in hard-water discussions, and why Citizens notes that scale impedes heat transfer and wastes energy.',
-          'Appliances with small passages and heating elements — dishwashers, washing machines, coffee makers, ice makers — are the next tier. The failure mode is rarely dramatic; it is gradual loss of performance and efficiency.',
+          'Appliances with small passages and heating elements (dishwashers, washing machines, coffee makers, ice makers) are the next tier. The failure mode is rarely dramatic; it is gradual loss of performance and efficiency.',
         ],
       },
       {
@@ -1044,7 +1044,7 @@ const SUPPORTING_ROWS = [
     description:
       'What to program as the hardness setting on a water softener in Indianapolis, where the Citizens system averages 19 grains per gallon.',
     lede:
-      'Program your softener to your measured hardness, not the city average. In Indianapolis that measured number falls somewhere between 8.7 and 27 grains per gallon, against a Citizens system average of 19 — and setting it wrong is the most common reason a working softener stops keeping up.',
+      'Program your softener to your measured hardness, not the city average. In Indianapolis that measured number falls somewhere between 8.7 and 27 grains per gallon, against a Citizens system average of 19, and setting it wrong is the most common reason a working softener stops keeping up.',
     blocks: [
       {
         type: 'faq',
@@ -1060,7 +1060,7 @@ const SUPPORTING_ROWS = [
           },
           {
             q: 'Should I add anything for iron?',
-            a: 'Many softeners ask you to compensate for dissolved iron by adding to the hardness number, following the manufacturer’s formula. Check your manual — the adjustment varies by unit. If you have significant iron, a softener alone is likely the wrong tool.',
+            a: 'Many softeners ask you to compensate for dissolved iron by adding to the hardness number, following the manufacturer’s formula. Check your manual. The adjustment varies by unit. If you have significant iron, a softener alone is likely the wrong tool.',
           },
           {
             q: 'What happens if the setting is too high?',
@@ -1098,7 +1098,7 @@ const SUPPORTING_ROWS = [
     description:
       'Why Indianapolis tap water can taste and smell of chlorine, what Citizens adds to the water, and which treatment actually addresses it.',
     lede:
-      'Because there is chlorine in it, by design. Citizens disinfects with chlorine and adds a small amount of ammonia so the disinfectant persists through the distribution system — and no water softener will change how that tastes.',
+      'Because there is chlorine in it, by design. Citizens disinfects with chlorine and adds a small amount of ammonia so the disinfectant persists through the distribution system, and no water softener will change how that tastes.',
     blocks: [
       {
         type: 'faq',
@@ -1118,7 +1118,7 @@ const SUPPORTING_ROWS = [
           },
           {
             q: 'What does address it?',
-            a: 'Carbon-based filtration, either at the point of use or whole-house, and reverse osmosis at the sink. For drinking and cooking water specifically, an RO system is the common answer — the CDC notes RO reduces a range of dissolved contaminants.',
+            a: 'Carbon-based filtration, either at the point of use or whole-house, and reverse osmosis at the sink. For drinking and cooking water specifically, an RO system is the common answer. The CDC notes RO reduces a range of dissolved contaminants.',
           },
           {
             q: 'Is the chlorine taste a safety problem?',
@@ -1133,7 +1133,7 @@ const SUPPORTING_ROWS = [
     ],
     handoff: {
       h: 'Want it out of your drinking water?',
-      p: 'If the complaint is taste at the kitchen tap, a point-of-use reverse osmosis system is the direct fix — and it works alongside a softener rather than instead of one.',
+      p: 'If the complaint is taste at the kitchen tap, a point-of-use reverse osmosis system is the direct fix, and it works alongside a softener rather than instead of one.',
       cta: 'See reverse osmosis systems →',
     },
     external: AUTHORITY.citizensReport,
@@ -1150,7 +1150,7 @@ const SUPPORTING_ROWS = [
     supports: '/whole-house-water-filtration-indianapolis/',
     supportsLabel: 'Whole-House Water Filtration',
     description:
-      'What Citizens Energy Group adds to Indianapolis water — chlorine, ammonia, orthophosphate, fluoride — and what whole-house filtration can address.',
+      'What Citizens Energy Group adds to Indianapolis water (chlorine, ammonia, orthophosphate, fluoride) and what whole-house filtration can address.',
     lede:
       'Besides chlorine, 3 things are added to Indianapolis water on purpose: a small amount of ammonia so the chlorine persists longer, orthophosphate to limit corrosion in household plumbing, and fluoride. Most of them are not things you would want filtered out.',
     blocks: [
@@ -1168,7 +1168,7 @@ const SUPPORTING_ROWS = [
           },
           {
             q: 'Does Indianapolis water contain iron?',
-            a: 'The groundwater plants aerate and filter to remove dissolved iron and manganese before distribution, and reported iron has stayed below the secondary standard. If you are seeing orange staining on a city connection, that is worth investigating rather than assuming — and on a private well it is a different conversation entirely.',
+            a: 'The groundwater plants aerate and filter to remove dissolved iron and manganese before distribution, and reported iron has stayed below the secondary standard. If you are seeing orange staining on a city connection, that is worth investigating rather than assuming, and on a private well it is a different conversation entirely.',
           },
           {
             q: 'Can a whole-house filter remove all of this?',
@@ -1198,7 +1198,7 @@ const SUPPORTING_ROWS = [
   }),
 ];
 
-/** Published spokes — empty unless the experimental flag is on. */
+/** Published spokes: empty unless the experimental flag is on. */
 export const SUPPORTING = EXPERIMENTAL.supportingContent ? SUPPORTING_ROWS : [];
 
 /** Look up a published spoke by slug. */

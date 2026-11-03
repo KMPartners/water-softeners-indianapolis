@@ -1,0 +1,142 @@
+---
+/**
+ * Mobile call-to-action bar. ENGINE chrome.
+ *
+ * ⚠ UPSTREAM: this component belongs in core30-starter, not in a leaf site.
+ * The starter already shipped the two halves of it and never joined them up:
+ *   · site.config.json → brand.primaryCta, documented in its own comment as
+ *     "the mobile bar's main button", exported as PRIMARY_CTA from site.js, and
+ *     consumed by NOTHING.
+ *   · `menu` and `close` in IconSprite, likewise unused.
+ * A lead-generation site whose traffic is overwhelmingly phone-shaped had no
+ * persistent way to call or convert below the fold. Promote this up; do not
+ * leave it fixed here only.
+ *
+ * ── Why it is always visible rather than revealed on scroll ────────────────
+ * The usual pattern slides the bar in once the hero's CTA has scrolled away,
+ * which needs a scroll listener or an IntersectionObserver. On a site where the
+ * single most valuable action is a phone call, a button that is sometimes there
+ * is worse than one that always is, and the JavaScript is a real cost on the
+ * low-end Android this is aimed at. It is always on, under 760px only.
+ *
+ * ── Why no JavaScript at all ──────────────────────────────────────────────
+ * The one behaviour a fixed bottom bar genuinely needs is to get out of the way
+ * when the on-screen keyboard opens, or it covers the field being typed into.
+ * That is normally done by watching visualViewport. `:has()` does it in CSS: if
+ * any field on the page has focus, the bar translates away. Same outcome, no
+ * script, and it degrades to "the bar stays put" on a browser without :has().
+ */
+import { NAP, PRIMARY_CTA } from '../lib/site.js';
+import Icon from './Icon.astro';
+
+/**
+ * The graceful no-phone path the rest of the chrome still lacks.
+ * NAP.phoneTel is built as `tel:${E164}` unconditionally, so with an unset
+ * business.phone it is the string "tel:", a link that opens the dialler with
+ * nothing in it. Here the number has to actually exist before a call button is
+ * offered, and the bar falls back to the single primary action if it does not.
+ *
+ * UPSTREAM: Header, Footer, FinalCta, EntityPage, SupportingPage, LeadForm and
+ * 404 all emit that same unguarded tel: link.
+ */
+const hasPhone = Boolean(NAP.phoneDisplay && String(NAP.phoneDisplay).trim());
+const cta = PRIMARY_CTA || null;
+const show = hasPhone || Boolean(cta && cta.href && cta.label);
+---
+
+{show && (
+  <nav class="mobile-cta" aria-label="Contact actions">
+    {hasPhone && (
+      <a href={NAP.phoneTel} class="mc-call" data-cta="phone">
+        <Icon name="phone" size={17} />
+        <span class="mc-call-label">Call</span>
+      </a>
+    )}
+    {cta && cta.href && cta.label && (
+      <a href={cta.href} class:list={['mc-go', { solo: !hasPhone }]} data-cta="primary">
+        {cta.label}
+        <Icon name="arrow-right" size={16} />
+      </a>
+    )}
+  </nav>
+)}
+
+<style>
+  /* Hidden outright above the breakpoint: this is not a shrunken desktop
+     element, it is a phone affordance. `display: none` (not opacity) so it is
+     out of the accessibility tree on a desktop too, where the header's own call
+     button and nav are already visible. */
+  .mobile-cta { display: none; }
+
+  @media (max-width: 760px) {
+    .mobile-cta {
+      display: grid;
+      grid-template-columns: auto 1fr;
+      gap: 10px;
+      position: fixed;
+      left: 0; right: 0; bottom: 0;
+      z-index: 60;              /* over content; the header's sticky is 50 */
+      padding: 10px 14px;
+      /* The notch inset is ADDED to the padding rather than replacing it, so on
+         a phone without one the bar still has its own breathing room. */
+      padding-bottom: calc(10px + env(safe-area-inset-bottom, 0px));
+      background: color-mix(in srgb, var(--surface-dark, #0E2A36) 94%, transparent);
+      border-top: 1px solid var(--border-dark, #2A4E5E);
+      backdrop-filter: blur(10px);
+      transform: translateY(0);
+      transition: transform .22s cubic-bezier(.2, .7, .3, 1);
+    }
+
+    /* Both actions are 48px tall: above the 44px minimum target, and sized so a
+       thumb reaching from the bottom of a phone hits either without aiming. */
+    .mc-call, .mc-go {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      gap: 8px;
+      min-height: 48px;
+      padding: 0 18px;
+      border-radius: var(--radius, 10px);
+      font-family: var(--font-display);
+      font-weight: 700;
+      font-size: 15.5px;
+      text-decoration: none;
+      white-space: nowrap;
+    }
+
+    /* The call button is OUTLINED, not filled. Two filled buttons side by side
+       compete and neither reads as the next step; this gives the quote form the
+       only solid fill on the bar while keeping the call one tap away. */
+    .mc-call {
+      color: var(--on-slab, #fff);
+      border: 1px solid var(--accent-on-dark, #7FD3E8);
+      background: color-mix(in srgb, var(--accent-on-dark, #7FD3E8) 12%, transparent);
+    }
+    .mc-call-label { letter-spacing: -.01em; }
+
+    .mc-go {
+      background: var(--accent, #0E7490);
+      color: var(--accent-ink, #fff);
+      box-shadow: inset 0 -3px 0 var(--accent-deep, #155E75);
+    }
+    .mc-go.solo { grid-column: 1 / -1; }
+    .mc-go:active, .mc-call:active { transform: translateY(1px); }
+
+    /* The footer and the last section would otherwise end underneath the bar.
+       The reserved strip matches the bar's own height plus its safe-area inset. */
+    :global(body) { padding-bottom: calc(68px + env(safe-area-inset-bottom, 0px)); }
+
+    /* Keyboard avoidance, without visualViewport. Any focused field on the page
+       means the on-screen keyboard is up and the bar is in the way, so it slides
+       out until focus leaves. 110% clears its own shadow as well as its box. */
+    :global(body:has(input:focus, textarea:focus, select:focus)) .mobile-cta {
+      transform: translateY(110%);
+    }
+  }
+
+  /* The slide is motion for its own sake as far as a vestibular user is
+     concerned: keep the hiding, drop the travel. */
+  @media (prefers-reduced-motion: reduce) {
+    .mobile-cta { transition: none; }
+  }
+</style>

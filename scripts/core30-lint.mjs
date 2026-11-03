@@ -1,6 +1,6 @@
 #!/usr/bin/env node
 /**
- * core30-lint — methodology as enforcement (charter §8).
+ * core30-lint: methodology as enforcement (charter §8).
  *
  * The highest-leverage deliverable in the charter: the Core30 rules stop
  * depending on who is in the chat and become a check that fails the build. Run
@@ -9,7 +9,7 @@
  * DESIGN PRINCIPLE (from the concrete audit): a lint that cries wolf gets
  * disabled, and then the rule is dead. So every ERROR check here is calibrated
  * to pass on valid current output and fire only on a real violation. Anything
- * heuristic is a WARN, never an ERROR — warnings inform, errors fail the build.
+ * heuristic is a WARN, never an ERROR, warnings inform, errors fail the build.
  *
  * This is the FIRST batch: the cheap, exact, zero-false-positive checks. Later
  * batches add the mirror-link graph and headless responsive/regression checks
@@ -38,10 +38,10 @@ const warn = (rule, file, msg) => warnings.push({ rule, file, msg });
 /* Reusable experimental-severity switch (R2 item E2). A lint rule OWNED by an
    experimental feature should not red the build while that feature is unproven, but
    must harden once it is promoted. `sev(stability)` returns `warn` while the
-   feature's stability is 'experimental' and `err` once it is 'stable' — so the same
+   feature's stability is 'experimental' and `err` once it is 'stable', so the same
    rule body serves both phases and the next experimental archetype reuses the
    pattern verbatim. (HARD invariants that protect the already-enforced core stay
-   `err` regardless of stability — they do not go through `sev`.) */
+   `err` regardless of stability. They do not go through `sev`.) */
 const sev = (stability) => (stability === 'stable' ? err : warn);
 
 /* ── helpers ────────────────────────────────────────────────────────────── */
@@ -78,7 +78,7 @@ function findRatingViolations(node, hits = []) {
 }
 
 /* Does an aggregateRating appear ANYWHERE in this JSON-LD value? On a legal page
-   a rating must not appear at all — not even on the publisher business node —
+   a rating must not appear at all. Not even on the publisher business node,
    because a legal page must never carry review stars (task §2.7). */
 function hasAggregateRatingAnywhere(node) {
   if (Array.isArray(node)) return node.some(hasAggregateRatingAnywhere);
@@ -100,7 +100,7 @@ function collectTypes(node, out = new Set()) {
 }
 
 /* ── 1. Source scan: no committed secrets (audit rule C6) ──────────────────
-   Runs against git-tracked source, not dist — the leak that motivated this
+   Runs against git-tracked source, not dist, the leak that motivated this
    check (a live GHL webhook URL committed in three files on the donor) never
    ships to dist, so a dist-only scan would miss it entirely. Cheapest check
    with the highest blast radius; the audit put it first and so do we. */
@@ -117,7 +117,7 @@ function scanSecrets() {
   try {
     tracked = execSync('git ls-files', { cwd: ROOT, encoding: 'utf8' }).split('\n').filter(Boolean);
   } catch {
-    warn('C6', '(git)', 'not a git checkout — secret scan skipped');
+    warn('C6', '(git)', 'not a git checkout, secret scan skipped');
     return;
   }
   // .env.example is the variable-NAME contract; it must stay value-free, so we
@@ -128,7 +128,7 @@ function scanSecrets() {
     let text;
     try { text = readFileSync(join(ROOT, f), 'utf8'); } catch { continue; }
     for (const [re, label] of SECRET_PATTERNS) {
-      if (re.test(text)) err('C6', f, `looks like a committed secret (${label}) — rotate it and remove the value`);
+      if (re.test(text)) err('C6', f, `looks like a committed secret (${label}). Rotate it and remove the value`);
     }
   }
 }
@@ -136,13 +136,13 @@ function scanSecrets() {
 /* ── per-page checks over dist/*.html ──────────────────────────────────── */
 function checkPages() {
   const pages = walk(DIST, '.html');
-  if (!pages.length) { err('—', rel(DIST), 'no HTML found — did `astro build` run first?'); return; }
+  if (!pages.length) { err('build', rel(DIST), 'no HTML found. Did `astro build` run first?'); return; }
 
   for (const file of pages) {
     const html = readFileSync(file, 'utf8');
     const f = rel(file);
 
-    /* Rule 1 — Trinity: <title> keyphrase (before " | ") === <h1> lead text.
+    /* Rule 1: Trinity: <title> keyphrase (before " | ") === <h1> lead text.
        h1 may carry a "·"-delimited spec chip suffix; the Trinity phrase is the
        lead segment. URL-slug agreement is a separate WARN (slugs legitimately
        drop the state token, e.g. "...-anderson" vs "Anderson IN"). */
@@ -159,39 +159,39 @@ function checkPages() {
       }
     }
 
-    /* Rule 9 — Canonicalization: exactly one canonical, and it is extensionless
+    /* Rule 9: Canonicalization: exactly one canonical, and it is extensionless
        (no ".html"). One canonical per page is the whole point; two split it. */
     const canon = [...html.matchAll(/<link\s+rel="canonical"\s+href="([^"]*)"/gi)].map((m) => m[1]);
     if (canon.length === 0) err('9', f, 'no <link rel="canonical">');
     if (canon.length > 1) err('9', f, `${canon.length} canonical links (must be exactly 1)`);
     if (canon[0] && /\.html(\/|$|\?)/.test(canon[0])) err('9', f, `canonical points at a .html URL: ${canon[0]}`);
 
-    /* Rule 5a — every visible FAQ accordion ships open, so Google sees the text
+    /* Rule 5a: every visible FAQ accordion ships open, so Google sees the text
        on first paint. Any `<details class="faq-item">` lacking `open` fails. */
     for (const m of html.matchAll(/<details\b([^>]*\bclass="[^"]*\bfaq-item\b[^"]*"[^>]*)>/gi)) {
       if (!/\bopen\b/.test(m[1])) err('5a', f, 'a <details class="faq-item"> is missing `open`');
     }
 
-    /* Rule 5b/6 — no unresolved external-link placeholders at publish: neither
+    /* Rule 5b/6: no unresolved external-link placeholders at publish: neither
        the EXTERNAL-LINK-TODO marker nor a live href="#". */
     if (/EXTERNAL-LINK-TODO/.test(html)) err('5b', f, 'unresolved EXTERNAL-LINK-TODO shipped');
     const deadLinks = (html.match(/href="#"/g) || []).length;
     if (deadLinks) err('6', f, `${deadLinks} live href="#" placeholder link(s)`);
 
-    /* Rule 7 — Schema.org: every ld+json block parses, and aggregateRating is
+    /* Rule 7: Schema.org: every ld+json block parses, and aggregateRating is
        never on a Car/Service/Offer/FinancialService node (only on a business
-       node). Parse and walk the object — never regex-match the JSON. */
+       node). Parse and walk the object, never regex-match the JSON. */
     for (const m of html.matchAll(/<script type="application\/ld\+json">([\s\S]*?)<\/script>/gi)) {
       let data;
       try { data = JSON.parse(m[1]); }
       catch (e) { err('7', f, `unparseable JSON-LD: ${e.message}`); continue; }
       const bad = findRatingViolations(data);
-      for (const t of bad) err('7', f, `aggregateRating on a ${t} node — only ever on a business node`);
+      for (const t of bad) err('7', f, `aggregateRating on a ${t} node. Only ever on a business node`);
     }
   }
 }
 
-/* ── Rule 9 (sitemap) — zero .html URLs in the sitemap ─────────────────── */
+/* ── Rule 9 (sitemap): zero .html URLs in the sitemap ─────────────────── */
 function checkSitemap() {
   const sm = join(DIST, 'sitemap.xml');
   if (!existsSync(sm)) { warn('9', 'dist/sitemap.xml', 'no sitemap.xml emitted'); return; }
@@ -202,7 +202,7 @@ function checkSitemap() {
 
 /* ── Lead-pipeline injection guard (extraction plan Phase 1b / §5) ──────────
    The lead-summary block is built at the edge from the already-allow-listed
-   payload and must NEVER be read from the incoming form — that ordering is the
+   payload and must NEVER be read from the incoming form. That ordering is the
    whole injection guard: a client that POSTs its own `lead_summary` would
    otherwise land pre-rendered markup in a note the crew reads. A future
    "cleanup" that allow-lists the field would break it silently, so assert the
@@ -214,14 +214,14 @@ function checkLeadPipeline() {
   const f = 'functions/api/lead.js';
 
   if (!/buildLeadSummary\s*\(/.test(src)) {
-    warn('LP', f, 'no buildLeadSummary() call — leads reach the CRM with no readable project detail (see docs/lead-summary-block.md)');
+    warn('LP', f, 'no buildLeadSummary() call, leads reach the CRM with no readable project detail (see docs/lead-summary-block.md)');
     return;
   }
   if (/form\.get\(\s*['"](?:lead_summary|lead_summary_html)['"]\s*\)/.test(src)) {
-    err('LP', f, 'lead_summary/lead_summary_html read from the client form — it must be built at the edge, never accepted from the client (injection guard)');
+    err('LP', f, 'lead_summary/lead_summary_html read from the client form. It must be built at the edge, never accepted from the client (injection guard)');
   }
   if (!/payload\.lead_summary\s*=/.test(src)) {
-    err('LP', f, 'lead_summary is not assigned from buildLeadSummary() after the allow-list — the block will ship empty');
+    err('LP', f, 'lead_summary is not assigned from buildLeadSummary() after the allow-list, the block will ship empty');
   }
 }
 
@@ -247,15 +247,15 @@ function checkConsentAndLegal() {
     const isTerms = path === TERMS_ROUTE || /\/terms-of-service\//.test(canon);
     const isLegal = isPrivacy || isTerms;
 
-    /* A2P-2 — never pre-check the SMS box. A `checked` attribute on any
+    /* A2P-2: never pre-check the SMS box. A `checked` attribute on any
        sms_consent input is a TCPA violation and an automatic rejection. */
     const smsInputs = [...html.matchAll(/<input\b[^>]*\bname="sms_consent"[^>]*>/gi)].map((m) => m[0]);
     if (smsInputs.length) smsEnabled = true;
     for (const tag of smsInputs) {
-      if (/\bchecked\b/i.test(tag)) err('A2P-2', f, 'sms_consent checkbox is pre-checked (`checked`) — a TCPA violation and an automatic A2P rejection');
+      if (/\bchecked\b/i.test(tag)) err('A2P-2', f, 'sms_consent checkbox is pre-checked (`checked`), a TCPA violation and an automatic A2P rejection');
     }
 
-    /* A2P-3 — the SMS consent block must link to the Privacy Policy (linking
+    /* A2P-3: the SMS consent block must link to the Privacy Policy (linking
        only to Terms is a review red flag). Check the <label> that wraps each
        sms_consent input contains a link to the privacy route. */
     for (const m of html.matchAll(/<label\b[^>]*>([\s\S]*?)<\/label>/gi)) {
@@ -267,53 +267,53 @@ function checkConsentAndLegal() {
     }
 
     if (isLegal) {
-      /* A2P-6 — legal pages must be indexable and reachable (brand review has to
+      /* A2P-6: legal pages must be indexable and reachable (brand review has to
          fetch the Privacy Policy). A noindex legal page fails the build. */
       if (/<meta\s+name="robots"\s+content="[^"]*noindex/i.test(html)) {
-        err('A2P-6', f, 'legal page is noindex — it must be indexable and in the sitemap');
+        err('A2P-6', f, 'legal page is noindex. It must be indexable and in the sitemap');
       }
 
-      /* A2P-7 — a legal page must never carry review stars. aggregateRating
+      /* A2P-7: a legal page must never carry review stars. aggregateRating
          anywhere in its JSON-LD (e.g. a publisher built withRating:true) fails. */
       for (const m of html.matchAll(/<script type="application\/ld\+json">([\s\S]*?)<\/script>/gi)) {
         let data;
         try { data = JSON.parse(m[1]); } catch { continue; } // rule 7 reports the parse error
         if (hasAggregateRatingAnywhere(data)) {
-          err('A2P-7', f, 'aggregateRating present on a legal page — a legal page must never carry review stars');
+          err('A2P-7', f, 'aggregateRating present on a legal page, a legal page must never carry review stars');
         }
       }
     }
 
     if (isPrivacy) {
       sawPrivacy = true;
-      /* A2P-1 — the no-third-party-sharing sentence must appear VERBATIM. Compare
+      /* A2P-1: the no-third-party-sharing sentence must appear VERBATIM. Compare
          the page's plain text (tags stripped) against the locked constant. */
       const plain = norm(stripTags(html));
       if (plain.includes(NO_SHARE_SENTENCE)) privacyHasNoShare = true;
     }
   }
 
-  /* A2P-1 (cross-page) — only enforced when the site actually enables SMS. A
+  /* A2P-1 (cross-page): only enforced when the site actually enables SMS. A
      site with no SMS opt-in has no A2P obligation, and firing here would nag
      every non-SMS site (the "lint that cries wolf" failure mode). */
   if (smsEnabled) {
     if (!sawPrivacy) {
-      err('A2P-1', rel(DIST), 'SMS opt-in is present but no Privacy Policy page was built — A2P brand review requires one');
+      err('A2P-1', rel(DIST), 'SMS opt-in is present but no Privacy Policy page was built, A2P brand review requires one');
     } else if (!privacyHasNoShare) {
       err('A2P-1', PRIVACY_ROUTE, 'Privacy Policy is missing the verbatim no-third-party-sharing sentence (paraphrase is not accepted): "' + NO_SHARE_SENTENCE + '"');
     }
   }
 
-  /* Publish gate (task §6) — legal prose is a draft until counsel signs off.
+  /* Publish gate (task §6): legal prose is a draft until counsel signs off.
      A WARN, not an ERROR: it must not block dev/staging builds, but it must be
      visible so a site does not go live on unreviewed legal text. */
   if (sawPrivacy || existsSync(join(DIST, 'terms-of-service', 'index.html'))) {
     try {
       const cfg = JSON.parse(readFileSync(join(ROOT, 'site.config.json'), 'utf8'));
       if (!(cfg.legal && cfg.legal.legalReviewedBy)) {
-        warn('A2P-0', 'site.config.json', 'legal.legalReviewedBy is null — legal pages are unreviewed placeholder prose (publish gate)');
+        warn('A2P-0', 'site.config.json', 'legal.legalReviewedBy is null, legal pages are unreviewed placeholder prose (publish gate)');
       }
-    } catch { /* no readable config — skip */ }
+    } catch { /* no readable config, skip */ }
   }
 }
 
@@ -321,7 +321,7 @@ function checkConsentAndLegal() {
    Every preset lead-form field must be declared in the field manifest
    (functions/api/_lead-fields.js), because the intake allow-list and the
    summary rows are DERIVED from it. A form field missing from the manifest is
-   neither forwarded to the CRM nor shown in the block the crew reads — the
+   neither forwarded to the CRM nor shown in the block the crew reads, the
    silent third-edit failure the manifest exists to prevent. The allow-list and
    summary derivation are guaranteed by construction (both import the manifest),
    so this single check is the whole enforcement. */
@@ -343,13 +343,13 @@ function checkFieldManifest() {
     for (const n of names) {
       if (!keys.has(n)) {
         err('LM', `presets/${vertical}/lead-forms.js`,
-          `form field "${n}" is not in the lead-field manifest (functions/api/_lead-fields.js) — it would be neither forwarded nor summarized. Add it there (one edit).`);
+          `form field "${n}" is not in the lead-field manifest (functions/api/_lead-fields.js). It would be neither forwarded nor summarized. Add it there (one edit).`);
       }
     }
   }
 }
 
-/* ── Supporting archetype (EXPERIMENTAL) — docs/supporting-content-archetype.md ─
+/* ── Supporting archetype (EXPERIMENTAL): docs/supporting-content-archetype.md ─
    Runs ONLY when experimental.supportingContent is on (otherwise there are no
    supporting pages, and firing here would be the "lint that cries wolf" failure
    mode). Supporting pages self-identify with
@@ -416,13 +416,13 @@ function checkSupporting() {
   for (const { file, html, keyphrase, path: spokePath } of supportingPages) {
     const f = rel(file);
 
-    /* SC-2 (hard) — anti-cannibalization: a spoke's Trinity keyphrase must not be
+    /* SC-2 (hard): anti-cannibalization: a spoke's Trinity keyphrase must not be
        byte-identical to any money page's, or the two compete for one query. */
     if (keyphrase && moneyKeyphrases.has(keyphrase.toLowerCase())) {
-      err('SC-2', f, `supporting keyphrase "${keyphrase}" collides with a money page's Trinity keyphrase (cannibalization) — target an informational long-tail instead`);
+      err('SC-2', f, `supporting keyphrase "${keyphrase}" collides with a money page's Trinity keyphrase (cannibalization), target an informational long-tail instead`);
     }
 
-    /* SC-4 (hard) — schema: an Article or FAQPage node is present, and NO
+    /* SC-4 (hard): schema: an Article or FAQPage node is present, and NO
        aggregateRating appears anywhere (a supporting page is not a business node). */
     let hasArticleOrFaq = false;
     let ratingSeen = false;
@@ -433,28 +433,28 @@ function checkSupporting() {
       if (types.has('Article') || types.has('FAQPage')) hasArticleOrFaq = true;
       if (hasAggregateRatingAnywhere(data)) ratingSeen = true;
     }
-    if (!hasArticleOrFaq) err('SC-4', f, 'no Article/FAQPage JSON-LD — a supporting page must be @type Article or FAQPage, never Service');
-    if (ratingSeen) err('SC-4', f, 'aggregateRating on a supporting page — it is not a business node and must never carry review stars');
+    if (!hasArticleOrFaq) err('SC-4', f, 'no Article/FAQPage JSON-LD, a supporting page must be @type Article or FAQPage, never Service');
+    if (ratingSeen) err('SC-4', f, 'aggregateRating on a supporting page. It is not a business node and must never carry review stars');
 
-    /* SC-3 (soft) — spoke→money link: the body must contain an in-content link to
+    /* SC-3 (soft): spoke→money link: the body must contain an in-content link to
        the money page declared in core30:supports (the archetype's whole purpose). */
     const supports = (html.match(/<meta\s+name="core30:supports"\s+content="([^"]*)"/i) || [])[1] || '';
     const body = html.slice(html.indexOf('</head>') + 1);
     if (!supports) {
-      soft('SC-3', f, 'no core30:supports meta — a supporting page must declare the money page it supports');
+      soft('SC-3', f, 'no core30:supports meta, a supporting page must declare the money page it supports');
     } else if (!new RegExp(`href="${escRe(supports)}"`).test(body)) {
-      soft('SC-3', f, `no in-content link to the declared money page (${supports}) — the spoke→money link is the archetype's core relevance signal`);
+      soft('SC-3', f, `no in-content link to the declared money page (${supports}), the spoke→money link is the archetype's core relevance signal`);
     }
 
-    /* SC-5 (soft) — goal-completion for a spoke: the opening paragraph should answer
+    /* SC-5 (soft): goal-completion for a spoke: the opening paragraph should answer
        (a number/range or a direct-answer token) before it hands off. Heuristic. */
     const firstP = (body.match(/<p[^>]*>([\s\S]*?)<\/p>/i) || [])[1] || '';
     const firstPlain = norm(stripTags(firstP));
     if (firstPlain && !/\d|\byes\b|\bno\b|\bit depends\b|\bmost\b|\btypically\b|\busually\b/i.test(firstPlain)) {
-      soft('SC-5', f, 'opening paragraph may not directly answer the question (no number/range or answer token) — a spoke should answer up top, then hand off');
+      soft('SC-5', f, 'opening paragraph may not directly answer the question (no number/range or answer token), a spoke should answer up top, then hand off');
     }
 
-    /* SC-7 (soft) — reciprocity: the money page a spoke supports must link BACK to
+    /* SC-7 (soft): reciprocity: the money page a spoke supports must link BACK to
        the spoke, so the topic cluster is bidirectional (pillar ⇄ spoke) and the
        spoke earns real inbound equity instead of being a sitemap-only orphan.
        Category/service pages auto-render this via the RelatedGuides block; a spoke
@@ -463,15 +463,15 @@ function checkSupporting() {
     if (supports && spokePath) {
       const moneyHtml = pagesByPath[supports];
       if (!moneyHtml) {
-        soft('SC-7', f, `the declared money page (${supports}) was not found among built pages — cannot confirm the reciprocal back-link`);
+        soft('SC-7', f, `the declared money page (${supports}) was not found among built pages. Cannot confirm the reciprocal back-link`);
       } else if (!new RegExp(`href="${escRe(spokePath)}"`).test(moneyHtml)) {
-        soft('SC-7', f, `the money page ${supports} does not link back to this spoke (${spokePath}) — reciprocal hub↔spoke linking is missing (category/service pages auto-render it; a homepage-supported spoke needs the link added manually)`);
+        soft('SC-7', f, `the money page ${supports} does not link back to this spoke (${spokePath}). Reciprocal hub↔spoke linking is missing (category/service pages auto-render it; a homepage-supported spoke needs the link added manually)`);
       }
     }
 
-    /* SC-8 (soft) — local grounding: a spoke must carry at least one local signal
+    /* SC-8 (soft): local grounding: a spoke must carry at least one local signal
        (a configured city/county or the governing state), so it ties to the local
-       money pages and the GBP rather than reading as generic national content —
+       money pages and the GBP rather than reading as generic national content,
        the whole reason a local site can out-rank national pages on these queries.
        Scoped to the AUTHORED copy between the data-core30-content-* markers: the
        page chrome (footer service-area column, NAP) always names the city, so
@@ -482,7 +482,7 @@ function checkSupporting() {
       const region = cs >= 0 && ce > cs ? body.slice(cs, ce) : body;
       const plain = norm(stripTags(region)).toLowerCase();
       if (!localTokens.some((t) => plain.includes(t))) {
-        soft('SC-8', f, 'no local signal in the authored copy (none of the configured cities / county / state appear) — every supporting spoke must be grounded locally, not read as generic national content');
+        soft('SC-8', f, 'no local signal in the authored copy (none of the configured cities / county / state appear). Every supporting spoke must be grounded locally, not read as generic national content');
       }
     }
   }
@@ -490,16 +490,16 @@ function checkSupporting() {
 
 /* ── C2: no undefined CSS custom properties ────────────────────────────────
    A `var(--x)` with NO fallback whose `--x` is never defined resolves to
-   nothing and silently breaks a page — `astro build` never validates it, so a
+   nothing and silently breaks a page, `astro build` never validates it, so a
    dropped/renamed token ships a visually-broken page on a green build. This is
    the entire class the port kept hitting by hand.
 
    Collect every DEFINED `--name` from the token sheets, every component
-   `<style>` block, `@property` rules, and inline `style="--x:…"` — then flag any
+   `<style>` block, `@property` rules, and inline `style="--x:…"`, then flag any
    `var(--x)` used WITHOUT a fallback whose name is undefined anywhere. A
    `var(--x, fallback)` is intentional degradation and is never flagged, and a
    name defined ANYWHERE counts as defined (union scope), so the check errs
-   toward silence — zero false positives, per the lint's design principle. */
+   toward silence. Zero false positives, per the lint's design principle. */
 function checkCssVars() {
   const files = [
     ...walk(join(ROOT, 'src'), '.css'),
@@ -537,13 +537,13 @@ function checkCssVars() {
     const key = `${u.file}::${u.name}`;
     if (reported.has(key)) continue;
     reported.add(key);
-    err('C2', u.file, `var(${u.name}) has no fallback but ${u.name} is defined nowhere — it resolves to nothing (dropped/renamed token?)`);
+    err('C2', u.file, `var(${u.name}) has no fallback but ${u.name} is defined nowhere. It resolves to nothing (dropped/renamed token?)`);
   }
 }
 
 /* ── C6: 320-safe auto-fit grids ───────────────────────────────────────────
    `minmax(<Npx>, 1fr)` overflows a 320px viewport whenever the container's
-   inner width is under N — a silent trap that passes `astro build` and lint's
+   inner width is under N, a silent trap that passes `astro build` and lint's
    page checks (only a headless 320px render catches the overflow itself). The
    safe idiom is `minmax(min(Npx, 100%), 1fr)`, which never matches the pattern
    below (a `min(` follows `minmax(`, not a digit). WARN, not ERROR: an explicit
@@ -557,8 +557,69 @@ function checkGridIdiom() {
   for (const file of files) {
     const text = readFileSync(file, 'utf8');
     for (const m of text.matchAll(/minmax\(\s*\d+(?:\.\d+)?px\s*,\s*1fr\s*\)/g)) {
-      warn('GRID', rel(file), `${m[0]} can overflow a 320px viewport — prefer minmax(min(Npx, 100%), 1fr)`);
+      warn('GRID', rel(file), `${m[0]} can overflow a 320px viewport. Prefer minmax(min(Npx, 100%), 1fr)`);
     }
+  }
+}
+
+/* ── Placeholder phone ─────────────────────────────────────────────────────
+   A fake phone number is the one placeholder that costs money the day it ships:
+   every CTA, the schema `telephone`, and both legal pages derive from the single
+   `business.phone` value, so a wrong number turns the whole site into a dead end
+   AND the caller hears an intercept recording rather than the business, a lost
+   lead with no trace anywhere in the CRM.
+
+   Blank is NOT an error here: an unset phone is an honest "not confirmed yet"
+   (the Engine omits what is blank), and it is already tracked in the publish
+   gate. What this catches is a number that LOOKS real and is not:
+
+     · the NANP fiction range 555-0100…555-0199 (reserved, never assigned)
+     · 555-5555 / 000-0000 / 123-4567 and other keyboard-mash placeholders
+     · a 555 exchange generally, which no US subscriber line uses
+
+   Escape hatch for local design/review work only:
+     CORE30_ALLOW_PLACEHOLDER_PHONE=1 npm run build
+   It downgrades to a WARN so a placeholder stays visible, and it must never be
+   set in CI, the whole point is that a human has to type it each time.
+
+   UPSTREAM: this is an ENGINE rule, not a CrystalClear rule. Promote it into
+   core30-starter's core30-lint (charter: never fix methodology in a leaf site
+   only). Every client site inherits the same placeholder-phone exposure. */
+function checkPlaceholderPhone() {
+  let cfg;
+  try {
+    cfg = JSON.parse(readFileSync(join(ROOT, 'site.config.json'), 'utf8'));
+  } catch { return; /* no readable config, nothing to assert */ }
+
+  const e164 = String((cfg.business && cfg.business.phone) || '').trim();
+  if (!e164) return; // blank is the honest default, covered by the publish gate
+
+  const nanp = /^\+1(\d{3})(\d{3})(\d{4})$/.exec(e164);
+  if (!nanp) return; // non-NANP numbers have no 555 convention to check
+
+  const [, area, exch, line] = nanp;
+  const pretty = `(${area}) ${exch}-${line}`;
+
+  let why = null;
+  if (exch === '555' && /^01\d\d$/.test(line)) {
+    why = 'inside the NANP range reserved for fictional use (555-0100…555-0199). It cannot be assigned to a subscriber';
+  } else if (exch === '555') {
+    why = 'uses the 555 exchange, which no US subscriber line uses';
+  } else if (/^(\d)\1{3}$/.test(line) || line === '1234' || line === '4567') {
+    why = 'is a keyboard-mash placeholder, not a real line';
+  }
+  if (!why) return;
+
+  const msg =
+    `business.phone ${pretty} ${why}. Every CTA, the schema telephone, and both ` +
+    'legal pages derive from this one value, so shipping it means every call ' +
+    'reaches an intercept recording and the lead is lost with no CRM record. ' +
+    'Set a real or tracking number.';
+
+  if (process.env.CORE30_ALLOW_PLACEHOLDER_PHONE === '1') {
+    warn('PH', 'site.config.json', `${msg} (CORE30_ALLOW_PLACEHOLDER_PHONE=1, local review only, never in CI)`);
+  } else {
+    err('PH', 'site.config.json', msg);
   }
 }
 
@@ -572,10 +633,11 @@ checkConsentAndLegal();
 checkSupporting();
 checkCssVars();
 checkGridIdiom();
+checkPlaceholderPhone();
 
 const tag = {
   C6: 'secrets', 1: 'trinity', '5a': 'faq', '5b': 'ext-link', 6: 'ext-link', 7: 'schema', 9: 'canonical',
-  LP: 'lead-pipeline', LM: 'field-manifest', C2: 'css-var', GRID: 'grid',
+  LP: 'lead-pipeline', LM: 'field-manifest', C2: 'css-var', GRID: 'grid', PH: 'placeholder-phone',
   'A2P-0': 'legal-gate', 'A2P-1': 'no-share', 'A2P-2': 'sms-precheck', 'A2P-3': 'sms-link',
   'A2P-6': 'legal-index', 'A2P-7': 'legal-rating',
   'SC-2': 'sc-intent', 'SC-3': 'sc-link', 'SC-4': 'sc-schema', 'SC-5': 'sc-goal', 'SC-7': 'sc-reciprocal', 'SC-8': 'sc-local',
@@ -588,4 +650,4 @@ if (errors.length) {
   console.log(`\n\x1b[31mcore30-lint: ${errors.length} error(s)\x1b[0m across ${pageCount} page(s). Build failed.`);
   process.exit(1);
 }
-console.log(`\x1b[32mcore30-lint: clean\x1b[0m — ${pageCount} page(s), ${warnings.length} warning(s).`);
+console.log(`\x1b[32mcore30-lint: clean\x1b[0m, ${pageCount} page(s), ${warnings.length} warning(s).`);

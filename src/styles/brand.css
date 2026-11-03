@@ -1,0 +1,498 @@
+/* ============================================================================
+   CLIENT DESIGN LAYER: CrystalClear Water Solutions
+   ----------------------------------------------------------------------------
+   The seam styles.css documents: "A client build layers its own design sheets
+   after the tokens and before engine.css."
+
+   ⚠ LOAD-ORDER CONTRADICTION (fix belongs upstream in core30-starter).
+   styles.css says a client sheet layers BEFORE engine.css; engine.css's own
+   header says it is "Loaded LAST … so a client design layer can override any
+   of it." Both cannot be true, whatever loads last wins at equal specificity,
+   and that is engine.css. Loading this sheet where styles.css says to would
+   mean it could not override a single engine primitive, which is the one thing
+   a client design layer exists to do. So it is imported AFTER engine.css, and
+   the contract needs correcting in the starter rather than in each leaf site.
+
+   SCOPE. This file holds only what is genuinely global and lives at low
+   specificity in engine.css / base.css. Anything a component owns in a scoped
+   <style> block is NOT fought with !important here: Astro scoping raises
+   specificity, and a leaf site hacking past an Engine component is exactly the
+   drift the charter exists to end. Those items are listed for upstream in the
+   PR instead. Brand color/type still reach components the right way: through
+   the tokens.
+   ============================================================================ */
+
+/* ── 1. Body type ───────────────────────────────────────────────────────────
+   engine.css sets body font-family/background/color/line-height but never a
+   font-size, so body copy fell back to the browser default and --fs-body only
+   applied where a component happened to ask for it. The scale now actually
+   governs the page. */
+body {
+  font-size: var(--fs-body);
+  font-weight: var(--fw-body);
+}
+
+/* ── 2. Heading defaults ────────────────────────────────────────────────────
+   Display type tightens as it grows. Components with scoped sizes still win;
+   this is the floor for everything else, so a heading is never left at the UA
+   default in the middle of a designed page. */
+h1 { font-size: var(--fs-h1); line-height: var(--lh-head); letter-spacing: var(--ls-tight); font-weight: var(--fw-display); color: var(--text-strong); }
+h2 { font-size: var(--fs-h2); line-height: var(--lh-head); letter-spacing: var(--ls-tight); font-weight: var(--fw-display); color: var(--text-strong); }
+h3 { font-size: var(--fs-h3); line-height: var(--lh-head); letter-spacing: var(--ls-tight); font-weight: var(--fw-strong); color: var(--text-strong); }
+
+/* ── 3. In-prose links are underlined ───────────────────────────────────────
+   base.css sets `a { text-decoration: none }` globally, so a citation inside a
+   paragraph was distinguishable from its surrounding text by COLOUR ALONE,
+   WCAG 1.4.1, and the exact failure mode that matters most on this site, where
+   the external citations are the trust argument. Nav, cards and buttons keep
+   their undecorated treatment; running prose does not.
+
+   `:where()` keeps specificity at zero so a component can still opt out. */
+:where(.block-body, .sup-block, .ext-p, .step-body, .faq-item, .lede, .sup-lede, .link-note, .source-line) a {
+  text-decoration: underline;
+  text-decoration-thickness: 1px;
+  text-underline-offset: 2px;
+  text-decoration-color: var(--accent-line);
+  transition: text-decoration-color .15s ease, color .15s ease;
+}
+:where(.block-body, .sup-block, .ext-p, .step-body, .faq-item, .lede, .sup-lede, .link-note, .source-line) a:hover {
+  text-decoration-color: var(--accent);
+  color: var(--accent-deep);
+}
+
+/* ── 4. Buttons ─────────────────────────────────────────────────────────────
+   engine.css gives .btn-primary an inset bottom edge, which reads as a solid
+   object: keep that. What it lacked: any transition, any pressed state, and a
+   focus ring (so a keyboard user saw nothing). The arrow now carries the hover
+   instead of the whole button sliding, which keeps the hit target still. */
+.btn-primary, .btn-dark {
+  font-size: 15.5px;
+  letter-spacing: -.005em;
+  transition: background-color .15s ease, box-shadow .15s ease, transform .08s ease;
+}
+.btn-primary { box-shadow: inset 0 -3px 0 var(--accent-deep), var(--shadow-sm); }
+.btn-primary:hover { box-shadow: inset 0 -3px 0 var(--accent-deep), var(--shadow-md); }
+.btn-primary:active, .btn-dark:active { transform: translateY(1px); }
+.btn-primary:active { box-shadow: inset 0 -1px 0 var(--accent-deep); }
+.btn-primary .ico, .btn-dark .ico { transition: transform .18s cubic-bezier(.2, .7, .3, 1); }
+.btn-primary:hover .ico, .btn-dark:hover .ico { transform: translateX(3px); }
+
+/* ── 5. Final CTA band ──────────────────────────────────────────────────────
+   A flat accent slab edge-to-edge is the loudest surface on the site and it was
+   carrying the least structure. A top hairline seats it against the section
+   above, and the copy gets the lede measure instead of running the full width. */
+.final-cta {
+  border-top: 1px solid color-mix(in srgb, var(--accent-deep) 55%, transparent);
+  background:
+    radial-gradient(120% 140% at 50% 0%, color-mix(in srgb, #fff 9%, transparent) 0%, transparent 60%),
+    var(--accent);
+}
+.final-cta h2 { letter-spacing: var(--ls-display); font-size: clamp(26px, 3.2vw, 40px); }
+.final-cta p { font-size: var(--fs-lede); line-height: var(--lh-lede); opacity: .93; }
+
+/* ── 5b. Inner-page heroes go dark ──────────────────────────────────────────
+   The homepage hero is a layered marine field. Without this the other sixteen
+   pages open on flat white and the site reads as two different products.
+
+   This is done WITHOUT out-specifying a single Engine rule. `.page-hero` and
+   `.sup-hero` declare no background of their own, so adding one is purely
+   additive. Everything inside them resolves its colour through a custom
+   property (--text-body, --accent-deep, --surface-alt, --border …), so
+   RETARGETING those properties on the hero element re-pitches the entire
+   subtree for dark ground by inheritance. No !important, no component edit,
+   and a reskin still only touches colours.css.
+
+   The alternative was a pile of `.page-hero .lede { color: … }` overrides
+   fighting Astro's scoped specificity, which is exactly the leaf-site drift
+   the charter exists to end. */
+.page-hero,
+.sup-hero {
+  position: relative;
+  background: var(--slab-field);
+  overflow: hidden;
+
+  --text-strong:   var(--on-slab);
+  --text-body:     var(--on-slab-muted);
+  --ink:           var(--on-slab);
+  --ink2:          var(--on-slab-muted);
+  --ink3:          var(--on-slab-dim);
+  --text-muted:    var(--on-slab-dim);
+  --accent-deep:   var(--accent-on-dark);
+  --surface-alt:   #10313F;              /* raised panel on the field */
+  --surface-card:  #10313F;
+  --border:        var(--slab-rule);
+  --border-strong: var(--slab-rule);
+  --rule:          var(--slab-rule);
+  --rule2:         var(--slab-rule);
+}
+/* The overlay wash. §5c adds the scrim to this same layer and §5c's ::before
+   carries the photograph underneath it, so the paint order down the hero is:
+   slab gradient → plate → scrim + contour → content. */
+.page-hero::after,
+.sup-hero::after {
+  content: '';
+  position: absolute; inset: 0;
+  pointer-events: none;
+}
+.page-hero > *,
+.sup-hero > * { position: relative; z-index: 1; }
+
+/* ── 5c. Hero photography: the plate layer ──────────────────────────────────
+   Every national competitor (Culligan, Kinetico, SpringWell, Aquasana, Leaf
+   Home) opens on a full-bleed photograph. This is that, built so it cannot
+   become a claim and cannot cost the mobile LCP.
+
+   ── What the photograph may show ────────────────────────────────────────────
+   Abstract water only. A stock technician or a smiling family asserts that this
+   business HAS uniformed technicians, exactly the way a badge asserts a
+   certification, and compliance.claimGates holds every such claim at false
+   until the client proves it. An image walks straight through that gate where
+   no lint rule can follow. See assets/hero-src/PROVENANCE.md.
+
+   ── Why the files are grayscale ────────────────────────────────────────────
+   The plate carries LUMINANCE; the hue comes from a token at paint time.
+     background-blend-mode: color   takes hue and saturation from the tint
+                                    layer and luminosity from the photo, so the
+                                    duotone's colour is --plate-tint rather
+                                    than something baked into the file.
+     mix-blend-mode: screen         then composites that onto the slab. Screen
+                                    against near-black is a no-op, so the
+                                    photo's dark mass cannot muddy the field
+                                    and only its highlights survive, which is
+                                    precisely the "light moving through water"
+                                    read.
+   Change --accent and every hero on the site retints itself. A baked teal JPEG
+   would have to be re-exported by hand and would drift out of step with
+   colors.css the first time anyone forgot.
+
+   ── Why ::before and not the Engine's .plate div ───────────────────────────
+   EntityPage ships `<div class="plate">` already, hidden. It is unreachable
+   from here: Astro's default scoping compiles that rule to
+   `.page-hero[data-astro-cid-…] .plate[data-astro-cid-…]` (0,4,0), so turning
+   it on from a client sheet needs !important, which is the leaf-site drift the
+   charter exists to end. ::before costs nothing and fights nobody. The dead
+   .plate div belongs on the upstream list: the Engine should either use it or
+   drop it.
+
+   ── Why this does not hurt LCP ─────────────────────────────────────────────
+   The plate is NOT the LCP element and is not preloaded on purpose. The slab
+   gradient paints with the first style sheet, so the hero has its full colour,
+   its contrast and its text before any image is requested; the photograph then
+   lands on top as texture. A CSS background is discovered after CSSOM, which
+   for a decorative layer is the correct trade, not a defect. The gradient is
+   doing the job a blurred placeholder usually does, for zero bytes.
+   Largest plate in play: 33kB (AVIF). A page loads exactly one. */
+:root {
+  /* Desktop and mobile are ART-DIRECTED CROPS, not one image resized: a hero is
+     wide-and-short on a desktop and tall-and-narrow on a phone, and resizing the
+     landscape frame to a phone keeps the empty edges and throws away the
+     subject. WebP exists only for Safari 15.4–16.3, which can do the :has()
+     this sheet relies on but cannot decode AVIF.
+
+     EXPECTED BUILD NOISE: these twelve url()s each raise a vite warning,
+     "__VITE_PUBLIC_ASSET__… didn't resolve at build time, it will remain
+     unchanged to be resolved at runtime". That is the correct outcome, not a
+     failure. They live in public/, so they are served from the site root and
+     must NOT be hashed or rewritten; vite is reporting that it left them alone.
+     Verified in dist: the emitted rule is url(/img/hero/caustics-desktop.avif)
+     and the file is at dist/img/hero/. Do not "fix" it by importing them as
+     modules, which would hash the filenames and break the media query that
+     swaps the desktop crop for the mobile one. */
+  --plate-caustics-d: image-set(url('/img/hero/caustics-desktop.avif') type('image/avif'), url('/img/hero/caustics-desktop.webp') type('image/webp'));
+  --plate-caustics-m: image-set(url('/img/hero/caustics-mobile.avif')  type('image/avif'), url('/img/hero/caustics-mobile.webp')  type('image/webp'));
+  --plate-surface-d:  image-set(url('/img/hero/surface-desktop.avif')  type('image/avif'), url('/img/hero/surface-desktop.webp')  type('image/webp'));
+  --plate-surface-m:  image-set(url('/img/hero/surface-mobile.avif')   type('image/avif'), url('/img/hero/surface-mobile.webp')   type('image/webp'));
+  --plate-ripple-d:   image-set(url('/img/hero/ripple-desktop.avif')   type('image/avif'), url('/img/hero/ripple-desktop.webp')   type('image/webp'));
+  --plate-ripple-m:   image-set(url('/img/hero/ripple-mobile.avif')    type('image/avif'), url('/img/hero/ripple-mobile.webp')    type('image/webp'));
+
+  --plate-tint: var(--accent-on-dark);
+
+  /* The scrim is what keeps the photograph from becoming a contrast bug. Text
+     sits on the left on desktop, so the dark end of the gradient sits there and
+     the picture is allowed to breathe on the right. Without it, white type over
+     a caustic highlight can fall under 4.5:1 on a bright patch that moves with
+     the crop. */
+  --plate-scrim: linear-gradient(100deg,
+    color-mix(in srgb, var(--slab-deep) 92%, transparent) 0%,
+    color-mix(in srgb, var(--slab-deep) 66%, transparent) 38%,
+    color-mix(in srgb, var(--slab-deep) 20%, transparent) 76%,
+    transparent 100%);
+}
+
+/* The three heroes, each with its own plate and its own weight. The homepage
+   gets the most presence because it is the one screen that has to establish the
+   category; a money page gets the least because its job is the offer, not the
+   view. */
+.home-hero { --plate: var(--plate-caustics-d); --plate-opacity: .50; }
+.page-hero { --plate: var(--plate-surface-d);  --plate-opacity: .62; }
+.sup-hero  { --plate: var(--plate-ripple-d);   --plate-opacity: .26; }
+
+@media (max-width: 760px) {
+  /* The phone hero is one column, so the copy sits over the MIDDLE of the frame
+     rather than the left of it. A horizontal scrim would leave the text on
+     whatever the crop happened to put there, so this one runs vertically.
+
+     The plate is then carried HARDER than on desktop (.50 → .66 on the
+     homepage) to compensate: a vertical scrim has to cover the whole column, so
+     at desktop weights the photograph disappeared altogether and the phone hero
+     fell back to the flat gradient it had before. Scrim up, plate up, net
+     contrast unchanged, texture visible. */
+  :root {
+    --plate-scrim: linear-gradient(177deg,
+      color-mix(in srgb, var(--slab-deep) 86%, transparent) 0%,
+      color-mix(in srgb, var(--slab-deep) 70%, transparent) 48%,
+      color-mix(in srgb, var(--slab-deep) 38%, transparent) 100%);
+  }
+  .home-hero { --plate: var(--plate-caustics-m); --plate-opacity: .66; }
+  .page-hero { --plate: var(--plate-surface-m);  --plate-opacity: .80; }
+  .sup-hero  { --plate: var(--plate-ripple-m);   --plate-opacity: .34; }
+}
+
+/* `isolation` confines the screen blend to the hero. Without it the blend
+   reaches for whatever is painted behind the section, which is the page
+   background on some stacking paths and the breadcrumb strip on others. */
+.home-hero, .page-hero, .sup-hero { isolation: isolate; }
+
+.home-hero::before,
+.page-hero::before,
+.sup-hero::before {
+  content: '';
+  position: absolute; inset: 0;
+  background-image: linear-gradient(var(--plate-tint), var(--plate-tint)), var(--plate);
+  background-blend-mode: color;
+  background-size: cover;
+  background-position: center;
+  opacity: var(--plate-opacity);
+  mix-blend-mode: screen;
+  pointer-events: none;
+}
+
+/* The contour moves onto ::after so it, and the scrim, paint ABOVE the plate.
+   (index.astro had the contour on ::before; that rule is removed there.) */
+.home-hero::after {
+  content: '';
+  position: absolute; inset: 0;
+  pointer-events: none;
+}
+.home-hero::after,
+.page-hero::after,
+.sup-hero::after {
+  background-image: var(--plate-scrim), var(--slab-contour);
+}
+
+/* Someone on a metered connection who has asked their browser to say so gets
+   the gradient hero and no download. The design does not depend on the
+   photograph; it is the top layer, so removing it costs nothing but texture. */
+@media (prefers-reduced-data: reduce) {
+  .home-hero::before, .page-hero::before, .sup-hero::before { background-image: none; }
+}
+
+/* ── 5d. The edge where the dark hero meets the page ────────────────────────
+   A 1px border is the cheapest possible transition and it reads as a seam
+   between two unrelated things. An inset hairline in the accent, lit at 22%,
+   reads instead as the lower edge of a solid object catching the light.
+
+   The Engine's own `border-bottom: 1px solid var(--border)` is retired to
+   transparent rather than removed, because --border is retargeted to
+   --slab-rule inside the hero and would otherwise draw a second, duller line
+   directly under this one. */
+.page-hero, .sup-hero { border-bottom-color: transparent; }
+.home-hero, .page-hero, .sup-hero {
+  box-shadow: inset 0 -1px 0 0 color-mix(in srgb, var(--accent-on-dark) 22%, transparent);
+}
+
+/* Breadcrumbs render as a bare `.container` that is a SIBLING of the hero, not
+   a child, so without this they sit on a white strip above a dark hero. The
+   element is normally max-width-constrained, so it is released to full width
+   and its padding rebuilt to keep the text on the same optical left edge as
+   the container below it. Percentage padding resolves against the body width,
+   which excludes the scrollbar, so this cannot cause horizontal overflow. */
+.container:has(+ .page-hero),
+.container:has(+ .sup-hero) {
+  max-width: none;
+  padding-inline: max(
+    var(--container-pad),
+    calc((100% - var(--container)) / 2 + var(--container-pad))
+  );
+  background: #0E2A36;   /* the --slab-field gradient's top-left value */
+}
+.container:has(+ .page-hero) .breadcrumbs,
+.container:has(+ .sup-hero) .breadcrumbs {
+  --text-muted: var(--on-slab-dim);
+  --accent-deep: var(--accent-on-dark);
+  --border-strong: var(--slab-rule);
+  --ink: var(--on-slab);
+  padding-bottom: 2px;
+}
+
+/* ── 5e. The header joins the slab ──────────────────────────────────────────
+   Until now every page opened on a WHITE header sitting directly above a dark
+   hero, with a hard seam between them. It was the weakest edge on the site:
+   the chrome looked bolted onto the design rather than part of it, and on an
+   inner page the eye crossed three bands (white header, dark breadcrumb strip,
+   dark hero) in the first 120px.
+
+   Header.astro resolves every one of its colours through a token and hardcodes
+   none, so this needs no component edit and no !important, exactly like the
+   heroes: redefine the properties ON .site-header and the component's own
+   `background: var(--surface-card)` resolves against the new value, because a
+   custom property declared on an element is visible to the other declarations
+   on that same element.
+
+   ⚠ --accent-deep is deliberately NOT retargeted at header level. It drives two
+   things at once: `.nav-link:hover { color }`, which needs a LIGHT value to be
+   visible on dark, and `.nav-phone:hover { background }`, which needs a DARK
+   value because the label on it stays --accent-ink (white). Flipping it for the
+   whole header would have fixed the links and quietly dropped the phone button
+   to about 1.6:1 on hover. Scoping it to .nav-link gives each what it needs and
+   still touches no component rule. */
+.site-header {
+  --surface-card: #0A2430;   /* a half-step under the hero's top, so the bar
+                                reads as a distinct plane, not a mis-match */
+  --border:       var(--slab-rule);
+  --text-strong:  var(--on-slab);
+  --text-body:    var(--on-slab-muted);
+  --text-muted:   var(--on-slab-dim);
+}
+.site-header .nav-link { --accent-deep: var(--accent-on-dark); }
+
+/* The call button is the one warm object in the bar and it keeps the accent
+   fill it already had: #0E7490 behind white is 5.3:1, and it now sits on dark
+   instead of white, so it reads as the primary action rather than as one more
+   nav item. Only the hover lift is added. */
+.site-header .nav-phone { transition: background-color .15s ease, box-shadow .15s ease; }
+.site-header .nav-phone:hover { box-shadow: 0 2px 14px color-mix(in srgb, var(--accent) 45%, transparent); }
+
+/* ── 6. Breadcrumbs ─────────────────────────────────────────────────────────
+   Mirror-linking (rule 3) makes these load-bearing navigation, not decoration,
+   so they get a real hit area and a little more air above the H1. */
+.breadcrumbs { padding: 18px 0 0; letter-spacing: var(--ls-label); }
+.breadcrumbs a { padding: 2px 0; }
+
+/* ── 7. Numerals ────────────────────────────────────────────────────────────
+   This site is an argument about measurement: grains per gallon, 8.7–27, ppm,
+   NSF/ANSI 44. Lining tabular figures stop those numbers from wobbling against
+   each other in tables and spec rows. The mono tokens get it for free; these
+   are the places that use the display/body stack and still carry numbers. */
+.figure, .step-num, .sup-table, .ph-row, .stat-value, .scale-tick {
+  font-variant-numeric: tabular-nums lining-nums;
+}
+
+/* ── 8. Table rhythm ────────────────────────────────────────────────────────
+   The cost spoke's table is the densest object on the site. Zebra striping was
+   doing the row-tracking job with no vertical rule, which falls apart at the
+   320px width where the table scrolls horizontally. */
+.sup-table th { letter-spacing: var(--ls-label); }
+.sup-table td, .sup-table th { vertical-align: top; }
+
+/* ── 10. The header stops eating the phone ──────────────────────────────────
+   Header.astro wraps its nav below the brand on a narrow screen, so the mobile
+   header was three stacked rows (wordmark, nav, call button) and took about a
+   quarter of a 812px viewport before a single word of the offer appeared.
+
+   The call button is now the one row that can go: MobileCtaBar puts Call at the
+   bottom of every screen, permanently, within thumb reach, which is strictly
+   better than a button at the top that scrolls away. Removing the duplicate
+   buys back a whole row.
+
+   This is the one place in this sheet that deliberately out-specifies a
+   component rule, so it is worth being explicit about why it is not the drift
+   the charter warns about: `display` is a property .nav-phone already sets
+   (inline-flex, via its own scoped rule at 0,2,0), so unlike every other
+   override here it cannot be done additively. `.site-header .nav .nav-phone` is
+   0,3,0 and wins on specificity rather than on load order, which is the part
+   that matters, because load order between a global sheet and a component
+   bundle is Astro's to decide and not something a leaf site should bet on.
+   No !important. UPSTREAM: the starter's header should own this itself. */
+@media (max-width: 760px) {
+  .site-header .nav .nav-phone { display: none; }
+  .site-header .header-row { padding: 11px 0; }
+}
+
+/* ── 11. Elevation ──────────────────────────────────────────────────────────
+   Every card on the site sat at the same optical depth: a 1px border and no
+   shadow, so a grid of them read as a wireframe rather than as objects. The
+   competitor set all distinguish a clickable card from a static panel by depth,
+   and a reader uses that to tell what is a link before reading any of it.
+
+   Every property here is one the Engine components DO NOT declare, so this is
+   purely additive and needs no specificity above a single class. The one
+   property they do own on hover, border-color, is left alone.
+
+   ⚠ The lift uses the independent `translate` property, NOT transform, and that
+   is load-bearing rather than stylistic. §12 reveals these same cards with an
+   animation that drives `transform`, and an animation with fill `both` outranks
+   a plain declaration in the cascade, so a transform-based hover would simply
+   stop working on every card that had been revealed. `translate` and
+   `transform` are separate properties that compose, so the two effects coexist
+   instead of one silently eating the other. */
+.guide-card,
+.service-grid a,
+.symptom {
+  box-shadow: var(--shadow-sm);
+  transition: box-shadow .18s ease, translate .18s cubic-bezier(.2, .7, .3, 1), border-color .18s ease;
+}
+.guide-card:hover,
+.service-grid a:hover,
+.symptom:hover {
+  box-shadow: var(--shadow-md);
+  translate: 0 -2px;
+}
+/* A card the keyboard has landed on gets the same lift as one under the
+   pointer, so the two input methods see the same page. */
+.guide-card:focus-visible,
+.service-grid a:focus-visible { box-shadow: var(--shadow-md); translate: 0 -2px; }
+
+.guide-card:active,
+.service-grid a:active { translate: 0 0; box-shadow: var(--shadow-sm); }
+
+/* The arrow carries the direction of travel rather than the card sliding
+   sideways, which keeps the hit target where the user aimed. */
+.guide-card .guide-arrow { transition: transform .18s cubic-bezier(.2, .7, .3, 1); }
+.guide-card:hover .guide-arrow { transform: translateX(3px); }
+
+/* ── 12. Entrance ───────────────────────────────────────────────────────────
+   A scroll-linked reveal, with no JavaScript and no IntersectionObserver:
+   `animation-timeline: view()` drives the animation from the element's own
+   position in the scrollport.
+
+   Three guards, because the failure mode of a reveal is INVISIBLE CONTENT:
+     · @supports. A browser without view timelines (Safari and Firefox as of
+       now) never sees the opacity:0 start state at all, it just gets the page.
+     · prefers-reduced-motion: no-preference, which makes the reveal opt-in, so
+       user is never relying on §9 to undo something that already hid their
+       content.
+     · the range ends at `entry 45%`, well before the element is fully on
+       screen, so a card that can never finish entering (the last row on a page
+       barely taller than the viewport) is still at full opacity long before the
+       scroll runs out.
+   The travel is 10px. Enough to register as arrival, not enough to read as a
+   slide, and small enough that a mis-fire is invisible rather than broken. */
+@supports (animation-timeline: view()) {
+  @media (prefers-reduced-motion: no-preference) {
+    .symptom,
+    .service-grid li,
+    .guides-grid .guide-card {
+      animation: core30-rise linear both;
+      animation-timeline: view();
+      animation-range: entry 0% entry 45%;
+    }
+    @keyframes core30-rise {
+      from { opacity: 0; transform: translateY(10px); }
+      to   { opacity: 1; transform: translateY(0); }
+    }
+  }
+}
+
+/* ── 9. Reduced motion ──────────────────────────────────────────────────────
+   Everything animated here is decorative, so honour the OS setting outright.
+   engine.css also sets `html { scroll-behavior: smooth }`, which is a vestibular
+   trigger on every in-page CTA jump: that one matters most. */
+@media (prefers-reduced-motion: reduce) {
+  html { scroll-behavior: auto; }
+  *, *::before, *::after {
+    animation-duration: .01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: .01ms !important;
+  }
+}

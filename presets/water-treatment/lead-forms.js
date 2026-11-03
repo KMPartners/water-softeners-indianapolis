@@ -1,8 +1,8 @@
 /**
- * presets/water-treatment/lead-forms.js — the quote form's field set (PRESET).
+ * presets/water-treatment/lead-forms.js, the quote form's field set (PRESET).
  *
  * Feeds the engine <LeadForm> (src/components/LeadForm.astro). Every field `name`
- * here MUST appear in the lead-field manifest (functions/api/_lead-fields.js) —
+ * here MUST appear in the lead-field manifest (functions/api/_lead-fields.js),
  * core30-lint fails the build otherwise, because the intake allow-list
  * (functions/api/lead.js) and the summary rows (_lead-summary.js) are DERIVED
  * from that manifest. The engine requires `name` + `phone`; the rest are optional.
@@ -16,10 +16,10 @@
  *
  * Two vertical fields beyond the contact trio, both chosen because they change
  * what the crew does BEFORE calling back:
- *   · zip — this is a service-area business with a verified launch footprint
+ *   · zip: this is a service-area business with a verified launch footprint
  *     (Indianapolis + 5 suburbs). A zip outside it is a dispatch decision, not a
  *     quote, and knowing it up front stops a wasted callback.
- *   · service_interest — a softener install, a repair, and an RO job are three
+ *   · service_interest: a softener install, a repair, and an RO job are three
  *     different crews/parts lists. Routing starts here.
  * Both are optional: a required field that is merely useful costs completions.
  */
@@ -28,7 +28,7 @@ export const QUOTE_FORM = {
   heading: 'Get a free quote',
   sub: 'Tell us about your water and we will get back to you with a straight answer.',
   submitLabel: 'Request my free quote',
-  successBody: 'Thanks — we have your details. We will reach out to talk through your water and schedule a visit.',
+  successBody: 'Thanks, we have your details. We will reach out to talk through your water and schedule a visit.',
 
   fields: [
     { name: 'name', label: 'Full name', type: 'text', required: true, autocomplete: 'name', placeholder: 'Jordan Miller', wide: true },
@@ -45,7 +45,7 @@ export const QUOTE_FORM = {
         'Whole-house water filtration',
         'Reverse osmosis / drinking water',
         'Water testing',
-        'Not sure — help me figure it out',
+        'Not sure, help me figure it out',
       ],
     },
     { name: 'message', label: 'Anything else? (optional)', type: 'textarea', placeholder: 'Spotting on glasses, scale on fixtures, softener not regenerating…', wide: true },

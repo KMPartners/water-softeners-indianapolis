@@ -1,10 +1,10 @@
 /**
- * The lead-field manifest — ONE definition per form field (ENGINE).
+ * The lead-field manifest: ONE definition per form field (ENGINE).
  *
  * Retires the "a new form field is THREE edits, not one" rule (the third fails
  * silently): a field used to be registered in the form, again in the intake
  * allow-list (functions/api/lead.js), and a third time in the summary rows
- * (functions/api/_lead-summary.js) — and forgetting the third meant the value
+ * (functions/api/_lead-summary.js), and forgetting the third meant the value
  * reached the CRM but never showed up in the block the crew reads.
  *
  * Now each field is declared once here, and the allow-list and the summary rows
@@ -17,26 +17,26 @@
  * JSON config import.
  *
  * Per field:
- *   key      — the form input `name` and the forwarded payload key
- *   label    — the crew-facing label in the summary block
- *   forward  — send it to the CRM (via lead.js's allow-list)
- *   summary  — show it in the human-readable block
- *   contact  — a core contact field (fixed leading row in the summary); the rest
+ *   key     : the form input `name` and the forwarded payload key
+ *   label   : the crew-facing label in the summary block
+ *   forward : send it to the CRM (via lead.js's allow-list)
+ *   summary : show it in the human-readable block
+ *   contact : a core contact field (fixed leading row in the summary); the rest
  *              are "detail" rows rendered in manifest order
- *   crmField — { name, dataType } for a GHL custom field to provision. Only the
+ *   crmField: { name, dataType } for a GHL custom field to provision. Only the
  *              NON-standard fields need one (name/phone/email are standard GHL
  *              fields with nowhere to land otherwise). scripts/ghl-provision-
  *              fields.js reads these via LEAD_CRM_FIELDS, so adding a crmField
  *              here is the single edit that makes a new client auto-provision it.
  *
- * The cross-cutting fields a form never types — the consent package, UTMs,
- * name-split, source_page, spam_signal — are NOT here; they are appended by
+ * The cross-cutting fields a form never types: the consent package, UTMs,
+ * name-split, source_page, spam_signal, are NOT here; they are appended by
  * src/lib/lead-capture.js and handled explicitly in lead.js.
  */
 // Example lead-field set. Matches the fields declared in the active preset form
 // (presets/water-treatment/lead-forms.js). `name` and `phone` are the required,
 // separately-validated fields in lead.js; the rest are derived into the
-// allow-list + summary. Keep this in sync with the preset form — core30-lint
+// allow-list + summary. Keep this in sync with the preset form, core30-lint
 // fails the build if a preset form field is missing here.
 export const LEAD_FIELDS = [
   { key: 'name', label: 'Name', forward: true, summary: true, contact: true },
@@ -47,7 +47,7 @@ export const LEAD_FIELDS = [
   { key: 'message', label: 'Message', forward: true, summary: true, crmField: { name: 'Message', dataType: 'LARGE_TEXT' } },
 ];
 
-/** Every known form-field key — the lint checks preset fields against this. */
+/** Every known form-field key: the lint checks preset fields against this. */
 export const LEAD_FIELD_KEYS = new Set(LEAD_FIELDS.map((f) => f.key));
 
 /**
@@ -71,7 +71,7 @@ export const DETAIL_FIELDS = LEAD_FIELDS
   .map((f) => [f.key, f.label]);
 
 /**
- * GHL custom fields to provision for the non-standard lead fields — those that
+ * GHL custom fields to provision for the non-standard lead fields, those that
  * have nowhere to land on a contact otherwise (name/phone/email are standard GHL
  * fields). Derived from the manifest's `crmField` markers, so a new client that
  * declares one gets it auto-provisioned. Consumed by scripts/ghl-provision-

@@ -1,5 +1,5 @@
 /**
- * Chrome navigation — CONTENT, not engine.
+ * Chrome navigation: CONTENT, not engine.
  *
  * Every value here is "true for one client only" (charter §1), so nav lives in
  * the content layer, not `src/lib`. The chrome components (Header, Footer) are

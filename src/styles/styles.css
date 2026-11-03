@@ -5,10 +5,18 @@
 
    Load order is a CONTRACT:
      tokens(fonts → colors → typography → spacing → base) → engine primitives
+     → client design layer
 
-   To reskin the starter, change the token VALUES in src/styles/tokens/*.css —
-   never hand-edit component styles for brand color/type. A client build layers
-   its own design sheets after the tokens and before engine.css.
+   To reskin the starter, change the token VALUES in src/styles/tokens/*.css,
+   never hand-edit component styles for brand color/type.
+
+   ⚠ The starter's comment here said a client sheet layers "after the tokens and
+   before engine.css", while engine.css's own header said it loads last "so a
+   client design layer can override any of it". Those contradict: at equal
+   specificity the LAST sheet wins, so a client layer imported before engine.css
+   can override none of it. brand.css therefore loads last, which is what the
+   engine.css comment intends. Needs reconciling upstream in core30-starter,
+   see the note at the top of brand.css.
    ============================================================================ */
 @import url('tokens/fonts.css');
 @import url('tokens/colors.css');
@@ -16,3 +24,4 @@
 @import url('tokens/spacing.css');
 @import url('tokens/base.css');
 @import url('engine.css');
+@import url('brand.css');
