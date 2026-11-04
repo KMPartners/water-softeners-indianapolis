@@ -33,12 +33,12 @@
  * Section rhythm: dark hero, light symptoms, dark data, light services,
  * tinted guides, light service area, dark footer.
  *
- * NOTE ON THE PHONE: site.config to business.phone is currently the reserved
- * 555-0142 placeholder, so there is deliberately no click-to-call in this hero.
- * A dead tel: link on the site's most important screen is worse than no link.
- * Every CTA routes to the form. When a real number lands in config a
- * click-to-call can be restored here; the rest of the chrome picks it up on its
- * own. core30-lint blocks a build that still carries the placeholder.
+ * NOTE ON THE PHONE: business.phone now holds a real client-confirmed number,
+ * so the rest of the chrome (header, footer, the CTAs) carries live tel: links
+ * automatically. This hero still routes every CTA to the form on purpose: the
+ * form captures the lead in the CRM, where a raw call leaves no trace. A
+ * click-to-call button could be added here as a conversion test if desired; it
+ * is a deliberate omission now, not a dead-link workaround.
  */
 import BaseLayout from '../layouts/BaseLayout.astro';
 import LeadForm from '../components/LeadForm.astro';

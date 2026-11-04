@@ -11,9 +11,6 @@
     "rather than inventing it.",
     "",
     "OPEN BLOCKERS before launch (do not fabricate. See publishGate below):",
-    "  · business.phone, a reserved-for-fiction PLACEHOLDER (317) 555-0142 is set",
-    "    so the chrome stops rendering empty tel: links during design review. It is",
-    "    not dialable. core30-lint hard-fails on it, so it cannot ship. HARD blocker.",
     "  · business.address.street / .zip, service-area business, no public address",
     "    confirmed. Schema omits what is blank; the Privacy Policy address line is",
     "    incomplete until these land.",
@@ -29,21 +26,17 @@
     "legalDisclaimerName": "CrystalClear Water Solutions",
 
     "$comment_phone": [
-      "PLACEHOLDER: NOT A REAL NUMBER. (317) 555-0142 is inside the NANP range",
-      "reserved for fictional use (555-0100 … 555-0199), so it cannot be assigned",
-      "to a subscriber and cannot ring a stranger. It is here only so the chrome,",
-      "the legal pages and the schema stop rendering an empty tel: link during",
-      "design and review.",
+      "Client-confirmed business number, provided 2026-11-04. Replaces the",
+      "former (317) 555-0142 fiction-range placeholder. Every CTA, the schema",
+      "telephone and both legal pages derive from this one E.164 value.",
       "",
-      "CONSEQUENCE: if this ships, every call-to-action on the site is a dead end:",
-      "a caller hears an intercept recording, not the business, and the lead is",
-      "gone with no trace in the CRM. A tracking number is the right permanent",
-      "answer; a real cell is acceptable. Replace this value, do not append to it.",
-      "",
-      "core30-lint FAILS the build on any 555-01xx number, so this cannot ship",
-      "silently. See scripts/core30-lint.mjs (rule `placeholder-phone`)."
+      "Note: 765 is an east-central Indiana area code, not the 317/463 of the",
+      "Indianapolis metro the site targets. That is fine for a tracking line or",
+      "an owner cell; confirm it is the number that should ring for leads before",
+      "launch, and if a dedicated tracking number is provisioned later, replace",
+      "this value, do not append to it."
     ],
-    "phone": "+13175550142",
+    "phone": "+17657035012",
     "phoneDisplayOverride": null,
 
     "$comment_address": "Service-area business: the market city/county/state are real and known (the domain, the GSC property, and the whole content tree target Indianapolis/Marion County). street + zip stay EMPTY until a real address is confirmed, the Engine omits blank schema fields.",
@@ -117,7 +110,6 @@
     "chamberMember": false,
     "$comment_publishGate": "The real open items blocking launch. Documentation today (the Engine exports PUBLISH_GATE but no rule reads it yet).",
     "publishGate": [
-      "business.phone is the (317) 555-0142 fiction-range placeholder, every CTA on the site is undialable until a real/tracking number replaces it (core30-lint blocks the build)",
       "business.address.street / .zip unconfirmed, Privacy Policy address line incomplete",
       "legal.legalReviewedBy is null, both legal pages ship as drafts with a banner",
       "legal.a2pBrandRegistered is false, do not enable SMS actions in the CRM yet",
