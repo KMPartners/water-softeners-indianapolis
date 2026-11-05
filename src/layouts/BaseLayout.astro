@@ -11,10 +11,11 @@ import '../styles/styles.css';
 import IconSprite from '../components/IconSprite.astro';
 import Header from '../components/Header.astro';
 import Footer from '../components/Footer.astro';
+import MobileCtaBar from '../components/MobileCtaBar.astro';
 import { SITE_URL, NAP, OG_IMAGE, FAVICON } from '../lib/site.js';
 
 interface Props {
-  /** Core30 rule 1 — must be byte-identical to the page's <h1> text. */
+  /** Core30 rule 1: must be byte-identical to the page's <h1> text. */
   title: string;
   description: string;
   /** Path only, e.g. "/services/listing-photography/". */
@@ -22,7 +23,7 @@ interface Props {
   /** One or more JSON-LD objects, emitted in <head>. */
   schemas?: unknown[];
   /** Optional vertical-specific legal/disclaimer paragraph for the footer. The
-      engine footer carries none of its own — a page passes one when it needs it. */
+      engine footer carries none of its own; a page passes one when it needs it. */
   footerDisclaimer?: string;
   /** Keeps a page out of the index until a publish gate clears. */
   noindex?: boolean;
@@ -67,7 +68,7 @@ const gtmId = import.meta.env.PUBLIC_GTM_ID;
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
 
-    {/* Google Tag Manager — kept as high in <head> as possible. Injected only
+    {/* Google Tag Manager, kept as high in <head> as possible. Injected only
         when PUBLIC_GTM_ID is set, so local/preview builds stay clean. */}
     {gtmId && (
       <script is:inline set:html={`(function(w,d,s,l,i){w[l]=w[l]||[];w[l].push({'gtm.start':new Date().getTime(),event:'gtm.js'});var f=d.getElementsByTagName(s)[0],j=d.createElement(s),dl=l!='dataLayer'?'&l='+l:'';j.async=true;j.src='https://www.googletagmanager.com/gtm.js?id='+i+dl;f.parentNode.insertBefore(j,f);})(window,document,'script','dataLayer','${gtmId}');`} />
@@ -93,8 +94,22 @@ const gtmId = import.meta.env.PUBLIC_GTM_ID;
     <meta name="twitter:image" content={ogImage} />
 
     <link rel="icon" href={FAVICON} />
-    <link rel="preconnect" href="https://fonts.googleapis.com" />
-    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    {/* ⚠ UPSTREAM: the two <link rel="preconnect"> to fonts.googleapis.com and
+        fonts.gstatic.com that used to sit here are REMOVED. The starter ships no
+        webfont at all (see src/styles/tokens/fonts.css, which documents that as a
+        deliberate decision), so they opened a DNS lookup, a TCP connection and a
+        TLS handshake to two Google hosts that were never asked for a single byte,
+        on every page, on exactly the mobile connection the no-webfont decision
+        was made to protect.
+
+        The second cost is not performance. This site's Privacy Policy tells the
+        visitor their data is not shared with third parties; a preconnect is a
+        real request carrying the visitor's IP and SNI to Google before anything
+        on the page has asked for it. A dead tag is a cheap thing to delete and an
+        expensive thing to have to explain.
+
+        CONSEQUENCE if a client later self-hosts or adopts a webfont: add the
+        preconnect back NEXT TO the @font-face that needs it, not here. */}
 
     {schemas.map((s) => (
       <script type="application/ld+json" set:html={JSON.stringify(s)} />
@@ -102,7 +117,7 @@ const gtmId = import.meta.env.PUBLIC_GTM_ID;
   </head>
 
   <body>
-    {/* Google Tag Manager (noscript) — immediately after <body>. */}
+    {/* Google Tag Manager (noscript), immediately after <body>. */}
     {gtmId && (
       <noscript set:html={`<iframe src="https://www.googletagmanager.com/ns.html?id=${gtmId}" height="0" width="0" style="display:none;visibility:hidden"></iframe>`} />
     )}
@@ -112,5 +127,8 @@ const gtmId = import.meta.env.PUBLIC_GTM_ID;
       <slot />
     </main>
     <Footer disclaimer={footerDisclaimer} />
+    {/* Phone-only, after the footer in source order so it is the last thing in
+        the tab sequence rather than an interruption in the middle of it. */}
+    <MobileCtaBar />
   </body>
 </html>

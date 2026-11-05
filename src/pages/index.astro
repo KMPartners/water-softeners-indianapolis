@@ -1,52 +1,166 @@
 ---
 /**
- * Homepage — the one legitimately BESPOKE page (charter note).
+ * Homepage, the one legitimately BESPOKE page (charter note).
  *
- * Category and service pages are row-driven (src/content/example.js → [slug].astro);
- * the homepage is hand-authored, pulling config + the preset schema. That is
- * correct and intended — do not try to force the homepage into the content tree.
+ * Category and service pages are row-driven (src/content/water-treatment.js to
+ * [slug].astro); the homepage is hand-authored, pulling config plus the preset
+ * schema. That is correct and intended: do not force the homepage into the
+ * content tree.
  *
- * Everything here is NEUTRAL placeholder copy for the "Example Home Services"
- * demo. Replace it with the real business's homepage.
+ * Trinity: the <title> and <h1> come from ONE source (service + city) and match
+ * the domain's head term, "Water Softeners Indianapolis".
+ *
+ * ── Design intent ──────────────────────────────────────────────────────────
+ * Benchmarked against Culligan, Kinetico, SpringWell, Aquasana and Leaf Home.
+ * Every one of them buys depth the same way: a full-bleed photographic hero
+ * with white type over a dark scrim, then an alternating light/dark section
+ * rhythm, then a star rating and a third-party badge for trust.
+ *
+ * Three of those are closed to this site, and that shaped the whole design:
+ *   · No photography. There is none, and stock images of someone else's crew
+ *     on someone else's job are a claim about who we are.
+ *   · No rating. business.ratingConfirmed is false, so there is no star row.
+ *   · No badges. Every compliance.claimGates entry is unproven.
+ *
+ * So the depth is BUILT rather than photographed: a layered marine field with
+ * a contour wash (--slab-field / --slab-contour, pure CSS, no network cost)
+ * carries the hero, and the trust argument is made with the one asset the
+ * national brands cannot copy, which is the local measurement. The hardness
+ * section is the centrepiece for that reason, and the symptom grid below the
+ * hero is the SpringWell "better water from every tap" pattern rebuilt from
+ * our own claims.
+ *
+ * Section rhythm: dark hero, light symptoms, dark data, light services,
+ * tinted guides, light service area, dark footer.
+ *
+ * NOTE ON THE PHONE: business.phone now holds a real client-confirmed number,
+ * so the rest of the chrome (header, footer, the CTAs) carries live tel: links
+ * automatically. This hero still routes every CTA to the form on purpose: the
+ * form captures the lead in the CRM, where a raw call leaves no trace. A
+ * click-to-call button could be added here as a conversion test if desired; it
+ * is a deliberate omission now, not a dead-link workaround.
  */
 import BaseLayout from '../layouts/BaseLayout.astro';
 import LeadForm from '../components/LeadForm.astro';
 import Icon from '../components/Icon.astro';
 import { NAP, AREA_SERVED, CTA_STATUS } from '../lib/site.js';
-import { homepageSchema } from '../../presets/example/schema.js';
-import { CATEGORIES, PAGES } from '../content/example.js';
-import { QUOTE_FORM } from '../../presets/example/lead-forms.js';
+import { homepageSchema } from '../../presets/water-treatment/schema.js';
+import { CATEGORIES, PAGES, SUPPORTING } from '../content/water-treatment.js';
+import { QUOTE_FORM } from '../../presets/water-treatment/lead-forms.js';
 import TrinityH1 from '../components/TrinityH1.astro';
 import { trinityTitle } from '../lib/trinity.js';
 
 // Core30 rule 1 (Trinity): the <title> and the <h1> are generated from ONE source
 // (service + city) via trinityTitle / <TrinityH1>, so they cannot drift.
-const HERO = { service: 'Handyman & Home Repair', city: 'Anytown, CA' };
+const HERO = { service: 'Water Softeners', city: 'Indianapolis' };
 const TITLE = trinityTitle(HERO);
+
+const DESCRIPTION =
+  'Water softener installation, repair, and whole-house water treatment in Indianapolis. Local tap water averages 19 grains per gallon, so we size equipment to your measured hardness.';
 
 const schemas = [homepageSchema(CATEGORIES)];
 
-// Link every content page from the homepage (mirror-linking + a real internal
-// link graph). The hub first, then its services.
+// Link every content page from the homepage (mirror-linking plus a real
+// internal link graph). The hub first, then its services.
 const links = PAGES.map((p) => ({ href: `/${p.slug}/`, label: p.trinity }));
+
+// The supporting-content cluster, surfaced from the homepage so the spokes have
+// an internal entry point beyond their money page. Empty when the flag is off.
+const guides = SUPPORTING.map((s) => ({ href: `/${s.slug}/`, label: s.trinity }));
+
+/* ── The hardness scale ─────────────────────────────────────────────────────
+   USGS / WQA water-hardness classification, in grains per gallon. These are the
+   published class boundaries (soft under 1, slightly hard 1 to 3.5, moderately
+   hard 3.5 to 7, hard 7 to 10.5, very hard above 10.5 gpg, i.e. the 17 / 60 /
+   120 / 180 mg/L breaks), NOT numbers chosen to flatter the pitch. The axis is
+   capped at the highest figure Citizens actually reports for the system (27
+   gpg) so the bar shows the real local span rather than an invented ceiling.
+
+   Widths are derived from the boundaries, so changing the cap or a boundary
+   cannot leave the bar out of step with its labels.
+
+   `fill` runs light to dark so the ramp survives grayscale and colour-blind
+   vision; `ink` is the label colour that clears 4.5:1 on that fill. The two
+   narrowest bands carry no inline label: at 3.7% and 9.3% of the axis there is
+   no honest way to set type in them, and the prose names the one boundary that
+   actually matters (10.5 gpg). */
+const AXIS_MAX = 27;
+const BANDS = [
+  { label: 'Soft',            show: false, to: 1,        fill: '#DCEEF3', ink: '#0E2A36' },
+  { label: 'Slightly hard',   show: false, to: 3.5,      fill: '#BFE3EC', ink: '#0E2A36' },
+  { label: 'Moderately hard', show: true,  to: 7,        fill: '#8FCBDC', ink: '#0E2A36', short: 'Mod.' },
+  { label: 'Hard',            show: true,  to: 10.5,     fill: '#3E9CB8', ink: '#07202A', short: 'Hard' },
+  { label: 'Very hard',       show: true,  to: AXIS_MAX, fill: '#0E7490', ink: '#FFFFFF', short: 'Very hard' },
+].map((b, i, all) => {
+  const from = i === 0 ? 0 : all[i - 1].to;
+  return { ...b, from, pct: ((b.to - from) / AXIS_MAX) * 100 };
+});
+
+const pos = (gpg) => (gpg / AXIS_MAX) * 100;
+
+// The three readings Citizens publishes for the system. Every one is a figure
+// from the utility's own 2025 data: see the source link in the section.
+const LOW = 8.7;
+const AVG = 19;
+const HIGH = 27;
+
+/* Method statements, not credentials. Nothing here is a claim a compliance gate
+   would have to hold back: no certification, no licence, no rating, no warranty. */
+const PROOF = [
+  { icon: 'gauge',     text: 'We test your water before we quote it' },
+  { icon: 'map-pin',   text: 'Marion, Hamilton and Johnson counties' },
+  { icon: 'file-text', text: 'Every figure on this site is sourced' },
+];
+
+/* What hardness at this level actually does in a house. These are the ordinary,
+   well-documented consequences of calcium and magnesium in household water, kept
+   qualitative on purpose: a percentage saving or an appliance-life figure would
+   need a source this site does not have, and the cost spoke already explains why
+   we will not print numbers we cannot stand behind. */
+const SYMPTOMS = [
+  {
+    icon: 'gauge',
+    title: 'Scale where you cannot see it',
+    body: 'Hardness precipitates out inside the water heater, the supply lines and the valves long before it shows up on a faucet.',
+  },
+  {
+    icon: 'wrench',
+    title: 'Fixtures and appliances work harder',
+    body: 'Scale on a heating element or a valve seat means the appliance runs longer to do the same job, and wears while it does it.',
+  },
+  {
+    icon: 'hand-coins',
+    title: 'More soap for the same result',
+    body: 'Calcium binds with soap instead of lifting dirt, which is why detergent stops lathering and laundry comes out stiff.',
+  },
+  {
+    icon: 'star',
+    title: 'Spotting, film and dull glass',
+    body: 'The white spots on glassware and the film on a shower door are the minerals left behind after the water evaporates.',
+  },
+];
 ---
 
-<BaseLayout title={TITLE} description={`Placeholder homepage for ${NAP.name}. Replace this copy before launch.`} canonical="/" schemas={schemas}>
+<BaseLayout title={TITLE} description={DESCRIPTION} canonical="/" schemas={schemas}>
   <section class="home-hero">
     <div class="container home-hero-grid">
       <div class="home-hero-copy">
-        <span class="eyebrow">Example Content · Replace Before Launch</span>
+        <span class="eyebrow">{CTA_STATUS}</span>
         <TrinityH1 service={HERO.service} city={HERO.city} size="hero" />
         <p class="lede">
-          <strong>Placeholder hero for {NAP.addressLocality}, {NAP.addressRegion}.</strong>
-          This is a neutral starter homepage — swap every word for real copy. {CTA_STATUS}.
+          <strong>We install, repair, and service water softeners and whole-house water treatment for homes across {NAP.addressLocality} and the surrounding counties.</strong>
+          Local tap water averages 19 grains per gallon, which is "very hard" on the USGS scale. We measure what is actually coming out of your tap, then size the fix to that number instead of a catalog default.
         </p>
         <div class="home-hero-cta">
-          <a href={NAP.phoneTel} class="click-to-call">
-            <Icon name="phone" size={16} /> {NAP.phoneDisplay}
-          </a>
           <a href="#lead-form" class="btn-primary">Get a free quote <Icon name="arrow-right" size={16} /></a>
+          <a href="/water-treatment-services-indianapolis/" class="hero-secondary">See all services</a>
         </div>
+
+        <ul class="proof">
+          {PROOF.map((p) => (
+            <li><Icon name={p.icon} size={16} /> <span>{p.text}</span></li>
+          ))}
+        </ul>
       </div>
 
       <div class="home-hero-form">
@@ -55,80 +169,506 @@ const links = PAGES.map((p) => ({ href: `/${p.slug}/`, label: p.trinity }));
     </div>
   </section>
 
-  <section class="home-services">
+  <section class="symptoms">
     <div class="container">
-      <h2>What we do</h2>
-      <p class="section-sub">Placeholder service list. These link to the example content tree.</p>
-      <ul class="service-grid">
-        {links.map((l) => (
-          <li><a href={l.href}>{l.label} <Icon name="arrow-right" size={15} /></a></li>
+      <div class="section-head">
+        <span class="eyebrow">Why it matters</span>
+        <h2>What 19 grains does to a house</h2>
+        <p class="section-sub">Hard water does not announce itself. By the time it is visible on the glassware it has been working on the plumbing for years.</p>
+      </div>
+      <ul class="symptom-grid">
+        {SYMPTOMS.map((s) => (
+          <li class="symptom">
+            <span class="symptom-ico"><Icon name={s.icon} size={20} /></span>
+            <h3>{s.title}</h3>
+            <p>{s.body}</p>
+          </li>
         ))}
       </ul>
     </div>
   </section>
 
+  {/* The centrepiece. One number, the classification it falls in, and the
+      utility source, on the slab, because this is the argument the whole site
+      rests on and it should look like it. */}
+  <section class="hardness">
+    <div class="container">
+      <div class="section-head">
+        <span class="eyebrow on-dark">The local number</span>
+        <h2>Indianapolis water is very hard</h2>
+      </div>
+
+      <div class="hardness-grid">
+        <figure class="stat">
+          <div class="stat-value"><span class="stat-num">{AVG}</span><span class="stat-unit">gpg</span></div>
+          <figcaption class="stat-qual">
+            Citizens Energy Group's 2025 system average for Indianapolis and Morgan
+            County: 317&nbsp;ppm, or {AVG} grains per gallon.
+          </figcaption>
+        </figure>
+
+        <div class="scale">
+          <p class="scale-intro">
+            Hardness is not one number across the city. Citizens runs ten treatment plants, and
+            what reaches your tap ranges from {LOW} to {HIGH} gpg depending on which one serves
+            your address. Anything above 10.5 gpg is classed <em>very hard</em>.
+          </p>
+
+          {/* aria-hidden throughout: the bar restates the prose above it, and a
+              screen reader gets the same figures as sentences rather than as a
+              pile of unlabelled ticks. */}
+          <div class="scale-chart" aria-hidden="true">
+            <div class="scale-bracket" style={`left:${pos(LOW)}%; right:${100 - pos(HIGH)}%`}>
+              <span class="scale-bracket-label">{LOW} to {HIGH} across Citizens' ten plants</span>
+            </div>
+
+            <div class="scale-track">
+              {BANDS.map((b) => (
+                <div class="scale-band" style={`width:${b.pct}%; background:${b.fill}; color:${b.ink}`}>
+                  {b.show && <span class="scale-band-label">{b.short}</span>}
+                </div>
+              ))}
+              <div class="scale-marker" style={`left:${pos(AVG)}%`}></div>
+            </div>
+
+            <div class="scale-axis">
+              <span class="scale-tick" style={`left:0%`}>0</span>
+              <span class="scale-tick is-avg" style={`left:${pos(AVG)}%`}>{AVG} avg</span>
+              <span class="scale-tick is-end" style={`left:100%`}>{AXIS_MAX} gpg</span>
+            </div>
+          </div>
+
+          <p class="scale-note">
+            One exception worth knowing: Carmel Utilities softens its water at the plant to
+            roughly 8 grains, so Carmel homes start lower than the rest of the metro. Still hard
+            enough that a home softener is what gets you to zero.
+          </p>
+
+          <p class="source-line">
+            Source:
+            <a href="https://info.citizensenergygroup.com/water/quality/indianapolis-and-morgan-county" target="_blank" rel="noopener">
+              Indianapolis &amp; Morgan County water quality data, Citizens Energy Group
+            </a>
+          </p>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <section class="home-services">
+    <div class="container">
+      <div class="section-head">
+        <span class="eyebrow">What we do</span>
+        <h2>Softening, filtration and the test that tells you which</h2>
+        <p class="section-sub">Start with the measurement. The equipment follows from it, not the other way round.</p>
+      </div>
+      <ul class="service-grid">
+        {links.map((l, i) => (
+          <li>
+            <a href={l.href}>
+              <span class="sv-n">{String(i + 1).padStart(2, '0')}</span>
+              <span class="sv-label">{l.label}</span>
+              <span class="sv-go"><Icon name="arrow-right" size={16} /></span>
+            </a>
+          </li>
+        ))}
+      </ul>
+    </div>
+  </section>
+
+  {guides.length > 0 && (
+    <section class="home-guides">
+      <div class="container">
+        <div class="section-head">
+          <span class="eyebrow">Straight answers</span>
+          <h2>The questions people actually ask</h2>
+          <p class="section-sub">Answered with the utility data behind them, not with a price range we made up.</p>
+        </div>
+        <ul class="guide-list">
+          {guides.map((g) => (
+            <li>
+              <a href={g.href}>
+                <span class="gd-label">{g.label}</span>
+                <Icon name="arrow-right" size={15} />
+              </a>
+            </li>
+          ))}
+        </ul>
+      </div>
+    </section>
+  )}
+
   <section class="home-areas" id="service-area">
     <div class="container">
-      <h2>Service area</h2>
-      <p class="section-sub">Placeholder — {NAP.name} serves {NAP.addressLocality} and nearby.</p>
+      <div class="section-head">
+        <span class="eyebrow">Where we work</span>
+        <h2>Service area</h2>
+        <p class="section-sub">{NAP.name} serves {NAP.addressLocality} and the surrounding communities.</p>
+      </div>
       <ul class="area-pills">
-        {AREA_SERVED.map((a) => <li>{a}</li>)}
+        {AREA_SERVED.map((a) => <li><Icon name="map-pin" size={13} /> {a}</li>)}
       </ul>
     </div>
   </section>
 </BaseLayout>
 
 <style>
-  .home-hero { padding: clamp(32px, 6vw, 64px) 0; border-bottom: 1px solid var(--border); }
+  /* ══ Hero ══════════════════════════════════════════════════════════════════
+     Two radial washes plus a linear base give the field a light source, and the
+     contour layer keeps a large dark area from reading as flat ink. Both are
+     tokens, so a reskin still only edits colors.css.
+
+     The caustics PHOTOGRAPH on top of this comes from brand.css §5c, which owns
+     ::before (the plate) and ::after (scrim + contour) on all three hero types
+     so the layer order is identical everywhere. Nothing here draws either one.
+
+     z-index on the children is load-bearing: ::after is the hero's last child in
+     paint order, so without it the scrim would be painted OVER the H1 and the
+     form rather than under them. */
+  .home-hero {
+    position: relative;
+    background: var(--slab-field);
+    padding: clamp(36px, 5vw, 72px) 0 clamp(44px, 6vw, 88px);
+    overflow: hidden;
+  }
+  .home-hero > * { position: relative; z-index: 1; }
+
   .home-hero-grid {
     display: grid;
-    grid-template-columns: minmax(min(440px, 100%), 1fr) minmax(min(360px, 100%), 0.85fr);
-    gap: clamp(24px, 4vw, 48px);
+    grid-template-columns: minmax(min(440px, 100%), 1fr) minmax(min(360px, 100%), 0.8fr);
+    gap: clamp(28px, 4vw, 60px);
     align-items: start;
   }
-  @media (max-width: 900px) { .home-hero-grid { grid-template-columns: 1fr; } }
+  @media (max-width: 920px) { .home-hero-grid { grid-template-columns: 1fr; } }
+
+  /* <TrinityH1> is an Engine component with scoped styles that hardcode
+     `color: var(--text-strong)` and an accent city span in var(--accent-deep),
+     both pitched for a light page. Rather than out-specify a scoped rule from
+     here (a leaf site hacking past an Engine component is the drift the charter
+     exists to end), this RETARGETS the two custom properties the component
+     already reads. Inheritance does the rest, and the override stops at this
+     block, so the white form card beside it is untouched. */
+  .home-hero-copy {
+    --text-strong: var(--on-slab);
+    --accent-deep: var(--accent-on-dark);
+  }
 
   .eyebrow {
     display: inline-block;
     font-family: var(--font-mono);
     font-size: 11px;
-    letter-spacing: 0.14em;
+    letter-spacing: var(--ls-eyebrow);
     text-transform: uppercase;
     color: var(--accent-deep);
-    margin-bottom: 12px;
+    margin-bottom: 14px;
   }
-  /* the hero <h1> is <TrinityH1 size="hero" /> — self-styled (tokens only). */
-  .lede { font-size: var(--fs-lede); line-height: var(--lh-body); color: var(--text-body); margin: 0 0 24px; max-width: 46ch; }
-  .lede strong { color: var(--ink); }
-  .home-hero-cta { display: flex; flex-wrap: wrap; gap: 14px; align-items: center; }
-  .click-to-call {
-    display: inline-flex; align-items: center; gap: 8px;
-    font-family: var(--font-display); font-weight: 700; font-size: 16px;
-    color: var(--text-strong); text-decoration: none; min-height: 44px;
-  }
-  .click-to-call:hover { color: var(--accent-deep); }
+  .home-hero-copy .eyebrow { color: var(--accent-on-dark); }
 
-  .home-services, .home-areas { padding: clamp(32px, 5vw, 56px) 0; }
-  .home-areas { background: var(--surface-alt); border-top: 1px solid var(--border); }
-  .home-services h2, .home-areas h2 {
-    font-family: var(--font-display); font-weight: 800; font-size: var(--fs-h2);
-    letter-spacing: var(--ls-tight); color: var(--text-strong); margin: 0 0 8px;
+  .lede {
+    font-size: var(--fs-lede);
+    line-height: var(--lh-lede);
+    color: var(--on-slab-muted);
+    margin: 18px 0 28px;
+    max-width: 48ch;
   }
-  .section-sub { color: var(--text-muted); margin: 0 0 24px; }
+  .lede strong { color: var(--on-slab); font-weight: var(--fw-strong); }
 
-  .service-grid { list-style: none; padding: 0; margin: 0; display: grid; gap: 12px; grid-template-columns: repeat(auto-fit, minmax(min(260px, 100%), 1fr)); }
+  .home-hero-cta { display: flex; flex-wrap: wrap; gap: 16px; align-items: center; }
+  .hero-secondary {
+    display: inline-flex; align-items: center; min-height: 44px;
+    padding: 0 4px;
+    font-family: var(--font-display); font-weight: var(--fw-strong); font-size: 16px;
+    color: var(--on-slab); text-decoration: none;
+    border-bottom: 2px solid var(--accent-on-dark);
+  }
+  .hero-secondary:hover { color: var(--accent-on-dark); }
+
+  .proof {
+    list-style: none; padding: 0;
+    margin: clamp(26px, 3.5vw, 40px) 0 0;
+    display: grid; gap: 11px;
+    border-top: 1px solid var(--slab-rule);
+    padding-top: clamp(20px, 2.5vw, 26px);
+  }
+  .proof li {
+    display: flex; align-items: center; gap: 10px;
+    font-size: var(--fs-small); color: var(--on-slab-body);
+  }
+  .proof :global(.ico) { color: var(--accent-on-dark); }
+
+  /* The one bright object on a dark field. This is the conversion target, so it
+     gets the strongest figure/ground contrast on the page. */
+  .home-hero-form {
+    border-radius: var(--radius-lg);
+    background: var(--surface-card);
+    box-shadow: 0 2px 4px rgba(4, 18, 24, .22), 0 24px 60px rgba(4, 18, 24, .42);
+    overflow: hidden;
+  }
+  .home-hero-form::before {
+    content: '';
+    display: block; height: 4px;
+    background: linear-gradient(90deg, var(--accent), var(--accent-on-dark));
+  }
+
+  /* ══ Shared section furniture ══════════════════════════════════════════════ */
+  .section-head { max-width: 58ch; margin-bottom: clamp(26px, 3.4vw, 40px); }
+  .section-head h2 { margin: 0 0 10px; text-wrap: balance; }
+  .section-sub { color: var(--text-muted); margin: 0; font-size: var(--fs-body); line-height: var(--lh-body); }
+
+  /* ══ Symptoms ══════════════════════════════════════════════════════════════
+     The SpringWell "better water from every tap" pattern: an icon grid that
+     names the problem in the reader's own house before any product appears. */
+  .symptoms { padding: clamp(44px, 5.5vw, 80px) 0; background: var(--surface); }
+  .symptom-grid {
+    list-style: none; padding: 0; margin: 0;
+    display: grid; gap: clamp(14px, 1.6vw, 20px);
+    /* 220px, not 248: at the 1140px container the four cards plus three gaps
+       leave 242px each, so a 248px floor silently dropped the fourth onto a row
+       of its own and broke the set into 3+1. */
+    grid-template-columns: repeat(auto-fit, minmax(min(220px, 100%), 1fr));
+  }
+  .symptom {
+    background: var(--accent-wash);
+    border: 1px solid var(--accent-line);
+    border-radius: var(--radius);
+    padding: clamp(20px, 2.2vw, 26px);
+  }
+  .symptom-ico {
+    display: inline-flex; align-items: center; justify-content: center;
+    width: 42px; height: 42px; margin-bottom: 14px;
+    border-radius: var(--radius-pill);
+    background: var(--surface-card);
+    border: 1px solid var(--accent-line);
+    color: var(--accent);
+  }
+  .symptom h3 { margin: 0 0 8px; font-size: var(--fs-h3); }
+  .symptom p { margin: 0; font-size: var(--fs-small); line-height: var(--lh-body); color: var(--text-body); }
+
+  /* ══ Hardness (the slab) ═══════════════════════════════════════════════════ */
+  .hardness {
+    position: relative;
+    background: var(--slab-field);
+    color: var(--on-slab-body);
+    padding: clamp(48px, 6vw, 92px) 0;
+    overflow: hidden;
+  }
+  .hardness::before {
+    content: '';
+    position: absolute; inset: 0;
+    background: var(--slab-contour);
+    pointer-events: none;
+  }
+  .hardness > * { position: relative; }
+  .eyebrow.on-dark { color: var(--accent-on-dark); }
+  .hardness h2 {
+    color: var(--on-slab);
+    letter-spacing: var(--ls-display);
+    max-width: 26ch;
+  }
+
+  .hardness-grid {
+    display: grid;
+    grid-template-columns: minmax(min(240px, 100%), 0.6fr) minmax(min(320px, 100%), 1fr);
+    gap: clamp(28px, 4.5vw, 64px);
+    align-items: start;
+  }
+  @media (max-width: 880px) { .hardness-grid { grid-template-columns: 1fr; } }
+
+  .stat { margin: 0; }
+  .stat-value {
+    display: flex; align-items: baseline; gap: 10px;
+    color: var(--on-slab);
+    font-family: var(--font-display);
+    font-weight: var(--fw-display);
+    letter-spacing: var(--ls-display);
+    line-height: var(--lh-tight);
+  }
+  .stat-num { font-size: var(--fs-stat); }
+  .stat-unit {
+    font-family: var(--font-mono); font-weight: 400;
+    font-size: clamp(15px, 1.5vw, 21px);
+    letter-spacing: var(--ls-label);
+    color: var(--accent-on-dark);
+  }
+  .stat-qual {
+    margin: 16px 0 0;
+    font-size: var(--fs-small);
+    line-height: var(--lh-body);
+    color: var(--on-slab-muted);
+    max-width: 34ch;
+    border-left: 2px solid var(--accent-on-dark);
+    padding-left: 14px;
+  }
+
+  .scale-intro, .scale-note {
+    margin: 0; font-size: var(--fs-body); line-height: var(--lh-body);
+    color: var(--on-slab-body); max-width: 60ch;
+  }
+  .scale-intro em { color: var(--on-slab); font-style: normal; font-weight: var(--fw-strong); }
+
+  .scale-chart { position: relative; margin: clamp(26px, 3.4vw, 38px) 0 0; padding-top: 30px; }
+
+  /* The span Citizens actually reports across its ten plants, drawn ABOVE the
+     bar. An earlier pass overlaid it as a translucent wash on the bands, which
+     desaturated exactly the part of the scale the reader is meant to compare. */
+  .scale-bracket {
+    position: absolute; top: 12px; height: 8px;
+    border: 1px solid var(--on-slab-faint);
+    border-bottom: 0;
+  }
+  .scale-bracket-label {
+    position: absolute; bottom: 100%; left: 50%;
+    transform: translate(-50%, -3px);
+    font-family: var(--font-mono); font-size: 10.5px;
+    letter-spacing: .06em; white-space: nowrap;
+    color: var(--on-slab-dim);
+  }
+
+  .scale-track {
+    position: relative;
+    display: flex;
+    height: 38px;
+    border-radius: var(--radius-sm);
+    overflow: hidden;
+  }
+  .scale-band {
+    display: flex; align-items: center; justify-content: center;
+    overflow: hidden;
+    box-shadow: inset -1px 0 0 color-mix(in srgb, var(--slab) 22%, transparent);
+  }
+  .scale-band:last-child { box-shadow: none; }
+  .scale-band-label {
+    font-family: var(--font-mono);
+    font-size: 10px;
+    letter-spacing: var(--ls-label);
+    text-transform: uppercase;
+    color: inherit;           /* per-band ink, set inline for 4.5:1 on its fill */
+    white-space: nowrap;
+    padding: 0 6px;
+  }
+  /* Below ~640px only the widest band can hold type honestly. */
+  @media (max-width: 640px) {
+    .scale-band:not(:last-child) .scale-band-label { display: none; }
+    .scale-bracket-label { font-size: 9.5px; }
+  }
+
+  .scale-marker {
+    position: absolute; top: -5px; bottom: -5px;
+    width: 3px; margin-left: -1.5px;
+    background: var(--on-slab);
+    box-shadow: 0 0 0 2px var(--slab);
+    border-radius: 2px;
+  }
+
+  .scale-axis { position: relative; height: 22px; margin-top: 10px; }
+  .scale-tick {
+    position: absolute; top: 0;
+    transform: translateX(-50%);
+    font-family: var(--font-mono);
+    font-size: 11.5px;
+    letter-spacing: .04em;
+    color: var(--on-slab-dim);
+    white-space: nowrap;
+  }
+  .scale-tick.is-avg { color: var(--on-slab); font-weight: 700; }
+  /* The two end ticks sit flush with the container edges, so they are anchored
+     by their own edge rather than centred. A centred label at 0% / 100% hangs
+     half outside and is a horizontal-overflow bug at 320px. */
+  .scale-tick:first-child { transform: translateX(0); }
+  .scale-tick.is-end { transform: translateX(-100%); }
+
+  .scale-note { margin-top: clamp(18px, 2.4vw, 26px); color: var(--on-slab-muted); }
+  .source-line {
+    margin: 16px 0 0;
+    font-family: var(--font-mono); font-size: 12px; line-height: 1.5;
+    color: var(--on-slab-dim);
+  }
+  .source-line a { color: var(--on-slab-body); text-decoration: underline; text-decoration-color: var(--slab-rule); text-underline-offset: 2px; }
+  .source-line a:hover { color: var(--on-slab); text-decoration-color: var(--on-slab); }
+
+  /* ══ Services ══════════════════════════════════════════════════════════════
+     The action, so these stay substantial cards. The index number is set as a
+     watermark rather than a label: it gives the card a visual anchor without
+     adding a second thing to read. */
+  .home-services { padding: clamp(44px, 5.5vw, 80px) 0; }
+  .service-grid {
+    list-style: none; padding: 0; margin: 0;
+    display: grid; gap: 14px;
+    grid-template-columns: repeat(auto-fit, minmax(min(290px, 100%), 1fr));
+  }
   .service-grid a {
-    display: flex; align-items: center; justify-content: space-between; gap: 12px;
-    padding: 16px 18px; border: 1px solid var(--border-strong); border-radius: var(--radius);
-    background: var(--surface-card); color: var(--text-strong); text-decoration: none;
-    font-family: var(--font-display); font-weight: 700;
+    position: relative;
+    display: grid;
+    grid-template-columns: 1fr auto;
+    align-items: center; gap: 16px;
+    min-height: 92px;
+    padding: 22px 22px 22px 24px;
+    border: 1px solid var(--border-strong);
+    border-radius: var(--radius);
+    background: var(--surface-card);
+    color: var(--text-strong); text-decoration: none;
+    font-family: var(--font-display); font-weight: var(--fw-strong);
+    font-size: 16.5px; line-height: 1.3;
+    overflow: hidden;
+    transition: border-color .15s ease, box-shadow .18s ease, transform .18s ease;
   }
-  .service-grid a:hover { border-color: var(--accent); color: var(--accent-deep); }
+  .service-grid a:hover {
+    border-color: var(--accent);
+    box-shadow: var(--shadow-md);
+    transform: translateY(-2px);
+    color: var(--text-strong);
+  }
+  .sv-n {
+    position: absolute; right: 14px; bottom: -10px;
+    font-family: var(--font-display); font-weight: var(--fw-display);
+    font-size: 54px; line-height: 1;
+    font-variant-numeric: tabular-nums lining-nums;
+    color: var(--accent);
+    opacity: .09;
+    pointer-events: none;
+  }
+  .sv-label { position: relative; max-width: 22ch; }
+  .sv-go {
+    display: inline-flex; align-items: center; justify-content: center;
+    width: 34px; height: 34px; flex-shrink: 0;
+    border-radius: var(--radius-pill);
+    background: var(--accent-wash2);
+    color: var(--accent-deep);
+    transition: background-color .15s ease, color .15s ease, transform .18s cubic-bezier(.2,.7,.3,1);
+  }
+  .service-grid a:hover .sv-go { background: var(--accent); color: var(--accent-ink); transform: translateX(3px); }
 
+  /* ══ Guides ════════════════════════════════════════════════════════════════
+     The reading, so an index rather than a card grid. Deliberately a different
+     object from a service card so the two are never mistaken for each other. */
+  .home-guides {
+    padding: clamp(44px, 5.5vw, 80px) 0;
+    background: var(--surface-alt);
+    border-top: 1px solid var(--border);
+    border-bottom: 1px solid var(--border);
+  }
+  .guide-list { list-style: none; padding: 0; margin: 0; border-top: 1px solid var(--rule2); }
+  .guide-list li { border-bottom: 1px solid var(--rule2); }
+  .guide-list a {
+    display: flex; align-items: center; justify-content: space-between; gap: 16px;
+    padding: 17px 6px;
+    color: var(--text-strong); text-decoration: none;
+    font-family: var(--font-display); font-weight: var(--fw-strong);
+    font-size: clamp(15.5px, 1.1vw, 17.5px); line-height: 1.35;
+    transition: color .15s ease, padding-left .15s ease;
+  }
+  .guide-list a:hover { color: var(--accent-deep); padding-left: 12px; }
+  .guide-list :global(.ico) { color: var(--border-strong); flex-shrink: 0; transition: transform .18s cubic-bezier(.2,.7,.3,1), color .15s ease; }
+  .guide-list a:hover :global(.ico) { color: var(--accent); transform: translateX(3px); }
+
+  /* ══ Service area ══════════════════════════════════════════════════════════ */
+  .home-areas { padding: clamp(44px, 5.5vw, 80px) 0; }
   .area-pills { list-style: none; padding: 0; margin: 0; display: flex; flex-wrap: wrap; gap: 10px; }
   .area-pills li {
-    font-family: var(--font-mono); font-size: 13px; color: var(--text-body);
+    display: inline-flex; align-items: center; gap: 7px;
+    font-family: var(--font-mono); font-size: 12.5px; color: var(--text-body);
     background: var(--surface-card); border: 1px solid var(--border-strong);
-    border-radius: 999px; padding: 7px 14px;
+    border-radius: var(--radius-pill); padding: 9px 16px;
   }
+  .area-pills :global(.ico) { color: var(--accent); }
 </style>

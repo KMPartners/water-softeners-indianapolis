@@ -13,7 +13,17 @@
   --space-64: 64px;  /* section rhythm */
   --space-96: 96px;  /* major section break */
 
-  --radius: 2px;     /* every surface; pills use 999px */
+  /* ---- radius -------------------------------------------------------------
+     The starter shipped a flat 2px everywhere. That reads as technical, which
+     suits a spec sheet and fights a consumer home-services brand: Culligan,
+     Kinetico, SpringWell, Aquasana and Leaf Home all sit in the 8-16px range,
+     and a homeowner with a scale problem is shopping reassurance, not
+     instrumentation. Softened to match the category, with a smaller step for
+     controls (a 10px radius on a 44px input looks inflated) and a larger one
+     for the big feature surfaces. */
+  --radius-sm:   6px;   /* inputs, chips, small controls */
+  --radius:     10px;   /* cards, buttons, panels */
+  --radius-lg:  18px;   /* hero form, feature panels */
   --radius-pill: 999px;
 
   --container:     1140px;                    /* page container max-width */

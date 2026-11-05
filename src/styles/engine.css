@@ -25,7 +25,7 @@ body {
 img, svg, video { display: block; max-width: 100%; }
 /* No global heading COLOR: headings inherit their section's color, so a heading
    on a dark section reads white (var(--on-slab)) and one on a light section reads
-   ink — components set an explicit color only when they need to override that.
+   ink: components set an explicit color only when they need to override that.
    (Setting color here forced every heading dark, incl. the on-slab hero H1s.) */
 h1, h2, h3, h4 { font-family: var(--font-display); margin: 0; }
 
@@ -37,7 +37,7 @@ h1, h2, h3, h4 { font-family: var(--font-display); margin: 0; }
 .num  { font-variant-numeric: tabular-nums lining-nums; }
 .ico  { stroke: currentColor; fill: none; stroke-width: 1.75; stroke-linecap: round; stroke-linejoin: round; flex-shrink: 0; }
 
-/* ---- buttons (shared) — accent primary / slab secondary ---- */
+/* ---- buttons (shared): accent primary / slab secondary ---- */
 .btn-primary, .btn-dark {
   display: inline-flex; align-items: center; justify-content: center; gap: 8px;
   font-family: var(--font-display); font-weight: 700; font-size: 15px;
@@ -49,7 +49,7 @@ h1, h2, h3, h4 { font-family: var(--font-display); margin: 0; }
 .btn-dark { background: var(--slab); color: var(--on-slab); }
 .btn-dark:hover { background: var(--slab2); color: var(--on-slab); }
 
-/* ---- Breadcrumbs (Core30 rule 3 — children link UP) ---- */
+/* ---- Breadcrumbs (Core30 rule 3: children link UP) ---- */
 .breadcrumbs { padding: 14px 0 0; font-family: var(--font-mono); font-size: 11.5px; letter-spacing: 0.04em; color: var(--text-muted); }
 .breadcrumbs a { color: var(--text-muted); text-decoration: none; }
 .breadcrumbs a:hover { color: var(--accent-deep); }

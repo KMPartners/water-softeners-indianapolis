@@ -1,37 +1,44 @@
 /* ============================================================================
-   Color tokens (starter default)
+   Color tokens: CrystalClear Water Solutions (Indianapolis)
    The only colors any page may use. Components reference var(--…) only,
-   never a literal hex. This is a neutral starter palette: a near-white paper,
-   near-black ink, and one calm blue accent. Reskin a client by overriding
-   these values only — never rename or drop a token.
+   never a literal hex.
+
+   Brand read: clean water. A cool cyan-teal accent over a near-white paper,
+   with a deep marine slab for the hero/footer/CTA. Deliberately NOT the
+   starter's generic blue: this palette is the one per-client visual seam
+   besides the wordmark.
+
+   Reskin rule: override VALUES only, never rename or drop a token. The Engine
+   and every component resolve these names, and core30-lint (C2) fails the build
+   on a var() whose token is defined nowhere.
    ============================================================================ */
 :root {
   /* --- base surfaces (light) --- */
   --bg:        #FFFFFF;   /* page background */
-  --bg2:       #F4F5F7;   /* alternate section background */
+  --bg2:       #F4F9FB;   /* alternate section background, faint aqua tint */
 
   /* --- ink (text) --- */
-  --ink:       #14181F;   /* headings + body */
-  --ink2:      #4B5563;   /* lede + secondary */
-  --ink3:      #6B7280;   /* mono labels + muted */
+  --ink:       #0F1C22;   /* headings + body */
+  --ink2:      #44565F;   /* lede + secondary */
+  --ink3:      #677A84;   /* mono labels + muted */
 
   /* --- rules / borders --- */
-  --rule:      #E4E7EB;   /* hairline divider */
-  --rule2:     #CBD2DA;   /* stronger border (inputs, pills) */
+  --rule:      #DEE8EC;   /* hairline divider */
+  --rule2:     #BFD0D7;   /* stronger border (inputs, pills) */
 
   /* --- dark slab surfaces --- */
-  --slab:      #1F2933;   /* hero + footer + CTA */
-  --slab2:     #2A3541;   /* raised dark card */
-  --slab-rule: #3D4A57;   /* divider on dark */
+  --slab:      #0E2A36;   /* hero + footer + CTA, deep marine */
+  --slab2:     #163A49;   /* raised dark card */
+  --slab-rule: #2A4E5E;   /* divider on dark */
 
   /* --- accent (the workhorse) --- */
-  --accent:      #2563EB; /* links · bullets · CTA */
-  --accent-deep: #1D4ED8; /* underline · hover fill · shadow */
+  --accent:      #0E7490; /* links · bullets · CTA, 5.3:1 with white text */
+  --accent-deep: #155E75; /* underline · hover fill · shadow */
   --accent-ink:  #FFFFFF; /* text on accent */
 
   /* --- signal + status --- */
-  --signal:       #DC2626; /* urgency / alt accent */
-  --status-green: #16A34A; /* open / confirmed */
+  --signal:       #C2410C; /* urgency / alt accent, warm counterpoint to the cyan */
+  --status-green: #15803D; /* open / confirmed */
 
   /* --- semantic aliases (prefer these in new work) --- */
   --text-strong:  var(--ink);
@@ -52,28 +59,74 @@
   --success:    var(--status-green);
 
   /* --- text ON dark slab surfaces -----------------------------------------
-     Light text scaled for legibility over the dark slab surfaces. Kept as
-     tokens so the chrome + dark sections stay tokens-only and reskin with the
-     palette. Ordered lightest → lowest-contrast. */
+     Light text scaled for legibility over the marine slab. Cool-tinted so the
+     chrome reads as one family with the accent. Lightest → lowest-contrast. */
   --on-slab:          #FFFFFF; /* headings / strong text on --slab */
-  --on-slab-body:     #E2E6EB; /* body · checklist text on dark */
-  --on-slab-muted:    #C3CAD3; /* lede · secondary on dark */
-  --on-slab-dim:      #A6AEB9; /* mono labels · sublines on dark */
-  --on-slab-dimmer:   #949CA8; /* fine print on dark */
-  --on-slab-faint:    #79828F; /* section labels · footer headings on dark */
-  --on-slab-faintest: #616B78; /* lowest-contrast (trademark line) */
+  --on-slab-body:     #DFE9ED; /* body · checklist text on dark */
+  --on-slab-muted:    #BDCCD3; /* lede · secondary on dark */
+  --on-slab-dim:      #9FB1BA; /* mono labels · sublines on dark */
+  --on-slab-dimmer:   #8B9EA8; /* fine print on dark */
+  --on-slab-faint:    #6E838E; /* section labels · footer headings on dark */
+  --on-slab-faintest: #566B76; /* lowest-contrast (trademark line) */
 
   /* --- elevation ----------------------------------------------------------
-     Deliberately subtle — just enough lift for a raised card. Tinted with the
-     slab ink so the shadow reads as the same cool family as the palette, never
-     a neutral grey drop. Prefer a border; reach for a shadow only when a
-     surface genuinely needs to lift. */
-  --shadow-sm: 0 1px 2px rgba(31, 41, 51, 0.06);
-  --shadow-md: 0 6px 20px rgba(31, 41, 51, 0.10);
-  --shadow-lg: 0 18px 48px rgba(31, 41, 51, 0.14);
+     Tinted with the marine slab ink so a shadow reads as the same cool family
+     as the palette, never a neutral grey drop. Prefer a border; reach for a
+     shadow only when a surface genuinely needs to lift. */
+  --shadow-sm: 0 1px 2px rgba(14, 42, 54, 0.07);
+  --shadow-md: 0 6px 20px rgba(14, 42, 54, 0.11);
+  --shadow-lg: 0 18px 48px rgba(14, 42, 54, 0.15);
 
   /* --- focus ring ---------------------------------------------------------
-     One tokenized focus treatment so every focusable control matches. Consumers
-     pair it with `border-color: var(--accent)`. */
-  --focus-ring: 0 0 0 3px color-mix(in srgb, var(--accent) 30%, transparent);
+     One tokenized focus treatment so every focusable control matches.
+     NOTE: base.css used to hardcode rgba(242,164,12,.18), the DONOR's amber,
+     on .ks-field:focus, so every form field on this cyan site glowed orange and
+     this token went unused. Fixed in base.css; keep the token the one owner. */
+  --focus-ring: 0 0 0 3px color-mix(in srgb, var(--accent) 32%, transparent);
+
+  /* --- accent tints --------------------------------------------------------
+     Derived from the one accent so a reskin still only edits --accent. Used for
+     the stat band, the hardness scale and any surface that should read as
+     "brand" without going full slab. */
+  --accent-wash:  color-mix(in srgb, var(--accent)  7%, #fff);  /* faint tinted surface */
+  --accent-wash2: color-mix(in srgb, var(--accent) 14%, #fff);  /* scale track, chips */
+  --accent-line:  color-mix(in srgb, var(--accent) 34%, #fff);  /* tinted hairline */
+
+  /* The accent, re-pitched for dark ground. --accent at #0E7490 is a 2.1:1
+     against the slab and unreadable there, so any accent-coloured text on a
+     slab section uses this instead (8.9:1). It is also what a block retargets
+     --accent-deep to when it needs an Engine component's own accent to survive
+     on dark: see .home-hero-copy. */
+  --accent-on-dark: #7FD3E8;
+
+  /* --- slab layering -------------------------------------------------------
+     A third dark step so a dark section can hold a raised card AND a sunk well
+     without either collapsing into the other. */
+  --slab-deep: #07202A;  /* sunk well inside a slab section */
+
+  /* --- slab field ----------------------------------------------------------
+     Every national competitor buys depth in the hero with photography. This
+     site has no photography and will not fake it with stock images of someone
+     else's technician, so the depth is built instead: a layered marine field
+     plus a faint contour wash, both pure CSS, zero network cost, and no claim
+     about who we are. --slab-field is the hero/feature ground; --slab-contour
+     is the texture that keeps a large dark area from reading as flat ink. */
+  --slab-field:
+    radial-gradient(120% 95% at 18% 0%, #16465A 0%, transparent 58%),
+    radial-gradient(90% 80% at 92% 18%, #11384A 0%, transparent 55%),
+    linear-gradient(170deg, #0E2A36 0%, #09222C 100%);
+  --slab-contour:
+    repeating-linear-gradient(
+      98deg,
+      transparent 0 44px,
+      color-mix(in srgb, #7FD3E8 5%, transparent) 44px 45px
+    );
+
+  /* --- data viz ------------------------------------------------------------
+     The hardness scale is the site's one chart. Soft→hard runs cool→warm so it
+     reads without the legend, and the three stops stay distinguishable in
+     grayscale (lightness 86 / 64 / 42) for print and for color-blind readers. */
+  --scale-soft: #BFE3EC;
+  --scale-hard: var(--accent);
+  --scale-peak: var(--signal);
 }

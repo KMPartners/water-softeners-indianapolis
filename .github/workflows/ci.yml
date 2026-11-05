@@ -36,10 +36,10 @@ jobs:
           node-version: 20
           cache: npm
       - run: npm ci
-      - name: Remove the example demo (preset + content tree + demo routes)
+      - name: Remove the site content (preset + content tree + content routes)
         run: |
-          rm -rf presets/example \
-                 src/content/example.js \
+          rm -rf presets/water-treatment \
+                 src/content/water-treatment.js \
                  src/pages/index.astro \
                  "src/pages/[slug].astro"
       - name: Build must stay green with the demo removed

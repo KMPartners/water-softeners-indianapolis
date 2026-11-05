@@ -1,9 +1,34 @@
-/* Font tokens (starter default)
-   System font stacks only — the starter fetches no external fonts. To ship a
-   client webfont, self-host the .woff2 files under assets/fonts/, add the
-   matching @font-face rules here, and point the tokens below at the new family. */
+/* ============================================================================
+   Font tokens: the SINGLE owner of --font-display / --font-body / --font-mono.
+
+   typography.css used to re-declare all three and loads after this file, so
+   every edit made here was silently discarded. That is fixed: these three
+   tokens are declared here and nowhere else.
+
+   ── Why no webfont ─────────────────────────────────────────────────────────
+   A deliberate choice, not an omission. This is a local lead-gen site whose
+   visitors arrive from a phone on mobile data with a water problem; a webfont
+   is a render-blocking round trip in front of the one screen that has to load
+   fast, and a Google Fonts @import also puts a third-party request on a page
+   whose Privacy Policy says we do not share data with third parties.
+
+   The brand voice is carried by SCALE, WEIGHT, TRACKING and the mono (see the
+   "voice" note in typography.css), not by a purchased family.
+
+   CONSEQUENCE: if the client later wants a real face, self-host the .woff2
+   under public/fonts/, add @font-face here, point --font-display at it, and set
+   `font-display: swap` plus a <link rel="preload"> in BaseLayout. Do not reach
+   for a CDN @import: it undoes the reason this file has no webfont today.
+
+   Display and body resolve to the same stack by design: on Windows both land on
+   Segoe UI, on macOS both on SF, so pretending they differ would be a lie the
+   rendering does not keep. One stack, honestly stated.
+   ============================================================================ */
 :root {
-  --font-display: system-ui, -apple-system, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
-  --font-body:    system-ui, -apple-system, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
-  --font-mono:    ui-monospace, SFMono-Regular, "SF Mono", Menlo, Consolas, monospace;
+  /* H1/H2/H3, numbers, button labels */
+  --font-display: system-ui, -apple-system, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+  /* lede, paragraphs */
+  --font-body:    system-ui, -apple-system, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+  /* eyebrows, spec values, rail numbers, breadcrumbs, status, the brand voice */
+  --font-mono:    ui-monospace, SFMono-Regular, "SF Mono", "Cascadia Mono", Menlo, Consolas, monospace;
 }

@@ -1,6 +1,9 @@
 /* ============================================================================
    Base resets + shared field styles
-   Minimal, class-scoped. Links default to amber-deep and darken to ink on hover.
+   Minimal, class-scoped. Links default to --accent-deep and darken to ink on
+   hover. (The comment here used to say "amber-deep", a leftover from the donor
+   palette, and a tell for the hardcoded amber that was still in the focus ring
+   below. Both fixed.)
    ============================================================================ */
 *, *::before, *::after { box-sizing: border-box; }
 body { margin: 0; }
@@ -8,11 +11,30 @@ body { margin: 0; }
 a { color: var(--accent-deep); text-decoration: none; }
 a:hover { color: var(--ink); }
 
+/* Keyboard focus, globally. Without this only .ks-field had a visible focus
+   state, so tabbing through the header, the card grids and the FAQ was
+   invisible: the rest of the site relied on the UA default, which Chrome
+   draws as a thin ring that all but disappears on the tinted sections. */
+:where(a, button, summary, [tabindex]):focus-visible {
+  outline: 2px solid var(--accent);
+  outline-offset: 3px;
+  border-radius: 1px;
+}
+/* Dark sections need the light side of the palette or the ring vanishes. */
+:where(.final-cta, .site-footer, .slab) :where(a, button, summary):focus-visible {
+  outline-color: var(--on-slab);
+}
+
+::selection { background: color-mix(in srgb, var(--accent) 22%, #fff); color: var(--ink); }
+
 /* form field used by LeadForm */
 .ks-field {
   width: 100%;
   font-family: var(--font-body);
-  font-size: 15px;
+  /* 16px at EVERY width, not just under 640px. engine.css carries a
+     max-width:640px net for iOS auto-zoom, but a 15px field is also simply
+     harder to read, and a quote form is the one place a typo costs a lead. */
+  font-size: 16px;
   color: var(--ink);
   background: #fff;
   border: 1px solid var(--rule2);
@@ -21,7 +43,12 @@ a:hover { color: var(--ink); }
   outline: none;
   transition: border-color .15s ease, box-shadow .15s ease;
 }
-.ks-field:focus { border-color: var(--accent); box-shadow: 0 0 0 3px rgba(242,164,12,.18); }
+/* ENGINE BUG (fix belongs upstream in core30-starter): this was
+   `box-shadow: 0 0 0 3px rgba(242,164,12,.18)`, the donor's amber, hardcoded,
+   so every form field on every non-amber client glowed orange on focus while
+   --focus-ring sat unused. A literal hex in the one file that exists to hold
+   none is also exactly what core30-lint C2 is meant to catch. */
+.ks-field:focus { border-color: var(--accent); box-shadow: var(--focus-ring); }
 .ks-field::placeholder { color: var(--ink3); }
 select.ks-field {
   appearance: none;
